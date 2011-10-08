@@ -38,6 +38,7 @@
 #include <list>
 #include <algorithm>
 #include <deque>
+#include <cassert>
 
 
 #endif
