@@ -404,6 +404,10 @@
 				RelativePath=".\stdafx.h"
 				>
 			</File>
+			<File
+				RelativePath=".\stdafx_common.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
