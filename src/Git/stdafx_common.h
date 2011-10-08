@@ -37,5 +37,7 @@
 #include <vector>
 #include <list>
 #include <algorithm>
+#include <deque>
+
 
 #endif
