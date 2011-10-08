@@ -24,7 +24,7 @@
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
 			IntermediateDirectory="..\..\obj\TGitCache\$(ConfigurationName)\"
 			ConfigurationType="1"
-			UseOfMFC="0"
+			UseOfMFC="2"
 			UseOfATL="2"
 			CharacterSet="1"
 			>
@@ -72,7 +72,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				UseLibraryDependencyInputs="true"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib "
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -197,6 +197,7 @@
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
 			IntermediateDirectory="..\..\obj\TSVNCache\$(ConfigurationName)\"
 			ConfigurationType="1"
+			UseOfMFC="2"
 			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -239,7 +240,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib"
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
