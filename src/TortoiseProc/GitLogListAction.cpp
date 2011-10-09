@@ -158,7 +158,7 @@ int CGitLogList::CherryPickFrom(CString from, CString to)
 		if ((progress.IsValid())&&(progress.HasUserCancelled()))
 		{
 			//CMessageBox::Show(hwndExplorer, IDS_SVN_USERCANCELLED, IDS_APPNAME, MB_ICONINFORMATION);
-			throw std::exception(CUnicodeUtils::GetUTF8(_T("User canceled\r\n\r\n")));
+			throw std::exception(CUnicodeUtils::GetUTF8(CString(_T("User canceled\r\n\r\n"))));
 			return -1;
 		}
 		CString cmd,out;

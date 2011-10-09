@@ -25,7 +25,7 @@
 			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -155,6 +155,7 @@
 			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
+			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -401,6 +402,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx_common.h"
 				>
 			</File>
 		</Filter>
