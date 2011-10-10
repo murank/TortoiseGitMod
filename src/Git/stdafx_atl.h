@@ -17,31 +17,12 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef STDAFX_ATL_H
+#define STDAFX_ATL_H
 
-#include "..\targetver.h"
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be expl
+#include <atlstr.h>
 
-#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
-
-#include <atlbase.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-
+#define CSTRING_AVAILABLE
 
 #endif
