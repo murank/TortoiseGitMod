@@ -25,8 +25,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-#include <afxwin.h>         // MFC core and standard components
-#include <afxstr.h>
 
 #include <atlbase.h>
 

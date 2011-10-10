@@ -20,5 +20,7 @@
 #ifndef STDAFX_MFC_H
 #define STDAFX_MFC_H
 
+#include <afxwin.h>         // MFC core and standard components
+#include <afxstr.h>
 
 #endif
