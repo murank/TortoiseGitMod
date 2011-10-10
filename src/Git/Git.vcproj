@@ -279,8 +279,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_mfc|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\bin\Debug\bin"
+			IntermediateDirectory="..\..\obj\git\$Debug"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			UseOfATL="2"
@@ -325,6 +325,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_mfc.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -409,8 +410,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release_mfc|Win32"
-			OutputDirectory="$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
+			OutputDirectory="..\..\bin\Release\bin"
+			IntermediateDirectory="..\..\obj\git\Release"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			UseOfATL="2"
@@ -454,6 +455,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_mfc.lib"
 				AdditionalLibraryDirectories=""
 			/>
 			<Tool
