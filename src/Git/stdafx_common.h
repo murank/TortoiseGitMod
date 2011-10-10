@@ -26,6 +26,12 @@
 #define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
 #define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
 
+#ifdef _AFXDLL
+#	include "stdafx_mfc.h"
+#else
+#	include "stdafx_atl.h"
+#endif // _AFXDLL
+
 #include <atlbase.h>
 
 #include <string>
