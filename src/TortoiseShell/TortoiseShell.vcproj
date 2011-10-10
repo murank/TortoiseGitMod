@@ -448,7 +448,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitFolderStatus.cpp"
+				RelativePath=".\GitFolderStatus.cpp"
 				>
 			</File>
 			<File
@@ -552,6 +552,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
+			<File
+				RelativePath=".\GitFolderStatus.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Globals.h"
 				>
