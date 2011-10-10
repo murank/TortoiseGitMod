@@ -743,13 +743,13 @@ CString CPatch::GetFilename(int nIndex)
 CString CPatch::GetRevision(int nIndex)
 {
 	if (nIndex < 0)
-		return 0;
+		return _T("");
 	if (nIndex < m_arFileDiffs.GetCount())
 	{
 		Chunks * c = m_arFileDiffs.GetAt(nIndex);
 		return c->sRevision;
 	}
-	return 0;
+	return _T("");
 }
 
 CString CPatch::GetFilename2(int nIndex)
@@ -768,13 +768,13 @@ CString CPatch::GetFilename2(int nIndex)
 CString CPatch::GetRevision2(int nIndex)
 {
 	if (nIndex < 0)
-		return 0;
+		return _T("");
 	if (nIndex < m_arFileDiffs.GetCount())
 	{
 		Chunks * c = m_arFileDiffs.GetAt(nIndex);
 		return c->sRevision2;
 	} 
-	return 0;
+	return _T("");
 }
 
 BOOL CPatch::PatchFile(const CString& sPath, const CString& sSavePath, const CString& sBaseFile)
