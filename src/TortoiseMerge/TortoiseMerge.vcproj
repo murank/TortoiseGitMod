@@ -755,10 +755,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitAdminDir.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\LeftView.cpp"
 				>
 			</File>
