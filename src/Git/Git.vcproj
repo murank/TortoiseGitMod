@@ -695,6 +695,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\stdafx_atl.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx_common.h"
 				>
 			</File>
