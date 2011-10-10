@@ -702,6 +702,10 @@
 				RelativePath=".\stdafx_common.h"
 				>
 			</File>
+			<File
+				RelativePath=".\stdafx_mfc.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
