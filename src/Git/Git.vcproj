@@ -24,7 +24,7 @@
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
 			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
 			ConfigurationType="4"
-			UseOfMFC="2"
+			UseOfMFC="0"
 			UseOfATL="2"
 			CharacterSet="1"
 			>
@@ -154,7 +154,7 @@
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
 			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
 			ConfigurationType="4"
-			UseOfMFC="2"
+			UseOfMFC="0"
 			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
