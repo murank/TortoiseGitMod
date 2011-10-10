@@ -2182,11 +2182,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitStatusListCtrl.cpp"
+				RelativePath=".\GitStatusListCtrl.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitStatusListCtrl.h"
+				RelativePath=".\GitStatusListCtrl.h"
 				>
 			</File>
 			<File
