@@ -20,5 +20,9 @@
 #ifndef STDAFX_ATL_H
 #define STDAFX_ATL_H
 
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS      // some CString constructors will be expl
+#include <atlstr.h>
+
+#define CSTRING_AVAILABLE
 
 #endif
