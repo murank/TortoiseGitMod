@@ -673,10 +673,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GitFolderStatus.h"
-				>
-			</File>
-			<File
 				RelativePath=".\gitindex.h"
 				>
 			</File>
