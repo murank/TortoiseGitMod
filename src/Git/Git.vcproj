@@ -571,6 +571,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SharedHandle.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedMutex.cpp"
 				>
 			</File>
@@ -690,6 +694,10 @@
 			</File>
 			<File
 				RelativePath=".\SharedBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedHandle.h"
 				>
 			</File>
 			<File
