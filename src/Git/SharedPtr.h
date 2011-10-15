@@ -17,33 +17,13 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef SHARED_PTR_H
+#define SHARED_PTR_H
 
-#include "..\targetver.h"
-
-#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
-
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
-
-#include <atlbase.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
 #include <memory>
-#include <type_traits>
+using std::tr1::shared_ptr;
 
+#include <type_traits>
+using std::tr1::remove_pointer;
 
 #endif

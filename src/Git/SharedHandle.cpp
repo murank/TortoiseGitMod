@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2010 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,35 +15,24 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#include "stdafx.h"
+#include "SharedHandle.h"
 
-#include "..\targetver.h"
+shared_handle::shared_handle(handle_type h)
+	: shared_base(h)
+{}
 
-#define _CRT_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+bool shared_handle::valid(handle_type h) {
+	return (h!=NULL) && (h!=INVALID_HANDLE_VALUE);
+}
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+void shared_handle::close(handle_type h) {
+	if(valid(h)) {
+		CloseHandle(h);
+	}
+}
 
-#include <atlbase.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-
-
-#endif
+shared_handle::handle_type shared_handle::default_value() {
+	return INVALID_HANDLE_VALUE;
+}

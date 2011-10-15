@@ -571,6 +571,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SharedFile.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedHandle.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedMutex.cpp"
 				>
 			</File>
@@ -686,6 +694,22 @@
 			</File>
 			<File
 				RelativePath=".\gittype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedHandle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedPtr.h"
 				>
 			</File>
 			<File
