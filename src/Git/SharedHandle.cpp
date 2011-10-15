@@ -19,3 +19,20 @@
 #include "stdafx.h"
 #include "SharedHandle.h"
 
+shared_handle::shared_handle(handle_type h)
+	: shared_base(h)
+{}
+
+bool shared_handle::valid(handle_type h) {
+	return (h!=NULL) && (h!=INVALID_HANDLE_VALUE);
+}
+
+void shared_handle::close(handle_type h) {
+	if(valid(h)) {
+		CloseHandle(h);
+	}
+}
+
+shared_handle::handle_type shared_handle::default_value() {
+	return INVALID_HANDLE_VALUE;
+}

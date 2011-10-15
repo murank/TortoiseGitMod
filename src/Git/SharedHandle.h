@@ -26,6 +26,14 @@ class shared_handle : public internal::shared_base<shared_handle, HANDLE>
 {
 public:
 
+	typedef HANDLE handle_type;
+
+	explicit shared_handle(handle_type h = default_value());
+
+	static bool valid(handle_type h);
+	static void close(handle_type h);
+	static handle_type default_value();
+
 };
 
 #endif
