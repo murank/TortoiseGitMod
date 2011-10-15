@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 /**
+=======
+/** 
+>>>>>>> Discribe how to set up test environment. #4
 \page build Build instructions
 
 \section Requirements Requirements
