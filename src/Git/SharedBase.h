@@ -25,6 +25,10 @@ namespace internal {
 
 template <typename T, typename HandleType>
 class shared_base {
+private:
+	typedef void (shared_base::*bool_type)() const;
+	void this_type_does_not_support_comparisons() const {}
+
 public:
 	typedef typename HandleType handle_type;
 	typedef typename remove_pointer<handle_type>::type ptr_type;
@@ -42,6 +46,11 @@ public:
 	void reset(handle_type h = T::default_value())
 	{
 		m_Ptr.reset(h, T::close);
+	}
+
+	operator bool_type() const {
+		return static_cast<const T*>(this)->valid(m_Ptr.get()) ?
+			&shared_base::this_type_does_not_support_comparisons : 0;
 	}
 
 protected:
