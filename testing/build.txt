@@ -1,0 +1,15 @@
+/**
+\page build Build instructions
+
+\section Requirements Requirements
+
+\subsection Setting Setting up the testing framework.
+
+-# Download Google C++ Mocking Framework (1.6.0 or newer).
+   http://code.google.com/p/googlemock/
+   Build libraries, and copy the libraries (Release and Debug version of gmock.lib) into "testing/lib". 
+   NB: Build the libraries with multithreaded DLL of the run-time library (use /MD* options),
+       and rename Debug version of "gmock.lib" to "gmockd.lib" to avoid conflict of filenames.
+   And also copy "gmock" directory that is in "include" directory into "testing/include",
+
+*/
