@@ -689,6 +689,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SharedPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
