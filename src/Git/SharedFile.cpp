@@ -18,3 +18,21 @@
 
 #include "stdafx.h"
 #include "SharedFile.h"
+
+shared_file::shared_file(handle_type h)
+	: shared_base(h)
+{}
+
+bool shared_file::valid(handle_type h) {
+	return (h!=NULL);
+}
+
+void shared_file::close(handle_type h) {
+	if(valid(h)) {
+		CloseHandle(h);
+	}
+}
+
+shared_file::handle_type shared_file::default_value() {
+	return NULL;
+}
