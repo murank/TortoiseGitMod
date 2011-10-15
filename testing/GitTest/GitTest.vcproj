@@ -182,12 +182,28 @@
 				RelativePath="..\main.cpp"
 				>
 			</File>
+			<Filter
+				Name="src"
+				>
+			</Filter>
+			<Filter
+				Name="test"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="ヘッダー ファイル"
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<Filter
+				Name="src"
+				>
+			</Filter>
+			<Filter
+				Name="test"
+				>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="リソース ファイル"
