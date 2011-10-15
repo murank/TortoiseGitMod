@@ -43,6 +43,7 @@
 #include <deque>
 #include <cassert>
 #include <memory>
+#include <type_traits>
 
 
 #endif

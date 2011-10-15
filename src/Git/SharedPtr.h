@@ -23,4 +23,7 @@
 #include <memory>
 using std::tr1::shared_ptr;
 
+#include <type_traits>
+using std::tr1::remove_pointer;
+
 #endif

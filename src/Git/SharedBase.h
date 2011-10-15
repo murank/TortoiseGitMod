@@ -19,12 +19,42 @@
 #ifndef SHARED_BASE_H
 #define SHARED_BASE_H
 
+#include "SharedPtr.h"
+
 namespace internal {
 
 template <typename T, typename HandleType>
 class shared_base {
 public:
+	typedef typename HandleType handle_type;
+	typedef typename remove_pointer<handle_type>::type ptr_type;
 
+	handle_type get() const
+	{
+		return m_Ptr.get();
+	}
+
+	handle_type get()
+	{
+		return m_Ptr.get();
+	}
+
+	void reset(handle_type h = T::default_value())
+	{
+		m_Ptr.reset(h, T::close);
+	}
+
+protected:
+
+	explicit shared_base(handle_type h)
+		: m_Ptr(h, T::close)
+	{}
+
+	~shared_base()
+	{}
+
+private:
+	shared_ptr<ptr_type> m_Ptr;
 };
 
 } // namespace internal
