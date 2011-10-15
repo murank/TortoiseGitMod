@@ -571,6 +571,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SharedFile.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedHandle.cpp"
 				>
 			</File>
@@ -694,6 +698,10 @@
 			</File>
 			<File
 				RelativePath=".\SharedBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedFile.h"
 				>
 			</File>
 			<File
