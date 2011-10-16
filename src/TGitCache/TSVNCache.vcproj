@@ -72,7 +72,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				UseLibraryDependencyInputs="true"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories=""
@@ -197,6 +197,7 @@
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
 			IntermediateDirectory="..\..\obj\TSVNCache\$(ConfigurationName)\"
 			ConfigurationType="1"
+			UseOfMFC="0"
 			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -239,7 +240,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories=""
@@ -380,26 +381,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\Git.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitAdminDir.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitIndex.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitRev.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitStatus.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\Utils\PathUtils.cpp"
 				>
 			</File>
@@ -409,10 +390,6 @@
 			</File>
 			<File
 				RelativePath="..\Utils\RWSection.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\SharedMutex.cpp"
 				>
 			</File>
 			<File
@@ -464,10 +441,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\TGitPath.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\TSVNCache.cpp"
 				>
 			</File>
@@ -495,18 +468,6 @@
 			</File>
 			<File
 				RelativePath=".\FolderCrawler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitAdminDir.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\gitindex.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitStatus.h"
 				>
 			</File>
 			<File
@@ -543,10 +504,6 @@
 			</File>
 			<File
 				RelativePath=".\stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\TGitPath.h"
 				>
 			</File>
 			<File
