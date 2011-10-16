@@ -547,6 +547,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\CommandResultACP.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Git.cpp"
 				>
 			</File>
@@ -666,6 +670,10 @@
 			>
 			<File
 				RelativePath=".\CommandResult.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResultACP.h"
 				>
 			</File>
 			<File
