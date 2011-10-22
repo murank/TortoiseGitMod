@@ -186,6 +186,10 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\Git\CommandResultACP.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\CommandResultUTF8.cpp"
 					>
 				</File>
@@ -193,6 +197,10 @@
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\CommandResultUTF8Test.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -203,6 +211,10 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\Git\CommandResultACP.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\Git\CommandResultUTF8.h"
 					>
