@@ -551,6 +551,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommandResultUTF8.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Git.cpp"
 				>
 			</File>
@@ -674,6 +678,10 @@
 			</File>
 			<File
 				RelativePath=".\CommandResultACP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResultUTF8.h"
 				>
 			</File>
 			<File
