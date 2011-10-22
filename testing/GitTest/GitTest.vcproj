@@ -185,6 +185,10 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\Git\CommandResultUTF8.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
@@ -199,6 +203,10 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\Git\CommandResultUTF8.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
