@@ -211,6 +211,10 @@
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\TestHelper.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
