@@ -555,6 +555,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Environment.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Git.cpp"
 				>
 			</File>
@@ -690,6 +694,10 @@
 			</File>
 			<File
 				RelativePath=".\CrashReport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Environment.h"
 				>
 			</File>
 			<File
