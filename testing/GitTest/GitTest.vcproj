@@ -193,12 +193,20 @@
 					RelativePath="..\..\src\Git\CommandResultUTF8.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\..\src\Git\Environment.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
 				<File
 					RelativePath=".\CommandResultUTF8Test.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EnvironmentTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -217,6 +225,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\CommandResultUTF8.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Environment.h"
 					>
 				</File>
 			</Filter>
