@@ -194,7 +194,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\CommandRunner.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Environment.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\MsysGitDir.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedHandle.cpp"
 					>
 				</File>
 				<File
@@ -207,6 +219,10 @@
 				>
 				<File
 					RelativePath=".\CommandResultUTF8Test.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CommandRunnerTest.cpp"
 					>
 				</File>
 				<File
@@ -236,7 +252,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\CommandRunner.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Environment.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\MsysGitDir.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedHandle.h"
 					>
 				</File>
 				<File
