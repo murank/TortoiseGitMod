@@ -555,6 +555,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommandRunner.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Environment.cpp"
 				>
 			</File>
@@ -698,6 +702,10 @@
 			</File>
 			<File
 				RelativePath=".\CommandResultUTF8.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandRunner.h"
 				>
 			</File>
 			<File
