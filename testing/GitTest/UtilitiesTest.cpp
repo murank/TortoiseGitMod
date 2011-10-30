@@ -22,3 +22,13 @@
 #include "TestHelper.h"
 
 #include "Utilities.h"
+
+TEST(UtilitiesTest, StartsWith)
+{
+	EXPECT_TRUE(StartsWith(CString(""), CString("")));
+	EXPECT_FALSE(StartsWith(CString(""), CString("bbb")));
+	EXPECT_TRUE(StartsWith(CString("aaa"), CString("")));
+
+	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
+	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
+}
