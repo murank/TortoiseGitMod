@@ -42,4 +42,7 @@ private:
 	std::vector<TCHAR> m_env;
 };
 
+shared_ptr<Environment> GetGlobalEnvironment();
+void SetGlobalEnvironment(const shared_ptr<Environment>& env);
+
 #endif

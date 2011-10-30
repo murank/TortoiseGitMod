@@ -20,6 +20,21 @@
 
 #include "Environment.h"
 
+#include "Atomic.h"
+
+static Atomic<shared_ptr<Environment> > g_environment;
+
+shared_ptr<Environment> GetGlobalEnvironment()
+{
+	return g_environment;
+}
+
+void SetGlobalEnvironment(const shared_ptr<Environment>& env)
+{
+	g_environment = env;
+}
+
+
 Environment::Environment()
 	: m_env()
 {
