@@ -19,5 +19,6 @@
 #ifndef UTILITIES_H
 #define UTILITIES_H
 
+bool StartsWith(const CString& str, const CString& pattern);
 
 #endif

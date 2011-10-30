@@ -20,3 +20,19 @@
 
 #include "Utilities.h"
 
+bool StartsWith(const CString& str, const CString& pattern)
+{
+	int pattern_len = pattern.GetLength();
+
+	if(str.GetLength() < pattern_len) {
+		return false;
+	}
+
+	for(int i=pattern_len-1; i>=0; --i) {
+		if(str[i] != pattern[i]) {
+			return false;
+		}
+	}
+
+	return true;
+}
