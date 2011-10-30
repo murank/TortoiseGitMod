@@ -583,6 +583,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MsysGitDir.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedFile.cpp"
 				>
 			</File>
@@ -726,6 +730,10 @@
 			</File>
 			<File
 				RelativePath=".\gittype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MsysGitDir.h"
 				>
 			</File>
 			<File
