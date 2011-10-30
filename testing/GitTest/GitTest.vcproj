@@ -197,6 +197,10 @@
 					RelativePath="..\..\src\Git\Environment.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\..\src\Git\Utilities.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
@@ -207,6 +211,10 @@
 				</File>
 				<File
 					RelativePath=".\EnvironmentTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\UtilitiesTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -229,6 +237,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Environment.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Utilities.h"
 					>
 				</File>
 			</Filter>
