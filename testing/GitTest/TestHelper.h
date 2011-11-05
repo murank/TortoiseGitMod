@@ -27,4 +27,18 @@ inline ::std::ostream& operator<<(::std::ostream& os, const CString& str) {
 	return os << std::string(tmp, tmp.GetLength());
 }
 
+inline ::testing::AssertionResult StrictlyCompareCString(const CString& lhs, const CString& rhs) {
+	if(lhs.GetLength()!=rhs.GetLength()) {
+		return ::testing::AssertionFailure();
+	}
+
+	for(int i=0; i<lhs.GetLength(); ++i) {
+		if(lhs[i] != rhs[i]) {
+			return ::testing::AssertionFailure();
+		}
+	}
+
+	return ::testing::AssertionSuccess();
+}
+
 #endif
