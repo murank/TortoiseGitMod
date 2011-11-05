@@ -23,7 +23,8 @@
 #include <iostream>
 
 inline ::std::ostream& operator<<(::std::ostream& os, const CString& str) {
-	return os << CStringA(str);
+	CStringA tmp(str, str.GetLength());
+	return os << std::string(tmp, tmp.GetLength());
 }
 
 #endif
