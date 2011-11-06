@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2010 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,36 +15,29 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef COMMAND_RESULT_ACP_H
+#define COMMAND_RESULT_ACP_H
 
-#include "..\targetver.h"
+#include "CommandResult.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#include "SharedHandle.h"
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+class CommandResultACP : public CommandResult {
+public:
 
-#include <atlbase.h>
+	CommandResultACP(const PROCESS_INFORMATION& pi, const shared_handle& hRead);
+	virtual ~CommandResultACP();
 
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
+	virtual size_t Read(char* buf, size_t len);
+	virtual bool Join();
+	virtual int GetExitCode() const;
 
+private:
+	PROCESS_INFORMATION m_Pi;
+	shared_handle m_hRead;
+	DWORD m_exitCode;
+
+};
 
 #endif

@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2010 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,36 +15,21 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#include "stdafx.h"
 
-#include "..\targetver.h"
+#include "MsysGitDir.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#include "Atomic.h"
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+static Atomic<CString> g_msysGitDir;
 
-#include <atlbase.h>
+CString GetGlobalMsysGitDir()
+{
+	return g_msysGitDir;
+}
 
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-
-
-#endif
+void SetGlobalMsysGitDir(const CString& path)
+{
+	g_msysGitDir = path;
+}
