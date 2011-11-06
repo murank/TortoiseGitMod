@@ -185,10 +185,54 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\Git\CommandResultACP.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandResultUTF8.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandRunner.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Environment.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\MsysGitDir.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedHandle.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Utilities.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\CommandResultUTF8Test.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CommandRunnerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\EnvironmentTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\UtilitiesTest.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -199,10 +243,42 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\Git\CommandResultACP.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandResultUTF8.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandRunner.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Environment.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\MsysGitDir.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedHandle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Utilities.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\TestHelper.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter

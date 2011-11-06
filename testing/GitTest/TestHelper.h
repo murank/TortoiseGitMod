@@ -17,34 +17,28 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef TESTHELPER_H
+#define TESTHELPER_H
 
-#include "..\targetver.h"
+#include <iostream>
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+inline ::std::ostream& operator<<(::std::ostream& os, const CString& str) {
+	CStringA tmp(str, str.GetLength());
+	return os << std::string(tmp, tmp.GetLength());
+}
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+inline ::testing::AssertionResult StrictlyCompareCString(const CString& lhs, const CString& rhs) {
+	if(lhs.GetLength()!=rhs.GetLength()) {
+		return ::testing::AssertionFailure();
+	}
 
-#include <atlbase.h>
+	for(int i=0; i<lhs.GetLength(); ++i) {
+		if(lhs[i] != rhs[i]) {
+			return ::testing::AssertionFailure();
+		}
+	}
 
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-
+	return ::testing::AssertionSuccess();
+}
 
 #endif

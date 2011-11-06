@@ -17,34 +17,18 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#include "stdafx.h"
+#include <gmock/gmock.h>
+#include "TestHelper.h"
 
-#include "..\targetver.h"
+#include "Utilities.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+TEST(UtilitiesTest, StartsWith)
+{
+	EXPECT_TRUE(StartsWith(CString(""), CString("")));
+	EXPECT_FALSE(StartsWith(CString(""), CString("bbb")));
+	EXPECT_TRUE(StartsWith(CString("aaa"), CString("")));
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
-
-#include <atlbase.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-
-
-#endif
+	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
+	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
+}

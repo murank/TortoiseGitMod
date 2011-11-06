@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2010 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,36 +15,19 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-//
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef COMMAND_RESULT_H
+#define COMMAND_RESULT_H
 
-#include "..\targetver.h"
+class CommandResult {
+public:
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+	virtual ~CommandResult() {}
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+	virtual size_t Read(char* buf, size_t len) = 0;
+	virtual bool Join() = 0;
+	virtual int GetExitCode() const = 0;
 
-#include <atlbase.h>
-
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-
+};
 
 #endif
