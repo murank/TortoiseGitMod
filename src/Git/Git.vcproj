@@ -547,6 +547,22 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\CommandResultACP.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResultUTF8.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandRunner.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Environment.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Git.cpp"
 				>
 			</File>
@@ -568,6 +584,10 @@
 			</File>
 			<File
 				RelativePath=".\GitStatus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MsysGitDir.cpp"
 				>
 			</File>
 			<File
@@ -658,6 +678,10 @@
 				RelativePath=".\TGitPath.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Utilities.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -665,7 +689,31 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\Atomic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResult.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResultACP.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandResultUTF8.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandRunner.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CrashReport.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Environment.h"
 				>
 			</File>
 			<File
@@ -694,6 +742,10 @@
 			</File>
 			<File
 				RelativePath=".\gittype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MsysGitDir.h"
 				>
 			</File>
 			<File
@@ -726,6 +778,10 @@
 			</File>
 			<File
 				RelativePath=".\stdafx_mfc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Utilities.h"
 				>
 			</File>
 		</Filter>
