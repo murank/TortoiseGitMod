@@ -579,6 +579,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitRepository.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GitRev.cpp"
 				>
 			</File>
@@ -730,6 +734,10 @@
 			</File>
 			<File
 				RelativePath=".\gitindex.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GitRepository.h"
 				>
 			</File>
 			<File
