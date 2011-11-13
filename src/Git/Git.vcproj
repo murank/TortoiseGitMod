@@ -741,6 +741,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitStatusType.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gittype.h"
 				>
 			</File>
