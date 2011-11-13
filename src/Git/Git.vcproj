@@ -583,6 +583,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitRepositoryCommand.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GitRev.cpp"
 				>
 			</File>
@@ -738,6 +742,10 @@
 			</File>
 			<File
 				RelativePath=".\GitRepository.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GitRepositoryCommand.h"
 				>
 			</File>
 			<File
