@@ -32,3 +32,13 @@ TEST(UtilitiesTest, StartsWith)
 	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
 	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
 }
+
+TEST(UtilitiesTest, EndsWith)
+{
+	EXPECT_TRUE(EndsWith(CString(""), CString("")));
+	EXPECT_FALSE(EndsWith(CString(""), CString("bbb")));
+	EXPECT_TRUE(EndsWith(CString("aaa"), CString("")));
+
+	EXPECT_TRUE(EndsWith(CString("aaa"), CString("a")));
+	EXPECT_FALSE(EndsWith(CString("aaab"), CString("a")));
+}
