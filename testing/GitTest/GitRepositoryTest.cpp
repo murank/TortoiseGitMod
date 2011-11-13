@@ -20,3 +20,41 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "GitRepository.h"
+
+namespace {
+
+class MockGitRepository : public GitRepository {
+public:
+
+	MockGitRepository(const CString& root, int encoding)
+		: GitRepository(root, encoding)
+	{}
+	virtual git_status_type GetStatus(const CString& path) const
+	{
+		return git_status_type_none;
+	}
+};
+
+} // namespace
+
+static CString GetRelativePathTestHelper(const CString& root, const CString& path)
+{
+	MockGitRepository rep(root, CP_ACP);
+
+	return rep.GetRelativePath(path);
+}
+
+TEST(GitRepositoryTest, GetRelativePath)
+{
+	EXPECT_EQ(CString("some dir\\some file.txt"), GetRelativePathTestHelper(_T("C:"), _T("C:\\some dir\\some file.txt")));
+	EXPECT_EQ(CString(""), GetRelativePathTestHelper(_T("C:"), _T("C:")));
+	EXPECT_EQ(CString("some dir\\some file.txt"), GetRelativePathTestHelper(_T("C:\\somedir"), _T("C:\\somedir\\some dir\\some file.txt")));
+	EXPECT_EQ(CString(""), GetRelativePathTestHelper(_T("C:\\somedir"), _T("C:\\somedir")));
+	EXPECT_EQ(CString("some dir\\some file.txt"), GetRelativePathTestHelper(_T("\\\\server\\dir"), _T("\\\\server\\dir\\some dir\\some file.txt")));
+	EXPECT_EQ(CString(""), GetRelativePathTestHelper(_T("\\\\server\\dir"), _T("\\\\server\\dir")));
+
+	EXPECT_THROW(GetRelativePathTestHelper(_T("C:\\somedir"), _T("")), std::invalid_argument);
+	EXPECT_THROW(GetRelativePathTestHelper(_T("C:\\somedir"), _T("C:\\anotherdir\\some file.txt")), std::invalid_argument);
+}
