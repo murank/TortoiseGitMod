@@ -20,6 +20,7 @@
 #include "stdafx.h"
 #include "GitRepository.h"
 
+#include "GitRepositoryCommand.h"
 #include "registry.h"
 #include "Utilities.h"
 
@@ -60,8 +61,7 @@ static int GetRepositoryEncodingFromRegistory()
 
 static shared_ptr<GitRepository> CreateInstance(const CString& root, int encoding)
 {
-	//TODO: return an instance of concrete class.
-	return shared_ptr<GitRepository>();
+	return shared_ptr<GitRepository>(new GitRepositoryCommand(root, encoding));
 }
 
 shared_ptr<GitRepository> GitRepository::Create(const CString& root)
