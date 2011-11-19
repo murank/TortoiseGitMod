@@ -8,3 +8,6 @@
 #include "stdafx_common.h"
 
 #include <shellapi.h>
+
+#undef min
+#undef max
