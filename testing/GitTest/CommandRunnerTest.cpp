@@ -62,7 +62,7 @@ public:
 	}
 
 	size_t Read(char* buf, size_t len) {
-		size_t size_write = min(data.size(), len);
+		size_t size_write = std::min(data.size(), len);
 
 		if(size_write == 0) {
 			return 0;
