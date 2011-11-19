@@ -208,6 +208,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\GitRepositoryCommand.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\MsysGitDir.cpp"
 					>
 				</File>
@@ -241,6 +245,10 @@
 				</File>
 				<File
 					RelativePath=".\EnvironmentTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GitRepositoryCommandTest.cpp"
 					>
 				</File>
 				<File
@@ -279,6 +287,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\GitRepository.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\GitRepositoryCommand.h"
 					>
 				</File>
 				<File
