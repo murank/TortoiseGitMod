@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,42 +15,30 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#include "stdafx.h"
+#ifndef GIT_REPOSITORY_COMMAND_H
+#define GIT_REPOSITORY_COMMAND_H
 
-#include "Utilities.h"
+#include "GitRepository.h"
 
-bool StartsWith(const CString& str, const CString& pattern)
-{
-	int pattern_len = pattern.GetLength();
+class GitRepositoryCommand : public GitRepository {
+public:
 
-	if(str.GetLength() < pattern_len) {
-		return false;
-	}
+	GitRepositoryCommand(const CString& root, int encoding);
+	virtual ~GitRepositoryCommand();
 
-	for(int i=pattern_len-1; i>=0; --i) {
-		if(str[i] != pattern[i]) {
-			return false;
-		}
-	}
+	virtual git_status_type GetStatus(const CString& path) const;
 
-	return true;
-}
+protected:
 
-bool EndsWith(const CString& str, const CString& pattern)
-{
-	int len = str.GetLength();
-	int pattern_len = pattern.GetLength();
+	virtual std::vector<CString> GetStatusStrings(const CString& path) const;
 
-	if(len < pattern_len) {
-		return false;
-	}
+private:
 
-	for(int i=1; i<=pattern_len; ++i) {
-		if(str[len-i] != pattern[pattern_len-i]) {
-			return false;
-		}
-	}
+	virtual int Run(const CString& command, std::vector<CString>& out) const;
+	virtual bool IsEmptyDir(const CString& path) const;
 
-	return true;
-}
+};
+
+#endif

@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,42 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#include "stdafx.h"
+#ifndef GIT_REPOSITORY_H
+#define GIT_REPOSITORY_H
 
-#include "Utilities.h"
+#include "SharedPtr.h"
+#include "GitStatusType.h"
 
-bool StartsWith(const CString& str, const CString& pattern)
-{
-	int pattern_len = pattern.GetLength();
+class GitRepository {
+public:
+	
+	virtual ~GitRepository();
 
-	if(str.GetLength() < pattern_len) {
-		return false;
-	}
+	CString GetProjectRoot() const;
+	int GetEncoding() const;
+	CString GetRelativePath(const CString& path) const;
 
-	for(int i=pattern_len-1; i>=0; --i) {
-		if(str[i] != pattern[i]) {
-			return false;
-		}
-	}
+	static shared_ptr<GitRepository> Create(const CString& root);
 
-	return true;
-}
+	virtual git_status_type GetStatus(const CString& path) const = 0;
 
-bool EndsWith(const CString& str, const CString& pattern)
-{
-	int len = str.GetLength();
-	int pattern_len = pattern.GetLength();
+protected:
 
-	if(len < pattern_len) {
-		return false;
-	}
+	GitRepository(const CString& root, int encoding);
 
-	for(int i=1; i<=pattern_len; ++i) {
-		if(str[len-i] != pattern[pattern_len-i]) {
-			return false;
-		}
-	}
+private:
 
-	return true;
-}
+	CString m_root;
+	int m_encoding;
+};
+
+#endif

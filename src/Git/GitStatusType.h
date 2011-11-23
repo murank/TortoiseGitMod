@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,42 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#include "stdafx.h"
+#ifndef GIT_STATUS_TYPE_H
+#define GIT_STATUS_TYPE_H
 
-#include "Utilities.h"
+enum git_status_type {
+	git_status_type_none,
+	git_status_type_untracked,
+	git_status_type_ignored,
+	git_status_type_unmodified,
+	git_status_type_copied,
+	git_status_type_added,
+	git_status_type_deleted,
+	git_status_type_renamed,
+	git_status_type_modified,
+	git_status_type_unmerged
+};
 
-bool StartsWith(const CString& str, const CString& pattern)
-{
-	int pattern_len = pattern.GetLength();
-
-	if(str.GetLength() < pattern_len) {
-		return false;
-	}
-
-	for(int i=pattern_len-1; i>=0; --i) {
-		if(str[i] != pattern[i]) {
-			return false;
-		}
-	}
-
-	return true;
-}
-
-bool EndsWith(const CString& str, const CString& pattern)
-{
-	int len = str.GetLength();
-	int pattern_len = pattern.GetLength();
-
-	if(len < pattern_len) {
-		return false;
-	}
-
-	for(int i=1; i<=pattern_len; ++i) {
-		if(str[len-i] != pattern[pattern_len-i]) {
-			return false;
-		}
-	}
-
-	return true;
-}
+#endif
