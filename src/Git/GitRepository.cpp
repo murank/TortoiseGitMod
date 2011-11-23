@@ -21,7 +21,7 @@
 #include "GitRepository.h"
 
 #include "GitRepositoryCommand.h"
-#include "registry.h"
+#include "RegUtils.h"
 #include "Utilities.h"
 
 GitRepository::GitRepository(const CString& root, int encoding)
@@ -56,7 +56,7 @@ CString GitRepository::GetRelativePath(const CString& path) const
 
 static int GetRepositoryEncodingFromRegistory()
 {
-	return CRegDWORD(_T("Software\\TortoiseGit\\RepositoryEncoding"), CP_ACP);
+	return ReadRegistry(_T("Software\\TortoiseGit\\RepositoryEncoding"), CP_ACP);
 }
 
 static shared_ptr<GitRepository> CreateInstance(const CString& root, int encoding)
