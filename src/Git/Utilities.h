@@ -20,5 +20,6 @@
 #define UTILITIES_H
 
 bool StartsWith(const CString& str, const CString& pattern);
+bool EndsWith(const CString& str, const CString& pattern);
 
 #endif

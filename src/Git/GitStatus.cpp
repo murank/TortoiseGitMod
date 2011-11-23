@@ -1433,7 +1433,7 @@ int GitStatus::GetDirStatus(const CString &gitdir,const CString &subpath,git_wc_
 
 								if(pos < 0)
 								{
-									*status = *status = max(git_wc_status_added, *status) ;
+									*status = *status = std::max(git_wc_status_added, *status) ;
 									if(callback)
 									{
 										int dirpos = (*it).m_FileName.Find(_T('/'), path.GetLength());
@@ -1447,7 +1447,7 @@ int GitStatus::GetDirStatus(const CString &gitdir,const CString &subpath,git_wc_
 
 								if( pos>=0 && treeptr->at(pos).m_Hash != (*it).m_IndexHash)
 								{
-									*status = *status = max(git_wc_status_modified, *status) ;
+									*status = *status = std::max(git_wc_status_modified, *status) ;
 									if(callback)
 									{
 										int dirpos = (*it).m_FileName.Find(_T('/'), path.GetLength());
@@ -1527,7 +1527,7 @@ int GitStatus::GetDirStatus(const CString &gitdir,const CString &subpath,git_wc_
 
 							GetFileStatus(gitdir,(*it).m_FileName, &filestatus,IsFul, IsRecursive,IsIgnore, callback,pData);
 
-							*status = max(filestatus, *status) ;
+							*status = std::max(filestatus, *status) ;
 						}
 					}
 				}

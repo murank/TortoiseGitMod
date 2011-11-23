@@ -118,7 +118,7 @@ size_t CommandResultUTF8::Read(char* buf, size_t len)
 		return len;
 	}
 
-	std::vector<char> buffer(max(m_rawCache.size(), len));
+	std::vector<char> buffer(std::max(m_rawCache.size(), len));
 	std::copy(m_rawCache.begin(), m_rawCache.end(), buffer.begin());
 
 	size_t size_cached = AppendReadCache(buffer, m_rawCache.size());
@@ -134,7 +134,7 @@ size_t CommandResultUTF8::Read(char* buf, size_t len)
 		return 0;
 	}
 
-	size_t size_write = min(len, acp_data.size());
+	size_t size_write = std::min(len, acp_data.size());
 	MoveCachedData(acp_data, size_write, buf);
 	m_convCache = acp_data;
 
