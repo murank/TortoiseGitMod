@@ -94,7 +94,7 @@ static std::pair<size_t, size_t> FindKey(const std::vector<TCHAR>& env, const TC
 		CString keyInVec = GetKey(entry);
 
 		if(keyInVec.CompareNoCase(key)==0) {
-			return std::make_pair(i, min(i+entry.GetLength()+1, env.size()-1)); // positions of this entry and next one
+			return std::make_pair(i, std::min(i+entry.GetLength()+1, env.size()-1)); // positions of this entry and next one
 		}
 
 		i += entry.GetLength();

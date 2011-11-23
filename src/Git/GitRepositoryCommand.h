@@ -17,28 +17,28 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
-#include <gmock/gmock.h>
-#include "TestHelper.h"
+#ifndef GIT_REPOSITORY_COMMAND_H
+#define GIT_REPOSITORY_COMMAND_H
 
-#include "Utilities.h"
+#include "GitRepository.h"
 
-TEST(UtilitiesTest, StartsWith)
-{
-	EXPECT_TRUE(StartsWith(CString(""), CString("")));
-	EXPECT_FALSE(StartsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(StartsWith(CString("aaa"), CString("")));
+class GitRepositoryCommand : public GitRepository {
+public:
 
-	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
-	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
-}
+	GitRepositoryCommand(const CString& root, int encoding);
+	virtual ~GitRepositoryCommand();
 
-TEST(UtilitiesTest, EndsWith)
-{
-	EXPECT_TRUE(EndsWith(CString(""), CString("")));
-	EXPECT_FALSE(EndsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("")));
+	virtual git_status_type GetStatus(const CString& path) const;
 
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("a")));
-	EXPECT_FALSE(EndsWith(CString("aaab"), CString("a")));
-}
+protected:
+
+	virtual std::vector<CString> GetStatusStrings(const CString& path) const;
+
+private:
+
+	virtual int Run(const CString& command, std::vector<CString>& out) const;
+	virtual bool IsEmptyDir(const CString& path) const;
+
+};
+
+#endif

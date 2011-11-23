@@ -36,3 +36,21 @@ bool StartsWith(const CString& str, const CString& pattern)
 
 	return true;
 }
+
+bool EndsWith(const CString& str, const CString& pattern)
+{
+	int len = str.GetLength();
+	int pattern_len = pattern.GetLength();
+
+	if(len < pattern_len) {
+		return false;
+	}
+
+	for(int i=1; i<=pattern_len; ++i) {
+		if(str[len-i] != pattern[pattern_len-i]) {
+			return false;
+		}
+	}
+
+	return true;
+}

@@ -17,28 +17,33 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
-#include <gmock/gmock.h>
-#include "TestHelper.h"
+#ifndef GIT_REPOSITORY_H
+#define GIT_REPOSITORY_H
 
-#include "Utilities.h"
+#include "SharedPtr.h"
+#include "GitStatusType.h"
 
-TEST(UtilitiesTest, StartsWith)
-{
-	EXPECT_TRUE(StartsWith(CString(""), CString("")));
-	EXPECT_FALSE(StartsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(StartsWith(CString("aaa"), CString("")));
+class GitRepository {
+public:
+	
+	virtual ~GitRepository();
 
-	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
-	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
-}
+	CString GetProjectRoot() const;
+	int GetEncoding() const;
+	CString GetRelativePath(const CString& path) const;
 
-TEST(UtilitiesTest, EndsWith)
-{
-	EXPECT_TRUE(EndsWith(CString(""), CString("")));
-	EXPECT_FALSE(EndsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("")));
+	static shared_ptr<GitRepository> Create(const CString& root);
 
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("a")));
-	EXPECT_FALSE(EndsWith(CString("aaab"), CString("a")));
-}
+	virtual git_status_type GetStatus(const CString& path) const = 0;
+
+protected:
+
+	GitRepository(const CString& root, int encoding);
+
+private:
+
+	CString m_root;
+	int m_encoding;
+};
+
+#endif

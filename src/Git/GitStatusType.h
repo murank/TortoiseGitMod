@@ -17,28 +17,20 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
-#include <gmock/gmock.h>
-#include "TestHelper.h"
+#ifndef GIT_STATUS_TYPE_H
+#define GIT_STATUS_TYPE_H
 
-#include "Utilities.h"
+enum git_status_type {
+	git_status_type_none,
+	git_status_type_untracked,
+	git_status_type_ignored,
+	git_status_type_unmodified,
+	git_status_type_copied,
+	git_status_type_added,
+	git_status_type_deleted,
+	git_status_type_renamed,
+	git_status_type_modified,
+	git_status_type_unmerged
+};
 
-TEST(UtilitiesTest, StartsWith)
-{
-	EXPECT_TRUE(StartsWith(CString(""), CString("")));
-	EXPECT_FALSE(StartsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(StartsWith(CString("aaa"), CString("")));
-
-	EXPECT_TRUE(StartsWith(CString("aaabbb"), CString("a")));
-	EXPECT_FALSE(StartsWith(CString("baaab"), CString("a")));
-}
-
-TEST(UtilitiesTest, EndsWith)
-{
-	EXPECT_TRUE(EndsWith(CString(""), CString("")));
-	EXPECT_FALSE(EndsWith(CString(""), CString("bbb")));
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("")));
-
-	EXPECT_TRUE(EndsWith(CString("aaa"), CString("a")));
-	EXPECT_FALSE(EndsWith(CString("aaab"), CString("a")));
-}
+#endif

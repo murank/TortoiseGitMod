@@ -21,7 +21,8 @@
 			OutputDirectory="bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfATL="2"
+			UseOfMFC="2"
+			UseOfATL="0"
 			CharacterSet="1"
 			>
 			<Tool
@@ -42,11 +43,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git"
+				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git;../../src/Utils"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -96,7 +97,8 @@
 			OutputDirectory="bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfATL="2"
+			UseOfMFC="2"
+			UseOfATL="0"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -119,7 +121,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git"
+				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git;../../src/Utils"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -202,6 +204,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\GitRepository.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\GitRepositoryCommand.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\MsysGitDir.cpp"
 					>
 				</File>
@@ -213,6 +223,14 @@
 					RelativePath="..\..\src\Git\Utilities.cpp"
 					>
 				</File>
+				<Filter
+					Name="Utils"
+					>
+					<File
+						RelativePath="..\..\src\Utils\Registry.cpp"
+						>
+					</File>
+				</Filter>
 			</Filter>
 			<Filter
 				Name="test"
@@ -227,6 +245,14 @@
 				</File>
 				<File
 					RelativePath=".\EnvironmentTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GitRepositoryCommandTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\GitRepositoryTest.cpp"
 					>
 				</File>
 				<File
@@ -257,6 +283,14 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Environment.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\GitRepository.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\GitRepositoryCommand.h"
 					>
 				</File>
 				<File
