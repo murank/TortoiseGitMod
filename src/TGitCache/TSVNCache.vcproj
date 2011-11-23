@@ -401,6 +401,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SimpleGitStatusCacheEntry.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\StatusCacheEntry.cpp"
 				>
 			</File>
@@ -508,6 +512,10 @@
 			</File>
 			<File
 				RelativePath=".\ShellUpdater.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SimpleGitStatusCacheEntry.h"
 				>
 			</File>
 			<File
