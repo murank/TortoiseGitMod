@@ -216,6 +216,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\RegKey.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\RegUtils.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\SharedHandle.cpp"
 					>
 				</File>
@@ -253,6 +261,10 @@
 				</File>
 				<File
 					RelativePath=".\GitRepositoryTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\RegUtilsTest.cpp"
 					>
 				</File>
 				<File
@@ -295,6 +307,14 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\MsysGitDir.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\RegKey.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\RegUtils.h"
 					>
 				</File>
 				<File
