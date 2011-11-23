@@ -20,3 +20,17 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "RegUtils.h"
+
+using internal::ExtractRegKey;
+
+TEST(RegUtils, ExtractRegKey)
+{
+	EXPECT_EQ(std::make_pair(CString("aaa\\bbb"), CString("ccc")), ExtractRegKey(CString("aaa\\bbb\\ccc")));
+	EXPECT_EQ(std::make_pair(CString("aaa\\bbb"), CString("")), ExtractRegKey(CString("aaa\\bbb\\")));
+	EXPECT_EQ(std::make_pair(CString("\\aaa"), CString("bbb")), ExtractRegKey(CString("\\aaa\\bbb")));
+
+	EXPECT_THROW(ExtractRegKey("aaabbb"), std::invalid_argument);
+	EXPECT_THROW(ExtractRegKey("\\aaabbb"), std::invalid_argument);
+}
