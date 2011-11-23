@@ -475,6 +475,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitStatusCacheEntry.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.h"
 				>
 			</File>
