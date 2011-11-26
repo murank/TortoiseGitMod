@@ -23,5 +23,6 @@ bool StartsWith(const CString& str, const CString& pattern);
 bool EndsWith(const CString& str, const CString& pattern);
 
 CString GetRepositoryRoot(CString path);
+bool IsInGitRepository(const CString& path);
 
 #endif

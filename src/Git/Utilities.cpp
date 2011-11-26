@@ -82,3 +82,8 @@ CString GetRepositoryRoot(CString path)
 	return path;
 }
 
+bool IsInGitRepository(const CString& path)
+{
+	CString root = GetRepositoryRoot(path);
+	return !root.IsEmpty();
+}
