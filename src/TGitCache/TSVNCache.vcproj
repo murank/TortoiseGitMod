@@ -385,6 +385,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitStatusCacheManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.cpp"
 				>
 			</File>
@@ -488,6 +492,10 @@
 			</File>
 			<File
 				RelativePath=".\GitStatusCacheEntry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GitStatusCacheManager.h"
 				>
 			</File>
 			<File
