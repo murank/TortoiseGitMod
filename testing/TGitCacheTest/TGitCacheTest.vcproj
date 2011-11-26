@@ -185,10 +185,26 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TGitCache\FakeGitStatusCacheEntry.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\GitStatusCacheManagerTest.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -203,6 +219,18 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TGitCache\FakeGitStatusCacheEntry.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
