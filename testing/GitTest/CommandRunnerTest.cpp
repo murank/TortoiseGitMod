@@ -238,7 +238,6 @@ TEST_F(CommandRunnerTest, RunAsCStringVector)
 	{
 		std::vector<CString> expectedOut;
 		expectedOut.push_back(CString(""));
-		expectedOut.push_back(CString(""));
 
 		RunAsCStringVectorTestHelper(std::string("\0", 1), expectedOut, __LINE__);
 	}
@@ -262,7 +261,6 @@ TEST_F(CommandRunnerTest, RunAsCStringVector)
 		std::vector<CString> expectedOut;
 		expectedOut.push_back(CString("aaa"));
 		expectedOut.push_back(CString("bbb ccc"));
-		expectedOut.push_back(CString(""));
 
 		RunAsCStringVectorTestHelper(std::string("aaa\0bbb ccc\0", 12), expectedOut, __LINE__);
 	}
@@ -286,7 +284,6 @@ TEST_F(CommandRunnerTest, RunAsCStringVector)
 	{
 		std::vector<CString> expectedOut;
 		expectedOut.push_back(CString("aaa"));
-		expectedOut.push_back(CString(""));
 		expectedOut.push_back(CString(""));
 
 		RunAsCStringVectorTestHelper(std::string("aaa\0\0", 5), expectedOut, __LINE__);
