@@ -20,3 +20,67 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "GitStatusCacheManager.h"
+
+#include "GitStatusCacheEntry.h"
+
+namespace {
+
+class MockGitStatusCacheManager : public GitStatusCacheManager {
+public:
+
+	MOCK_CONST_METHOD1(IsInGitRepository, bool(const CString& path));
+	MOCK_CONST_METHOD0(GetFakeEntry, shared_ptr<GitStatusCacheEntry>());
+	MOCK_CONST_METHOD1(AllocateEntry, shared_ptr<GitStatusCacheEntry>(const CString& path));
+};
+
+class MockGitStatusCacheEntry : public GitStatusCacheEntry {
+public:
+
+	MOCK_CONST_METHOD0(GetStatus, git_status_type());
+	MOCK_METHOD0(Invalidate, void());
+
+};
+
+} // namespace
+
+using namespace ::testing;
+
+TEST(MockGitStatusCacheManager, GetStatusNotInRepository)
+{
+	shared_ptr<MockGitStatusCacheEntry> me(new MockGitStatusCacheEntry);
+
+	EXPECT_CALL(*me, GetStatus())
+		.WillOnce(Return(git_status_type_modified));
+
+	MockGitStatusCacheManager mm;
+
+	EXPECT_CALL(mm, IsInGitRepository(_))
+		.WillOnce(Return(false));
+	EXPECT_CALL(mm, GetFakeEntry())
+		.WillOnce(Return(me));
+	EXPECT_CALL(mm, AllocateEntry(_))
+		.Times(0);
+
+	EXPECT_EQ(git_status_type_modified, mm.GetStatus(CString()));
+}
+
+TEST(MockGitStatusCacheManager, GetStatusInRepository)
+{
+	shared_ptr<MockGitStatusCacheEntry> me(new MockGitStatusCacheEntry);
+
+	EXPECT_CALL(*me, GetStatus())
+		.WillOnce(Return(git_status_type_modified));
+
+	MockGitStatusCacheManager mm;
+
+	EXPECT_CALL(mm, IsInGitRepository(_))
+		.WillOnce(Return(true));
+	EXPECT_CALL(mm, GetFakeEntry())
+		.Times(0);
+	EXPECT_CALL(mm, AllocateEntry(_))
+		.WillOnce(Return(me));
+
+	EXPECT_EQ(git_status_type_modified, mm.GetStatus(CString()));
+}
