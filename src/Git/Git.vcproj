@@ -801,6 +801,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\StaticInit.h"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
