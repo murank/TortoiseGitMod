@@ -377,6 +377,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FakeGitStatusCacheEntry.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FolderCrawler.cpp"
 				>
 			</File>
@@ -464,6 +468,10 @@
 			</File>
 			<File
 				RelativePath=".\DirectoryWatcher.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FakeGitStatusCacheEntry.h"
 				>
 			</File>
 			<File
