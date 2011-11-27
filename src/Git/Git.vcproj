@@ -599,6 +599,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RegKey.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RegUtils.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedFile.cpp"
 				>
 			</File>
@@ -769,6 +777,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RegKey.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RegUtils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SharedBase.h"
 				>
 			</File>
@@ -782,6 +798,10 @@
 			</File>
 			<File
 				RelativePath=".\SharedPtr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\StaticInit.h"
 				>
 			</File>
 			<File

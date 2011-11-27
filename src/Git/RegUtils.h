@@ -1,6 +1,6 @@
-// TortoiseGit - a Windows shell extension for easy version control
+// TortoiseSVN - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// Copyright (C) 2003-2006,2008-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,14 +15,20 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef REG_UTILIS_H
+#define REG_UTILIS_H
 
-bool StartsWith(const CString& str, const CString& pattern);
-bool EndsWith(const CString& str, const CString& pattern);
+DWORD ReadRegistry(const CString& regkey, DWORD defaultValue);
+CString ReadRegistry(const CString& regkey, const CString& defaultValue);
 
-CString GetRepositoryRoot(CString path);
-bool IsInGitRepository(const CString& path);
+bool WriteRegistry(const CString& regkey, DWORD value);
+bool WriteRegistry(const CString& regkey, const CString& value);
+
+
+namespace internal {
+std::pair<CString, CString> ExtractRegKey(const CString& regKey);
+} // namespace internal
 
 #endif

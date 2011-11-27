@@ -1,6 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,14 +16,25 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef FAKE_GIT_STATUS_CACHE_ENTRY_H
+#define FAKE_GIT_STATUS_CACHE_ENTRY_H
 
-bool StartsWith(const CString& str, const CString& pattern);
-bool EndsWith(const CString& str, const CString& pattern);
+#include "GitStatusCacheEntry.h"
 
-CString GetRepositoryRoot(CString path);
-bool IsInGitRepository(const CString& path);
+#include "SharedPtr.h"
+
+class FakeGitStatusCacheEntry : public GitStatusCacheEntry {
+public:
+
+	FakeGitStatusCacheEntry();
+	virtual ~FakeGitStatusCacheEntry();
+
+	virtual git_status_type GetStatus() const;
+	virtual void Invalidate();
+
+	static shared_ptr<GitStatusCacheEntry> GetInstance();
+};
 
 #endif

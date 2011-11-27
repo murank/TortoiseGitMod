@@ -54,3 +54,36 @@ bool EndsWith(const CString& str, const CString& pattern)
 
 	return true;
 }
+
+bool HasGitDir(const CString& path)
+{
+	return (PathIsDirectory(path+_T("\\.git"))!=FALSE);
+}
+
+static CString GetParentDir(const CString& path)
+{
+	int pos = path.ReverseFind(_T('\\'));
+	if(pos < 0) {
+		return CString();
+	}
+
+	return path.Left(pos);
+}
+
+CString GetRepositoryRoot(CString path)
+{
+	while(!HasGitDir(path)) {
+		path = GetParentDir(path);
+		if(path.IsEmpty()) {
+			return CString();
+		}
+	}
+
+	return path;
+}
+
+bool IsInGitRepository(const CString& path)
+{
+	CString root = GetRepositoryRoot(path);
+	return !root.IsEmpty();
+}

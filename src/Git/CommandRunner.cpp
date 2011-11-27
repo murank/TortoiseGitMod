@@ -226,10 +226,6 @@ int CommandRunner::Run(const CString& command, const CString& currentDir, int en
 		ret.push_back(str);
 		pos += len+1;
 	}
-	if(buf.back()=='\0') {
-		// if buf ends with '\0', add an empty CString
-		ret.push_back(CString());
-	}
 
 	out.swap(ret);
 
