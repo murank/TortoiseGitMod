@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,14 +15,22 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#include "stdafx.h"
+#include <gmock/gmock.h>
+#include "TestHelper.h"
 
-bool StartsWith(const CString& str, const CString& pattern);
-bool EndsWith(const CString& str, const CString& pattern);
+#include "RegUtils.h"
 
-CString GetRepositoryRoot(CString path);
-bool IsInGitRepository(const CString& path);
+using internal::ExtractRegKey;
 
-#endif
+TEST(RegUtils, ExtractRegKey)
+{
+	EXPECT_EQ(std::make_pair(CString("aaa\\bbb"), CString("ccc")), ExtractRegKey(CString("aaa\\bbb\\ccc")));
+	EXPECT_EQ(std::make_pair(CString("aaa\\bbb"), CString("")), ExtractRegKey(CString("aaa\\bbb\\")));
+	EXPECT_EQ(std::make_pair(CString("\\aaa"), CString("bbb")), ExtractRegKey(CString("\\aaa\\bbb")));
+
+	EXPECT_THROW(ExtractRegKey("aaabbb"), std::invalid_argument);
+	EXPECT_THROW(ExtractRegKey("\\aaabbb"), std::invalid_argument);
+}

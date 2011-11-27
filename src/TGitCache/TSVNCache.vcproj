@@ -377,7 +377,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FakeGitStatusCacheEntry.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FolderCrawler.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GitStatusCacheManager.cpp"
 				>
 			</File>
 			<File
@@ -394,6 +402,10 @@
 			</File>
 			<File
 				RelativePath=".\ShellUpdater.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SimpleGitStatusCacheEntry.cpp"
 				>
 			</File>
 			<File
@@ -467,11 +479,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FakeGitStatusCacheEntry.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FolderCrawler.h"
 				>
 			</File>
 			<File
 				RelativePath=".\GitStatusCache.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GitStatusCacheEntry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GitStatusCacheManager.h"
 				>
 			</File>
 			<File
@@ -496,6 +520,10 @@
 			</File>
 			<File
 				RelativePath=".\ShellUpdater.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SimpleGitStatusCacheEntry.h"
 				>
 			</File>
 			<File

@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="GitTest"
-	ProjectGUID="{45DE4B73-1F25-428B-9D0D-7BE113ACBE91}"
-	RootNamespace="GitTest"
+	Name="TGitCacheTest"
+	ProjectGUID="{E7FD65E9-80A6-41A4-AA8B-C9E62E1EF268}"
+	RootNamespace="TGitCacheTest"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -21,8 +21,7 @@
 			OutputDirectory="bin\$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -43,11 +42,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git;../"
+				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/TGitCache;../../src/Git;../"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="2"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -63,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmockd.lib"
+				AdditionalDependencies="gmockd.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
@@ -94,11 +93,10 @@
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="bin\$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -121,7 +119,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/Git;../"
+				AdditionalIncludeDirectories="$(SolutionDir)include;../../src/TGitCache;../../src/Git;../"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -140,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmock.lib"
+				AdditionalDependencies="gmock.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
@@ -188,47 +186,15 @@
 				Name="src"
 				>
 				<File
-					RelativePath="..\..\src\Git\CommandResultACP.cpp"
+					RelativePath="..\..\src\TGitCache\FakeGitStatusCacheEntry.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\Git\CommandResultUTF8.cpp"
+					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\Git\CommandRunner.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\Environment.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\GitRepository.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\GitRepositoryCommand.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\MsysGitDir.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\RegKey.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\RegUtils.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\SharedHandle.cpp"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\Utilities.cpp"
+					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.cpp"
 					>
 				</File>
 			</Filter>
@@ -236,31 +202,7 @@
 				Name="test"
 				>
 				<File
-					RelativePath=".\CommandResultUTF8Test.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\CommandRunnerTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\EnvironmentTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\GitRepositoryCommandTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\GitRepositoryTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\RegUtilsTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\UtilitiesTest.cpp"
+					RelativePath=".\GitStatusCacheManagerTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -271,58 +213,22 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<Filter
+				Name="test"
+				>
+			</Filter>
+			<Filter
 				Name="src"
 				>
 				<File
-					RelativePath="..\..\src\Git\CommandResultACP.h"
+					RelativePath="..\..\src\TGitCache\FakeGitStatusCacheEntry.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\Git\CommandResultUTF8.h"
+					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.h"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\Git\CommandRunner.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\Environment.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\GitRepository.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\GitRepositoryCommand.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\MsysGitDir.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\RegKey.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\RegUtils.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\SharedHandle.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\Git\Utilities.h"
-					>
-				</File>
-			</Filter>
-			<Filter
-				Name="test"
-				>
-				<File
-					RelativePath="..\TestHelper.h"
+					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.h"
 					>
 				</File>
 			</Filter>
