@@ -1,6 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2010 - TortoiseGit
+// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
+// Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,14 +16,34 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef GIT_STATUS_CACHE_MANAGER_H
+#define GIT_STATUS_CACHE_MANAGER_H
 
-bool StartsWith(const CString& str, const CString& pattern);
-bool EndsWith(const CString& str, const CString& pattern);
+#include "GitStatusType.h"
+#include "SharedPtr.h"
 
-CString GetRepositoryRoot(CString path);
-bool IsInGitRepository(const CString& path);
+class GitStatusCacheEntry;
+
+class GitStatusCacheManager {
+public:
+
+	GitStatusCacheManager();
+	virtual ~GitStatusCacheManager();
+
+	git_status_type GetStatus(const CString& path) const;
+
+private:
+
+	shared_ptr<GitStatusCacheEntry> GetEntry(const CString& path) const;
+
+	virtual bool IsInGitRepository(const CString& path) const;
+	virtual shared_ptr<GitStatusCacheEntry> GetFakeEntry() const;
+	virtual shared_ptr<GitStatusCacheEntry> AllocateEntry(const CString& path) const;
+
+};
+
+shared_ptr<GitStatusCacheManager> GetGlobalGitStatusCacheManager();
 
 #endif
