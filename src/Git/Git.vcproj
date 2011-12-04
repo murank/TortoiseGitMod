@@ -555,6 +555,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CancelableIo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CommandResultACP.cpp"
 				>
 			</File>
@@ -734,6 +738,10 @@
 			</File>
 			<File
 				RelativePath=".\Cancelable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CancelableIo.h"
 				>
 			</File>
 			<File
