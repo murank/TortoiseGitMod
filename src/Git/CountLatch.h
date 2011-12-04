@@ -1,5 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
+// External Cache Copyright (C) 2005-2008 - TortoiseSVN
 // Copyright (C) 2008-2011 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
@@ -17,36 +18,50 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#ifndef STDAFX_COMMON_H
-#define STDAFX_COMMON_H
+#ifndef COUNT_LATCH_H
+#define COUNT_LATCH_H
 
-#include "..\targetver.h"
+#include "Condition.h"
 
-#define _CRT_SECURE_NO_WARNINGS
-#define _SCL_SECURE_NO_WARNINGS
-#define WIN32_LEAN_AND_MEAN             // Exclude rarely-used stuff from Windows headersicit
-#define VC_EXTRALEAN            // Exclude rarely-used stuff from Windows headers
+#include "AutoLocker.h"
 
-#ifdef _AFXDLL
-#	include "stdafx_mfc.h"
-#else
-#	include "stdafx_atl.h"
-#endif // _AFXDLL
+class CountLatch {
+public:
+	typedef long counter_type;
 
-#include <atlbase.h>
+	CountLatch(long value=0);
+	~CountLatch();
 
-#include <string>
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <algorithm>
-#include <deque>
-#include <cassert>
-#include <memory>
-#include <type_traits>
-#include <stdexcept>
-#include <sstream>
-#include <limits>
+	bool CountDown();
+	bool CountUp();
+
+	void Await();
+
+	int GetCount() const;
+
+	class Decrementor {
+	public:
+		Decrementor(CountLatch& latch) : m_latch(latch) {
+		}
+		~Decrementor() {
+			m_latch.CountDown();
+		}
+	private:
+		CountLatch& m_latch;
+	};
+
+protected:
+
+	void SetCount(counter_type count);
+
+private:
+
+	virtual void Notify();
+	virtual bool Wait(AutoLocker& lock);
+
+	mutable CComAutoCriticalSection m_critSec;
+	volatile counter_type m_count;
+	Condition m_cond;
+};
 
 #endif
