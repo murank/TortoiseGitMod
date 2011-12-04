@@ -722,6 +722,10 @@
 				RelativePath=".\Utilities.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\WorkerThread.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -886,6 +890,10 @@
 			</File>
 			<File
 				RelativePath=".\Utilities.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerThread.h"
 				>
 			</File>
 		</Filter>
