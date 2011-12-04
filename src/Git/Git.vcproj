@@ -723,6 +723,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\WorkerManager.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\WorkerThread.cpp"
 				>
 			</File>
@@ -890,6 +894,10 @@
 			</File>
 			<File
 				RelativePath=".\Utilities.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerManager.h"
 				>
 			</File>
 			<File
