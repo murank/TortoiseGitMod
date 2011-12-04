@@ -571,6 +571,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CountLatch.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Environment.cpp"
 				>
 			</File>
@@ -750,6 +754,10 @@
 			</File>
 			<File
 				RelativePath=".\Condition.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CountLatch.h"
 				>
 			</File>
 			<File
