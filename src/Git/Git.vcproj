@@ -567,6 +567,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Condition.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Environment.cpp"
 				>
 			</File>
@@ -738,6 +742,10 @@
 			</File>
 			<File
 				RelativePath=".\CommandRunner.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Condition.h"
 				>
 			</File>
 			<File
