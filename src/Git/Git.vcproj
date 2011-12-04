@@ -865,6 +865,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Task.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Thread.h"
 				>
 			</File>
