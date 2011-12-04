@@ -745,6 +745,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ConcurrentQueue.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Condition.h"
 				>
 			</File>
