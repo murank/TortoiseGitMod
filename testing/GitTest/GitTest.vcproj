@@ -208,6 +208,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\CountLatch.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Environment.cpp"
 					>
 				</File>
@@ -253,6 +257,10 @@
 				</File>
 				<File
 					RelativePath=".\ConcurrentQueueTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CountLatchTest.cpp"
 					>
 				</File>
 				<File
@@ -307,6 +315,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Condition.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CountLatch.h"
 					>
 				</File>
 				<File
