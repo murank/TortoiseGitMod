@@ -717,6 +717,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\AutoLocker.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Cancelable.h"
 				>
 			</File>
