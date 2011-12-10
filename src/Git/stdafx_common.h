@@ -46,5 +46,6 @@
 #include <memory>
 #include <type_traits>
 #include <stdexcept>
+#include <sstream>
 
 #endif
