@@ -745,6 +745,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ExceptionHelper.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Git.h"
 				>
 			</File>
