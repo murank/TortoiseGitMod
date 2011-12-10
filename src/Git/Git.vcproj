@@ -869,6 +869,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TaskListener.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Thread.h"
 				>
 			</File>
