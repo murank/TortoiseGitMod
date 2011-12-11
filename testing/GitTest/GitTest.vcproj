@@ -248,6 +248,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\WorkerManager.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\WorkerThread.cpp"
 					>
 				</File>
@@ -289,6 +293,10 @@
 				</File>
 				<File
 					RelativePath=".\UtilitiesTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WorkerManagerTest.cpp"
 					>
 				</File>
 				<File
@@ -363,6 +371,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Utilities.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerManager.h"
 					>
 				</File>
 				<File
