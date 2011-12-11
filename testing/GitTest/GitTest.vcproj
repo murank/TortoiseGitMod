@@ -240,7 +240,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\Thread.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Utilities.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerThread.cpp"
 					>
 				</File>
 			</Filter>
@@ -281,6 +289,10 @@
 				</File>
 				<File
 					RelativePath=".\UtilitiesTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WorkerThreadTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -351,6 +363,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Utilities.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerThread.h"
 					>
 				</File>
 			</Filter>
