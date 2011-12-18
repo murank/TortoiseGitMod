@@ -837,6 +837,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PipeError.h"
+				>
+			</File>
+			<File
 				RelativePath=".\RegKey.h"
 				>
 			</File>
