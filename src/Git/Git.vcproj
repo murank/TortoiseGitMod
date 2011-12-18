@@ -615,6 +615,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InterprocessIo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MsysGitDir.cpp"
 				>
 			</File>
@@ -830,6 +834,10 @@
 			</File>
 			<File
 				RelativePath=".\gittype.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessIo.h"
 				>
 			</File>
 			<File
