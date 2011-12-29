@@ -389,6 +389,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InterprocessServer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.cpp"
 				>
 			</File>
@@ -496,6 +500,10 @@
 			</File>
 			<File
 				RelativePath=".\GitStatusCacheManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessServer.h"
 				>
 			</File>
 			<File
