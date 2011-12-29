@@ -32,6 +32,7 @@
 #include "ioevent.h"
 #include "..\version.h"
 //#include "svn_dso.h"
+#include "AutoLocker.h"
 
 #include <ShellAPI.h>
 
