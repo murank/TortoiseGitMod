@@ -194,6 +194,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\InterprocessServer.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.cpp"
 					>
 				</File>
@@ -203,6 +207,10 @@
 				>
 				<File
 					RelativePath=".\GitStatusCacheManagerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InterprocessServerTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -225,6 +233,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\InterprocessServer.h"
 					>
 				</File>
 				<File
