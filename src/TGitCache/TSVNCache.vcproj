@@ -499,6 +499,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPConnectionListener.h"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.h"
 				>
 			</File>
