@@ -192,6 +192,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\CancelableIo.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\CommandResultACP.cpp"
 					>
 				</File>
@@ -221,6 +225,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\GitRepositoryCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\InterprocessIo.cpp"
 					>
 				</File>
 				<File
@@ -288,6 +296,10 @@
 					>
 				</File>
 				<File
+					RelativePath=".\InterprocessIoTest.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\RegUtilsTest.cpp"
 					>
 				</File>
@@ -315,6 +327,10 @@
 				>
 				<File
 					RelativePath="..\..\src\Git\Cancelable.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CancelableIo.h"
 					>
 				</File>
 				<File
@@ -351,6 +367,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\GitRepositoryCommand.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\InterprocessIo.h"
 					>
 				</File>
 				<File
