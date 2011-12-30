@@ -20,3 +20,78 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "InterprocessServer.h"
+
+#include "InterprocessIo.h"
+
+namespace {
+
+class MockInterprocessServer : public InterprocessServer {
+public:
+
+	MockInterprocessServer() : InterprocessServer(CString()) {}
+	explicit MockInterprocessServer(const CString& pipeName) : InterprocessServer(pipeName) {}
+
+	MOCK_METHOD0(Connect, shared_ptr<InterprocessIo>());
+	MOCK_METHOD1(OnConnect, void(shared_ptr<InterprocessIo>& io));
+	MOCK_METHOD0(OnCancel, void());
+
+	using InterprocessServer::DoRun;
+};
+
+} // namespace
+
+using namespace ::testing;
+
+TEST(InterprocessServer, Initialize)
+{
+	CString pipeName("some pipe name");
+	MockInterprocessServer mis(pipeName);
+
+	EXPECT_EQ(pipeName, mis.GetPipeName());
+}
+
+TEST(InterprocessServer, Connect)
+{
+	MockInterprocessServer mis;
+	shared_ptr<InterprocessIo> io(new InterprocessIo(shared_handle()));
+
+	EXPECT_CALL(mis, Connect())
+		.WillOnce(Return(io));
+	EXPECT_CALL(mis, OnConnect(io))
+		.Times(1);
+
+	EXPECT_NO_THROW(mis.DoRun());
+}
+
+TEST(InterprocessServer, ConnectThatReturnsNullPtr)
+{
+	MockInterprocessServer mis;
+	shared_ptr<InterprocessIo> io;
+
+	EXPECT_CALL(mis, Connect())
+		.WillOnce(Return(io));
+	EXPECT_CALL(mis, OnConnect(io))
+		.Times(0);
+
+	EXPECT_NO_THROW(mis.DoRun());
+}
+
+TEST(InterprocessServer, ConnectAfterCancel)
+{
+	MockInterprocessServer mis;
+	shared_ptr<InterprocessIo> io(new InterprocessIo(shared_handle()));
+
+	EXPECT_CALL(mis, OnCancel())
+		.Times(1);
+
+	mis.CancelAsync();
+
+	EXPECT_CALL(mis, Connect())
+		.WillOnce(Return(io));
+	EXPECT_CALL(mis, OnConnect(io))
+		.Times(0);
+
+	EXPECT_NO_THROW(mis.DoRun());
+}
