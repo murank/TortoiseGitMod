@@ -401,6 +401,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandTask.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.cpp"
 				>
 			</File>
@@ -524,6 +528,10 @@
 			</File>
 			<File
 				RelativePath=".\IPCommandReceiverBase.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandTask.h"
 				>
 			</File>
 			<File
