@@ -206,6 +206,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\IPCommandTask.cpp"
 					>
 				</File>
@@ -231,6 +235,10 @@
 				</File>
 				<File
 					RelativePath=".\IPCommandReceiverTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandDispatcherTest.cpp"
 					>
 				</File>
 				<File
@@ -273,6 +281,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.h"
 					>
 				</File>
 				<File
