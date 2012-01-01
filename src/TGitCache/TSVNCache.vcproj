@@ -393,6 +393,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandReceiverBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\Utils\PathUtils.cpp"
 				>
 			</File>
@@ -504,6 +508,10 @@
 			</File>
 			<File
 				RelativePath=".\InterprocessServer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandReceiverBase.h"
 				>
 			</File>
 			<File
