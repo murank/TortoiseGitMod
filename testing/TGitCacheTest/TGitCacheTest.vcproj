@@ -198,6 +198,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\SimpleGitStatusCacheEntry.cpp"
 					>
 				</File>
@@ -211,6 +215,10 @@
 				</File>
 				<File
 					RelativePath=".\InterprocessServerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandReceiverBaseTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -237,6 +245,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\TGitCache\InterprocessServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.h"
 					>
 				</File>
 				<File
