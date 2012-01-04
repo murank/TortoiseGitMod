@@ -905,6 +905,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\TypeTraits.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Utilities.h"
 				>
 			</File>
