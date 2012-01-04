@@ -511,6 +511,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandReceiver.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IPCommandReceiverBase.h"
 				>
 			</File>
