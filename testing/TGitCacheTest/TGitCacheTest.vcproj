@@ -221,6 +221,10 @@
 					RelativePath=".\IPCommandReceiverBaseTest.cpp"
 					>
 				</File>
+				<File
+					RelativePath=".\IPCommandReceiverTest.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -245,6 +249,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\TGitCache\InterprocessServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiver.h"
 					>
 				</File>
 				<File
