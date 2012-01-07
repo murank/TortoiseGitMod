@@ -381,6 +381,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FakeIPCommandReceiver.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\FolderCrawler.cpp"
 				>
 			</File>
@@ -488,6 +492,10 @@
 			</File>
 			<File
 				RelativePath=".\FakeGitStatusCacheEntry.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FakeIPCommandReceiver.h"
 				>
 			</File>
 			<File
