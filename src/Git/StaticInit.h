@@ -21,14 +21,15 @@
 #ifndef STATIC_INIT_H
 #define STATIC_INIT_H
 
-#define STATIC_INIT(expr) STATIC_INIT_IMPL(expr, __LINE__)
-#define STATIC_INIT_IMPL(expr, line) STATIC_INIT_IMPL2(expr, line)
+#define STATIC_INIT() STATIC_INIT_IMPL(__LINE__)
+#define STATIC_INIT_IMPL(line) STATIC_INIT_IMPL2(line)
 
-#define STATIC_INIT_IMPL2(expr, line) \
+#define STATIC_INIT_IMPL2(line) \
 	static struct StaticInitializer_##line {	\
-		StaticInitializer_##line##() {			\
-			expr;								\
-		}										\
-	} instance_##line
+		StaticInitializer_##line##();			\
+	} instance_##line;							\
+	StaticInitializer_##line##::StaticInitializer_##line##()
+
+
 
 #endif
