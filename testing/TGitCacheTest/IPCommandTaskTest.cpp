@@ -20,3 +20,41 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "IPCommandTask.h"
+
+#include "FakeIPCommandReceiver.h"
+
+namespace {
+
+class MockIPCommandTask : public IPCommandTask {
+public:
+
+	MockIPCommandTask() : IPCommandTask(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD0(ReadCommandId, int());
+	MOCK_METHOD1(DoRunReceiver, void(shared_ptr<IPCommandReceiverBase>& receiver));
+
+};
+
+} // namespace
+
+using namespace ::testing;
+
+template <typename T>
+static const T* ReceiverCast(const shared_ptr<IPCommandReceiverBase>& receiver)
+{
+	return dynamic_cast<const T*>(receiver.get());
+}
+
+TEST(IPCommandTask, FakeCommand)
+{
+	MockIPCommandTask mict;
+
+	EXPECT_CALL(mict, ReadCommandId())
+		.WillOnce(Return(0));
+	EXPECT_CALL(mict, DoRunReceiver(ResultOf(ReceiverCast<FakeIPCommandReceiver>, NotNull())))
+		.Times(1);
+
+	mict.Run();
+}
