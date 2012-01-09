@@ -34,6 +34,9 @@
 //#include "svn_dso.h"
 #include "AutoLocker.h"
 #include "WorkerManager.h"
+#include "InterprocessServer.h"
+#include "IPCommandAdapter.h"
+#include "IPPipeFunctions.h"
 
 #include <ShellAPI.h>
 
@@ -150,6 +153,19 @@ static bool InitializeWorkerManager()
 	SetGlobalWorkerManager(manager);
 
 	return true;
+}
+
+static bool InitializeInterprocessServer()
+{
+	shared_ptr<IPCommandAdapter> adapter(new IPCommandAdapter);
+
+	CString pipeName = GetInterprocessPipeName();
+	shared_ptr<InterprocessServer> server(new InterprocessServer(pipeName));
+
+	server->SetListener(adapter);
+	SetGlobalInterprocessServer(server);
+
+	return server->BeginThread();
 }
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
@@ -270,6 +286,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	else CloseHandle(hCommandWaitThread); 
 
 	if(!InitializeWorkerManager()) {
+		return 0;
+	}
+	if(!InitializeInterprocessServer()) {
 		return 0;
 	}
 
