@@ -619,6 +619,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPPipeFunctions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MsysGitDir.cpp"
 				>
 			</File>
@@ -842,6 +846,10 @@
 			</File>
 			<File
 				RelativePath=".\IPCommandIds.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPPipeFunctions.h"
 				>
 			</File>
 			<File
