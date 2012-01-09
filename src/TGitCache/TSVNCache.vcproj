@@ -389,6 +389,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GetStatusCommandReceiver.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GitStatusCacheManager.cpp"
 				>
 			</File>
@@ -512,6 +516,10 @@
 			</File>
 			<File
 				RelativePath=".\FolderCrawler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GetStatusCommandReceiver.h"
 				>
 			</File>
 			<File
