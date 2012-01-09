@@ -397,11 +397,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\IPCommandReceiverBase.cpp"
+				RelativePath=".\IPCommandAdapter.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\IPCommandDispatcher.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandReceiverBase.cpp"
 				>
 			</File>
 			<File
@@ -527,15 +531,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandAdapter.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandDispatcher.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IPCommandReceiver.h"
 				>
 			</File>
 			<File
 				RelativePath=".\IPCommandReceiverBase.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IPCommandDispatcher.h"
 				>
 			</File>
 			<File
