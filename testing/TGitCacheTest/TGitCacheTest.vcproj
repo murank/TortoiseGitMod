@@ -194,6 +194,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\GetStatusCommandReceiver.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.cpp"
 					>
 				</File>
@@ -202,11 +206,11 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.cpp"
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.cpp"
 					>
 				</File>
 				<File
-					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.cpp"
+					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.cpp"
 					>
 				</File>
 				<File
@@ -230,15 +234,15 @@
 					>
 				</File>
 				<File
+					RelativePath=".\IPCommandDispatcherTest.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\IPCommandReceiverBaseTest.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\IPCommandReceiverTest.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\IPCommandDispatcherTest.cpp"
 					>
 				</File>
 				<File
@@ -268,6 +272,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\GetStatusCommandReceiver.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.h"
 					>
 				</File>
@@ -276,15 +284,15 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\IPCommandReceiver.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.h"
-					>
-				</File>
-				<File
-					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.h"
 					>
 				</File>
 				<File

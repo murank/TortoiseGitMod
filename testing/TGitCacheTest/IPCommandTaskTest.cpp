@@ -24,6 +24,7 @@
 #include "IPCommandTask.h"
 
 #include "FakeIPCommandReceiver.h"
+#include "GetStatusCommandReceiver.h"
 
 namespace {
 
@@ -54,6 +55,18 @@ TEST(IPCommandTask, FakeCommand)
 	EXPECT_CALL(mict, ReadCommandId())
 		.WillOnce(Return(0));
 	EXPECT_CALL(mict, DoRunReceiver(ResultOf(ReceiverCast<FakeIPCommandReceiver>, NotNull())))
+		.Times(1);
+
+	mict.Run();
+}
+
+TEST(IPCommandTask, GetStatusCommand)
+{
+	MockIPCommandTask mict;
+
+	EXPECT_CALL(mict, ReadCommandId())
+		.WillOnce(Return(GetStatusCommandReceiver::COMMAND_ID));
+	EXPECT_CALL(mict, DoRunReceiver(ResultOf(ReceiverCast<GetStatusCommandReceiver>, NotNull())))
 		.Times(1);
 
 	mict.Run();
