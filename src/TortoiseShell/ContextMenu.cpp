@@ -25,6 +25,7 @@
 //#include "GitProperties.h"
 #include "GitStatus.h"
 #include "TGitPath.h"
+#include "SysInfo.h"
 
 #define GetPIDLFolder(pida) (LPCITEMIDLIST)(((LPBYTE)pida)+(pida)->aoffset[0])
 #define GetPIDLItem(pida, i) (LPCITEMIDLIST)(((LPBYTE)pida)+(pida)->aoffset[i+1])
