@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "GitTest", "GitTest\GitTest.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TGitCacheTest", "TGitCacheTest\TGitCacheTest.vcproj", "{E7FD65E9-80A6-41A4-AA8B-C9E62E1EF268}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "TortoiseShellTest", "TortoiseShellTest\TortoiseShellTest.vcproj", "{ECDC4DB9-D97B-419C-AC5B-7885B3AEA347}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -19,6 +21,10 @@ Global
 		{E7FD65E9-80A6-41A4-AA8B-C9E62E1EF268}.Debug|Win32.Build.0 = Debug|Win32
 		{E7FD65E9-80A6-41A4-AA8B-C9E62E1EF268}.Release|Win32.ActiveCfg = Release|Win32
 		{E7FD65E9-80A6-41A4-AA8B-C9E62E1EF268}.Release|Win32.Build.0 = Release|Win32
+		{ECDC4DB9-D97B-419C-AC5B-7885B3AEA347}.Debug|Win32.ActiveCfg = Debug|Win32
+		{ECDC4DB9-D97B-419C-AC5B-7885B3AEA347}.Debug|Win32.Build.0 = Debug|Win32
+		{ECDC4DB9-D97B-419C-AC5B-7885B3AEA347}.Release|Win32.ActiveCfg = Release|Win32
+		{ECDC4DB9-D97B-419C-AC5B-7885B3AEA347}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
