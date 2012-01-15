@@ -577,6 +577,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandSender.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IPCommandSenderBase.h"
 				>
 			</File>
