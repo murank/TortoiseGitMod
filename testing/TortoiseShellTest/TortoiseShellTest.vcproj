@@ -183,10 +183,18 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TortoiseShell\InterprocessClient.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\InterprocessClientTest.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -201,6 +209,10 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TortoiseShell\InterprocessClient.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
