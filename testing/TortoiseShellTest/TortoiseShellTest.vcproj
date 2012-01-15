@@ -187,12 +187,20 @@
 					RelativePath="..\..\src\TortoiseShell\InterprocessClient.cpp"
 					>
 				</File>
+				<File
+					RelativePath="..\..\src\TortoiseShell\IPCommandSenderBase.cpp"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="test"
 				>
 				<File
 					RelativePath=".\InterprocessClientTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandSenderBaseTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -211,6 +219,10 @@
 				>
 				<File
 					RelativePath="..\..\src\TortoiseShell\InterprocessClient.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseShell\IPCommandSenderBase.h"
 					>
 				</File>
 			</Filter>
