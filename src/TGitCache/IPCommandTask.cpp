@@ -22,9 +22,9 @@
 
 #include "IPCommandTask.h"
 
+#include "GetStatusCommandReceiver.h"
 #include "InterprocessIo.h"
 #include "IPCommandReceiverBase.h"
-
 #include "FakeIPCommandReceiver.h"
 
 IPCommandTask::IPCommandTask(const shared_ptr<InterprocessIo> &io)
@@ -59,6 +59,9 @@ int IPCommandTask::ReadCommandId()
 shared_ptr<IPCommandReceiverBase> IPCommandTask::GetCommandReceiver(int commandId) const
 {
 	switch(commandId) {
+		case GetStatusCommandReceiver::COMMAND_ID:
+			return shared_ptr<IPCommandReceiverBase>(new GetStatusCommandReceiver(GetIo()));
+
 		default:
 			return FakeIPCommandReceiver::Instance();
 	}
