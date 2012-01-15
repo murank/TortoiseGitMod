@@ -456,6 +456,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InterprocessClient.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ItemIDList.cpp"
 				>
 			</File>
@@ -562,6 +566,10 @@
 			</File>
 			<File
 				RelativePath=".\Guids.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessClient.h"
 				>
 			</File>
 			<File
