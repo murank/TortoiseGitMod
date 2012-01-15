@@ -460,6 +460,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IPCommandSenderBase.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ItemIDList.cpp"
 				>
 			</File>
@@ -570,6 +574,10 @@
 			</File>
 			<File
 				RelativePath=".\InterprocessClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandSenderBase.h"
 				>
 			</File>
 			<File
