@@ -20,3 +20,210 @@
 #include "stdafx.h"
 #include <gmock/gmock.h>
 #include "TestHelper.h"
+
+#include "IPCommandSender.h"
+
+using namespace ::testing;
+
+namespace {
+
+class MockIPCommandSender0void : public IPCommandSender<void()> {
+public:
+
+	MockIPCommandSender0void() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender0void, Call)
+{
+	MockIPCommandSender0void mics;
+
+	EXPECT_NO_THROW(mics.Call());
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class MockIPCommandSender0int : public IPCommandSender<int()> {
+public:
+
+	MockIPCommandSender0int() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD0(ReadResponse, int());
+
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender0int, Call)
+{
+	MockIPCommandSender0int mics;
+	int ret = 999;
+
+	EXPECT_CALL(mics, ReadResponse())
+		.WillOnce(Return(ret));
+
+	EXPECT_EQ(ret, mics.Call());
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class MockIPCommandSender1voidInt : public IPCommandSender<void(int)> {
+public:
+
+	MockIPCommandSender1voidInt() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD1(WriteArguments, void(int arg1));
+
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender1voidInt, Call)
+{
+	MockIPCommandSender1voidInt mics;
+	int arg = 999;
+
+	EXPECT_CALL(mics, WriteArguments(arg))
+		.Times(1);
+
+	EXPECT_NO_THROW(mics.Call(arg));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class MockIPCommandSender1voidCString : public IPCommandSender<void(const CString&)> {
+public:
+
+	MockIPCommandSender1voidCString() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD1(WriteArguments, void(const CString& arg1));
+
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender1voidCString, Call)
+{
+	MockIPCommandSender1voidCString mics;
+	CString arg("some str");
+
+	EXPECT_CALL(mics, WriteArguments(arg))
+		.Times(1);
+
+	EXPECT_NO_THROW(mics.Call(arg));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class MockIPCommandSender1intInt : public IPCommandSender<int(int)> {
+public:
+
+	MockIPCommandSender1intInt() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD1(WriteArguments, void(int arg1));
+	MOCK_METHOD0(ReadResponse, int());
+
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender1intInt, Call)
+{
+	MockIPCommandSender1intInt mics;
+	int arg = 999;
+	int ret = 9;
+
+	EXPECT_CALL(mics, WriteArguments(arg))
+		.Times(1);
+	EXPECT_CALL(mics, ReadResponse())
+		.WillOnce(Return(ret));
+
+	EXPECT_EQ(ret, mics.Call(arg));
+}
+
+/////////////////////////////////////////////////////////////////////////////
+
+namespace {
+
+class MockIPCommandSender1intCString : public IPCommandSender<int(const CString&)> {
+public:
+
+	MockIPCommandSender1intCString() : IPCommandSender(shared_ptr<InterprocessIo>()) {}
+
+	MOCK_METHOD1(WriteArguments, void(const CString& arg1));
+	MOCK_METHOD0(ReadResponse, int());
+
+	virtual void WriteCommandId(int /*id*/) {
+	}
+	virtual int ReadResult() {
+		return 0;
+	}
+	virtual int GetCommandId() const {
+		return 99;
+	}
+};
+
+} // namespace
+
+TEST(MockIPCommandSender1intCString, Call)
+{
+	MockIPCommandSender1intCString mics;
+	CString arg("some str");
+	int ret = 9;
+
+	EXPECT_CALL(mics, WriteArguments(arg))
+		.Times(1);
+	EXPECT_CALL(mics, ReadResponse())
+		.WillOnce(Return(ret));
+
+	EXPECT_EQ(ret, mics.Call(arg));
+}
