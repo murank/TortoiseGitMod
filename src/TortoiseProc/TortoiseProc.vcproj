@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProc\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="2"
 			UseOfATL="2"
@@ -110,8 +110,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\Debug64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProc\Debug64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			UseOfMFC="2"
 			UseOfATL="0"
@@ -164,7 +164,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Dnsapi.lib UxTheme.lib"
+				AdditionalDependencies="Crypt32.lib gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Dnsapi.lib UxTheme.lib $(OutDir)/Git_mfc.lib"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="gdiplus.dll"
@@ -199,7 +199,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProc\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="2"
 			CharacterSet="1"
@@ -289,8 +289,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\Release64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProc\Release64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			UseOfMFC="2"
 			CharacterSet="1"
@@ -343,7 +343,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Dnsapi.lib UxTheme.lib"
+				AdditionalDependencies="Crypt32.lib gdiplus.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Dnsapi.lib UxTheme.lib $(OutDir)/Git_mfc.lib"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames=""
 				DelayLoadDLLs="gdiplus.dll"
