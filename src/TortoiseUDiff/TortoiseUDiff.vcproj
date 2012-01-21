@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseUDiff\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -97,8 +97,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\Debug64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseUDiff\Debug64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			CharacterSet="1"
 			>
@@ -174,7 +174,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseUDiff\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
@@ -248,8 +248,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\Release64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseUDiff\Release64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			CharacterSet="1"
 			WholeProgramOptimization="1"

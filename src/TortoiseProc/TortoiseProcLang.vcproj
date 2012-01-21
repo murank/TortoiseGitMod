@@ -21,8 +21,8 @@
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
-			OutputDirectory="..\..\bin\Release\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProcLang\Release"
+			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -100,8 +100,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\release64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProcLang\Release64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -180,8 +180,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="..\..\bin\Debug\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProcLang\Debug"
+			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -259,8 +259,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\debug64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseProcLang\Debug64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="2"
 			CharacterSet="1"
 			>
@@ -636,19 +636,19 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\Resources\bin167.avi"
-			>
-		</File>
-		<File
 			RelativePath="..\Languages\res\bin167.avi"
 			>
 		</File>
 		<File
-			RelativePath="..\Resources\bin168.avi"
+			RelativePath="..\Resources\bin167.avi"
 			>
 		</File>
 		<File
 			RelativePath="..\Languages\res\bin168.avi"
+			>
+		</File>
+		<File
+			RelativePath="..\Resources\bin168.avi"
 			>
 		</File>
 		<File
@@ -664,7 +664,7 @@
 			>
 		</File>
 		<File
-			RelativePath="..\Languages\res\TortoiseProc.manifest"
+			RelativePath="..\Resources\TortoiseProc.manifest"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
@@ -700,7 +700,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="..\Resources\TortoiseProc.manifest"
+			RelativePath="..\Languages\res\TortoiseProc.manifest"
 			>
 			<FileConfiguration
 				Name="Release|Win32"

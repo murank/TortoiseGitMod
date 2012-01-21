@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -87,10 +87,10 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
-			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)64"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
-			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfMFC="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -152,7 +152,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -217,9 +217,10 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
-			IntermediateDirectory="..\..\obj\git\$(ConfigurationName)64"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
-			UseOfMFC="2"
+			UseOfMFC="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -280,7 +281,7 @@
 		<Configuration
 			Name="Debug_mfc|Win32"
 			OutputDirectory="..\..\bin\Debug\bin"
-			IntermediateDirectory="..\..\obj\git\$Debug"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			UseOfATL="2"
@@ -345,11 +346,11 @@
 		</Configuration>
 		<Configuration
 			Name="Debug_mfc|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="..\..\bin\Debug64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
 			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -391,6 +392,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_mfc.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -411,7 +413,7 @@
 		<Configuration
 			Name="Release_mfc|Win32"
 			OutputDirectory="..\..\bin\Release\bin"
-			IntermediateDirectory="..\..\obj\git\Release"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			UseOfATL="2"
@@ -476,10 +478,11 @@
 		</Configuration>
 		<Configuration
 			Name="Release_mfc|x64"
-			OutputDirectory="$(PlatformName)\$(ConfigurationName)"
-			IntermediateDirectory="$(PlatformName)\$(ConfigurationName)"
+			OutputDirectory="..\..\bin\Release64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
 			UseOfMFC="2"
+			UseOfATL="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -520,6 +523,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				OutputFile="$(OutDir)\$(ProjectName)_mfc.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
