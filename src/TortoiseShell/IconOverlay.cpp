@@ -24,6 +24,11 @@
 #include "GitStatus.h"
 #include "..\TGitCache\CacheInterface.h"
 
+#include "GetStatusCommandSender.h"
+#include "GitStatusType.h"
+#include "InterprocessClient.h"
+#include "PipeError.h"
+
 // "The Shell calls IShellIconOverlayIdentifier::GetOverlayInfo to request the
 //  location of the handler's icon overlay. The icon overlay handler returns
 //  the name of the file containing the overlay image, and its index within
@@ -87,6 +92,53 @@ STDMETHODIMP CShellExt::GetPriority(int *pPriority)
 	return S_OK;
 }
 
+static git_status_type GetStatusFromRemoteCache(const CString& path)
+{
+	shared_ptr<InterprocessClient> client = GetGlobalInterprocessClient();
+
+	shared_ptr<InterprocessIo> io = client->Connect();
+	if(!io) {
+		return git_status_type_none;
+	}
+
+	GetStatusCommandSender sender(io);
+	try {
+		return sender.Call(path);
+	} catch(pipe_error&) {
+		// do nothing
+	}
+
+	return git_status_type_none;
+}
+
+static git_wc_status_kind ConvertStatus(git_status_type status)
+{
+	switch(status) {
+		case git_status_type_none:
+			return git_wc_status_none;
+		case git_status_type_untracked:
+			return git_wc_status_unversioned;
+		case git_status_type_ignored:
+			return git_wc_status_ignored;
+		case git_status_type_unmodified:
+			return git_wc_status_normal;
+		case git_status_type_copied:
+			return git_wc_status_added;
+		case git_status_type_added:
+			return git_wc_status_added;
+		case git_status_type_deleted:
+			return git_wc_status_deleted;
+		case git_status_type_renamed:
+			return git_wc_status_replaced;
+		case git_status_type_modified:
+			return git_wc_status_modified;
+		case git_status_type_unmerged:
+			return git_wc_status_conflicted;
+		default:
+			return git_wc_status_none;
+	}
+}
+
 // "Before painting an object's icon, the Shell passes the object's name to
 //  each icon overlay handler's IShellIconOverlayIdentifier::IsMemberOf
 //  method. If a handler wants to have its icon overlay displayed,
@@ -148,16 +200,9 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 					status = git_wc_status_none;
 					break;
 				}
-				TSVNCacheResponse itemStatus;
-				SecureZeroMemory(&itemStatus, sizeof(itemStatus));
-				if (m_remoteCacheLink.GetStatusFromRemoteCache(tpath, &itemStatus, true))
-				{
-					status = GitStatus::GetMoreImportant(itemStatus.m_status.text_status, itemStatus.m_status.prop_status);
-/*					if ((itemStatus.m_kind == git_node_file)&&(status == git_wc_status_normal)&&((itemStatus.m_needslock && itemStatus.m_owner[0]==0)||(itemStatus.m_readonly)))
-						readonlyoverlay = true;
-					if (itemStatus.m_owner[0]!=0)
-						lockedoverlay = true;*/
-				}
+
+				git_status_type tmp_status = GetStatusFromRemoteCache(tpath.GetWinPath());
+				status = ConvertStatus(tmp_status);
 			}
 			break;
 		case ShellCache::dll:
