@@ -22,7 +22,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TGitCache\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -108,8 +108,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\Bin\Debug64\Bin"
-			IntermediateDirectory="..\..\obj\TGitCache\Debug64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -159,7 +159,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="2"
 				IgnoreDefaultLibraryNames=""
@@ -195,7 +195,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TSVNCache\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="1"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -277,8 +277,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\Release64\bin"
-			IntermediateDirectory="..\..\obj\TGitCache\Release64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="1"
 			UseOfATL="2"
 			CharacterSet="1"
@@ -323,7 +323,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib"
+				AdditionalDependencies="Crypt32.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TGitCache.exe"
 				LinkIncremental="1"
 				IgnoreDefaultLibraryNames=""
