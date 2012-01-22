@@ -34,6 +34,7 @@
 //#include "svn_dso.h"
 #include "AutoLocker.h"
 #include "WorkerManager.h"
+#include "Environment.h"
 #include "InterprocessServer.h"
 #include "IPCommandAdapter.h"
 #include "IPPipeFunctions.h"
@@ -168,6 +169,15 @@ static bool InitializeInterprocessServer()
 	return server->BeginThread();
 }
 
+static bool InitializeEnvironment()
+{
+	shared_ptr<Environment> env(new Environment);
+	env->CopyProcessEnvironment();
+
+	SetGlobalEnvironment(env);
+	return true;
+}
+
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
 	SetDllDirectory(L"");
@@ -289,6 +299,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 		return 0;
 	}
 	if(!InitializeInterprocessServer()) {
+		return 0;
+	}
+	if(!InitializeEnvironment()) {
 		return 0;
 	}
 
