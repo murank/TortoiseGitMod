@@ -38,6 +38,8 @@
 #include "InterprocessServer.h"
 #include "IPCommandAdapter.h"
 #include "IPPipeFunctions.h"
+#include "MsysGitDir.h"
+#include "RegUtils.h"
 
 #include <ShellAPI.h>
 
@@ -178,6 +180,13 @@ static bool InitializeEnvironment()
 	return true;
 }
 
+static bool InitializeMsysGitDir()
+{
+	CString msysGitDir = ReadRegistry(HKEY_CURRENT_USER, CString(_T("Software\\TortoiseGit\\MSysGit")), CString());
+	SetGlobalMsysGitDir(msysGitDir);
+	return true;
+}
+
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
 {
 	SetDllDirectory(L"");
@@ -302,6 +311,9 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 		return 0;
 	}
 	if(!InitializeEnvironment()) {
+		return 0;
+	}
+	if(!InitializeMsysGitDir()) {
 		return 0;
 	}
 
