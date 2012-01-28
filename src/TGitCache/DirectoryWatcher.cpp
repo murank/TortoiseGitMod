@@ -21,6 +21,7 @@
 #include "Dbt.h"
 #include "GitStatusCache.h"
 #include ".\directorywatcher.h"
+#include "AutoLocker.h"
 
 extern HWND hWnd;
 

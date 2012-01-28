@@ -32,6 +32,14 @@
 #include "ioevent.h"
 #include "..\version.h"
 //#include "svn_dso.h"
+#include "AutoLocker.h"
+#include "WorkerManager.h"
+#include "Environment.h"
+#include "InterprocessServer.h"
+#include "IPCommandAdapter.h"
+#include "IPPipeFunctions.h"
+#include "MsysGitDir.h"
+#include "RegUtils.h"
 
 #include <ShellAPI.h>
 
@@ -129,6 +137,54 @@ void DebugOutputLastError()
 
 	// Free the buffer.
 	LocalFree( lpMsgBuf );
+}
+
+static size_t GetProcessorNum()
+{
+	SYSTEM_INFO si = {};
+	GetSystemInfo(&si);
+	return si.dwNumberOfProcessors;
+}
+
+static bool InitializeWorkerManager()
+{
+	shared_ptr<WorkerManager> manager(new WorkerManager);
+
+	size_t threadNum = GetProcessorNum();
+	manager->Initialize(threadNum);
+
+	SetGlobalWorkerManager(manager);
+
+	return true;
+}
+
+static bool InitializeInterprocessServer()
+{
+	shared_ptr<IPCommandAdapter> adapter(new IPCommandAdapter);
+
+	CString pipeName = GetInterprocessPipeName();
+	shared_ptr<InterprocessServer> server(new InterprocessServer(pipeName));
+
+	server->SetListener(adapter);
+	SetGlobalInterprocessServer(server);
+
+	return server->BeginThread();
+}
+
+static bool InitializeEnvironment()
+{
+	shared_ptr<Environment> env(new Environment);
+	env->CopyProcessEnvironment();
+
+	SetGlobalEnvironment(env);
+	return true;
+}
+
+static bool InitializeMsysGitDir()
+{
+	CString msysGitDir = ReadRegistry(HKEY_CURRENT_USER, CString(_T("Software\\TortoiseGit\\MSysGit")), CString());
+	SetGlobalMsysGitDir(msysGitDir);
+	return true;
 }
 
 int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*lpCmdLine*/, int /*cmdShow*/)
@@ -248,6 +304,18 @@ int __stdcall WinMain(HINSTANCE hInstance, HINSTANCE /*hPrevInstance*/, LPSTR /*
 	}
 	else CloseHandle(hCommandWaitThread); 
 
+	if(!InitializeWorkerManager()) {
+		return 0;
+	}
+	if(!InitializeInterprocessServer()) {
+		return 0;
+	}
+	if(!InitializeEnvironment()) {
+		return 0;
+	}
+	if(!InitializeMsysGitDir()) {
+		return 0;
+	}
 
 	// loop to handle window messages.
 	BOOL bLoopRet;

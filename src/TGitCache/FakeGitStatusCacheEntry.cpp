@@ -27,8 +27,10 @@
 
 static shared_ptr<GitStatusCacheEntry> g_fake;
 
-STATIC_INIT(g_fake.reset(new FakeGitStatusCacheEntry));
-
+STATIC_INIT()
+{
+	g_fake.reset(new FakeGitStatusCacheEntry);
+}
 
 FakeGitStatusCacheEntry::FakeGitStatusCacheEntry()
 {

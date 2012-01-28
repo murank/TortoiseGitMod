@@ -21,6 +21,7 @@
 #include "StdAfx.h"
 #include "shlobj.h"
 #include "GitStatusCache.h"
+#include "AutoLocker.h"
 
 CShellUpdater::CShellUpdater(void)
 {

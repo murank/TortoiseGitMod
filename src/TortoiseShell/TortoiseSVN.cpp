@@ -23,6 +23,9 @@
 #include "ShellExtClassFactory.h"
 //#include "git_dso.h"
 
+#include "InterprocessClient.h"
+#include "IPPipeFunctions.h"
+
 UINT				g_cRefThisDll = 0;				///< reference count of this DLL.
 HINSTANCE			g_hmodThisDll = NULL;			///< handle to this DLL itself.
 int					g_cAprInit = 0;
@@ -50,6 +53,14 @@ LPCTSTR				g_MenuIDString = _T("TortoiseGit");
 extern std::set<CShellExt *> g_exts;
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
+
+static void InitializeInterprocessClient()
+{
+	CString pipeName = GetInterprocessPipeName();
+	shared_ptr<InterprocessClient> client(new InterprocessClient(pipeName));
+
+	SetGlobalInterprocessClient(client);
+}
 
 extern "C" int APIENTRY
 DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
@@ -94,6 +105,8 @@ DllMain(HINSTANCE hInstance, DWORD dwReason, LPVOID /* lpReserved */)
 
         // Extension DLL one-time initialization
         g_hmodThisDll = hInstance;
+
+		InitializeInterprocessClient();
     }
     else if (dwReason == DLL_PROCESS_DETACH)
     {
