@@ -29,6 +29,7 @@
 //#include "libintl.h"
 #undef swprintf
 #include "SVNPropertyPage.h"
+#include "SysInfo.h"
 
 std::set<CShellExt *> g_exts;
 

@@ -40,7 +40,7 @@ std::pair<CString, CString> ExtractRegKey(const CString& regKey)
 using internal::ExtractRegKey;
 
 template <typename T>
-static T DoReadRegistry(const CString& regkey, T defaultValue)
+static T DoReadRegistry(HKEY base, const CString& regkey, T defaultValue)
 {
 	try {
 		std::pair<CString, CString> keyAndValue = ExtractRegKey(regkey);
@@ -48,7 +48,7 @@ static T DoReadRegistry(const CString& regkey, T defaultValue)
 		CString subkey = keyAndValue.first;
 		CString entryName = keyAndValue.second;
 
-		RegKey reg(HKEY_CURRENT_USER, subkey);
+		RegKey reg(base, subkey);
 
 		T value;
 		if(!reg.Read(entryName, value)) {
@@ -64,18 +64,18 @@ static T DoReadRegistry(const CString& regkey, T defaultValue)
 	return defaultValue;
 }
 
-DWORD ReadRegistry(const CString& regkey, DWORD defaultValue)
+DWORD ReadRegistry(HKEY base, const CString& regkey, DWORD defaultValue)
 {
-	return DoReadRegistry(regkey, defaultValue);
+	return DoReadRegistry(base, regkey, defaultValue);
 }
 
-CString ReadRegistry(const CString& regkey, const CString& defaultValue)
+CString ReadRegistry(HKEY base, const CString& regkey, const CString& defaultValue)
 {
-	return DoReadRegistry(regkey, defaultValue);
+	return DoReadRegistry(base, regkey, defaultValue);
 }
 
 template <typename T>
-static bool DoWriteRegistry(const CString& regkey, T value)
+static bool DoWriteRegistry(HKEY base, const CString& regkey, T value)
 {
 	try {
 		std::pair<CString, CString> keyAndValue = ExtractRegKey(regkey);
@@ -83,7 +83,7 @@ static bool DoWriteRegistry(const CString& regkey, T value)
 		CString subkey = keyAndValue.first;
 		CString entryName = keyAndValue.second;
 
-		RegKey reg(HKEY_CURRENT_USER, subkey);
+		RegKey reg(base, subkey);
 
 		return reg.Write(entryName, value);
 
@@ -94,12 +94,12 @@ static bool DoWriteRegistry(const CString& regkey, T value)
 	return false;
 }
 
-bool WriteRegistry(const CString& regkey, DWORD value)
+bool WriteRegistry(HKEY base, const CString& regkey, DWORD value)
 {
-	return DoWriteRegistry(regkey, value);
+	return DoWriteRegistry(base, regkey, value);
 }
 
-bool WriteRegistry(const CString& regkey, const CString& value)
+bool WriteRegistry(HKEY base, const CString& regkey, const CString& value)
 {
-	return DoWriteRegistry(regkey, value);
+	return DoWriteRegistry(base, regkey, value);
 }

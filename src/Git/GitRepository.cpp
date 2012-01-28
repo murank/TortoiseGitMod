@@ -56,7 +56,7 @@ CString GitRepository::GetRelativePath(const CString& path) const
 
 static int GetRepositoryEncodingFromRegistory()
 {
-	return ReadRegistry(_T("Software\\TortoiseGit\\RepositoryEncoding"), CP_ACP);
+	return ReadRegistry(HKEY_CURRENT_USER, _T("Software\\TortoiseGit\\RepositoryEncoding"), CP_ACP);
 }
 
 static shared_ptr<GitRepository> CreateInstance(const CString& root, int encoding)

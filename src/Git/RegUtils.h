@@ -20,11 +20,11 @@
 #ifndef REG_UTILIS_H
 #define REG_UTILIS_H
 
-DWORD ReadRegistry(const CString& regkey, DWORD defaultValue);
-CString ReadRegistry(const CString& regkey, const CString& defaultValue);
+DWORD ReadRegistry(HKEY base, const CString& regkey, DWORD defaultValue);
+CString ReadRegistry(HKEY base, const CString& regkey, const CString& defaultValue);
 
-bool WriteRegistry(const CString& regkey, DWORD value);
-bool WriteRegistry(const CString& regkey, const CString& value);
+bool WriteRegistry(HKEY base, const CString& regkey, DWORD value);
+bool WriteRegistry(HKEY base, const CString& regkey, const CString& value);
 
 
 namespace internal {

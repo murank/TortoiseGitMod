@@ -10,8 +10,6 @@
 #include <shellapi.h>
 #include <shlobj.h>
 
-typedef CComCritSecLock<CComAutoCriticalSection> AutoLocker;
-
 // Temporary fix for people not using the latest SDK
 #ifndef PROCESS_MODE_BACKGROUND_BEGIN
 #define PROCESS_MODE_BACKGROUND_BEGIN 0x00100000

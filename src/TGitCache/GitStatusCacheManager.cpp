@@ -30,7 +30,10 @@
 
 static shared_ptr<GitStatusCacheManager> g_manager;
 
-STATIC_INIT(g_manager.reset(new GitStatusCacheManager));
+STATIC_INIT()
+{
+	g_manager.reset(new GitStatusCacheManager);
+}
 
 shared_ptr<GitStatusCacheManager> GetGlobalGitStatusCacheManager()
 {

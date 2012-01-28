@@ -23,6 +23,7 @@
 #include "GitStatusCache.h"
 #include "GitStatus.h"
 #include <set>
+#include "AutoLocker.h"
 
 CCachedDirectory::CCachedDirectory(void)
 {

@@ -24,7 +24,7 @@
 #include "registry.h"
 #include "TSVNCache.h"
 #include "shlobj.h"
-
+#include "AutoLocker.h"
 
 CFolderCrawler::CFolderCrawler(void)
 {
