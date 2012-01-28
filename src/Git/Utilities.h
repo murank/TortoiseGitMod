@@ -25,4 +25,6 @@ bool EndsWith(const CString& str, const CString& pattern);
 CString GetRepositoryRoot(CString path);
 bool IsInGitRepository(const CString& path);
 
+std::string GetLastErrorString();
+
 #endif

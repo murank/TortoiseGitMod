@@ -190,7 +190,31 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\FakeIPCommandReceiver.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\GetStatusCommandReceiver.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\InterprocessServer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandTask.cpp"
 					>
 				</File>
 				<File
@@ -203,6 +227,26 @@
 				>
 				<File
 					RelativePath=".\GitStatusCacheManagerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\InterprocessServerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandDispatcherTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandReceiverBaseTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandReceiverTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\IPCommandTaskTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -224,7 +268,35 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TGitCache\FakeIPCommandReceiver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\GetStatusCommandReceiver.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TGitCache\GitStatusCacheManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\InterprocessServer.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandDispatcher.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiver.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandReceiverBase.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TGitCache\IPCommandTask.h"
 					>
 				</File>
 				<File

@@ -188,6 +188,14 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\Git\Cancelable.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CancelableIo.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\CommandResultACP.cpp"
 					>
 				</File>
@@ -200,6 +208,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\Condition.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CountLatch.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Environment.cpp"
 					>
 				</File>
@@ -209,6 +225,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\GitRepositoryCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\InterprocessIo.cpp"
 					>
 				</File>
 				<File
@@ -228,7 +248,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\Thread.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Utilities.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerThread.cpp"
 					>
 				</File>
 			</Filter>
@@ -244,6 +276,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ConcurrentQueueTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CountLatchTest.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\EnvironmentTest.cpp"
 					>
 				</File>
@@ -256,11 +296,23 @@
 					>
 				</File>
 				<File
+					RelativePath=".\InterprocessIoTest.cpp"
+					>
+				</File>
+				<File
 					RelativePath=".\RegUtilsTest.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\UtilitiesTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WorkerManagerTest.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\WorkerThreadTest.cpp"
 					>
 				</File>
 			</Filter>
@@ -274,6 +326,14 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\Git\Cancelable.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CancelableIo.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\CommandResultACP.h"
 					>
 				</File>
@@ -286,6 +346,18 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\ConcurrentQueue.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\Condition.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CountLatch.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Environment.h"
 					>
 				</File>
@@ -295,6 +367,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\GitRepositoryCommand.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\InterprocessIo.h"
 					>
 				</File>
 				<File
@@ -315,6 +391,14 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\Utilities.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\WorkerThread.h"
 					>
 				</File>
 			</Filter>

@@ -87,3 +87,36 @@ bool IsInGitRepository(const CString& path)
 	CString root = GetRepositoryRoot(path);
 	return !root.IsEmpty();
 }
+
+std::string GetLastErrorString()
+{
+	LPVOID buf;
+
+	DWORD lastError = GetLastError();
+
+	if(FormatMessage(
+		FORMAT_MESSAGE_ALLOCATE_BUFFER |
+		FORMAT_MESSAGE_FROM_SYSTEM |
+		FORMAT_MESSAGE_IGNORE_INSERTS,
+		NULL,
+		lastError,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		(LPTSTR)&buf,
+		0,
+		NULL
+	) == 0) {
+		// fail to get message string
+
+		std::ostringstream os;
+		os << "Error code: " << lastError << std::ends;
+
+		return os.str();
+	}
+
+	CStringA str((LPCTSTR)buf);
+	std::string ret((LPCSTR)str);
+
+	LocalFree(buf);
+
+	return ret;
+}

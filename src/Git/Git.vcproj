@@ -551,6 +551,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\Cancelable.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CancelableIo.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CommandResultACP.cpp"
 				>
 			</File>
@@ -560,6 +568,14 @@
 			</File>
 			<File
 				RelativePath=".\CommandRunner.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Condition.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CountLatch.cpp"
 				>
 			</File>
 			<File
@@ -596,6 +612,14 @@
 			</File>
 			<File
 				RelativePath=".\GitStatus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessIo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IPPipeFunctions.cpp"
 				>
 			</File>
 			<File
@@ -699,7 +723,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Thread.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Utilities.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerThread.cpp"
 				>
 			</File>
 		</Filter>
@@ -710,6 +746,18 @@
 			>
 			<File
 				RelativePath=".\Atomic.h"
+				>
+			</File>
+			<File
+				RelativePath=".\AutoLocker.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Cancelable.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CancelableIo.h"
 				>
 			</File>
 			<File
@@ -729,11 +777,27 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ConcurrentQueue.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Condition.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CountLatch.h"
+				>
+			</File>
+			<File
 				RelativePath=".\CrashReport.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Environment.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ExceptionHelper.h"
 				>
 			</File>
 			<File
@@ -777,7 +841,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\InterprocessIo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandIds.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPPipeFunctions.h"
+				>
+			</File>
+			<File
 				RelativePath=".\MsysGitDir.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PipeError.h"
 				>
 			</File>
 			<File
@@ -825,7 +905,31 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Task.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TaskListener.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Thread.h"
+				>
+			</File>
+			<File
+				RelativePath=".\TypeTraits.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Utilities.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\WorkerThread.h"
 				>
 			</File>
 		</Filter>
