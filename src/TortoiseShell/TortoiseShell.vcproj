@@ -448,6 +448,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GetStatusCommandSender.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\GitFolderStatus.cpp"
 				>
 			</File>
@@ -560,6 +564,10 @@
 			Name="Header Files"
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
+			<File
+				RelativePath=".\GetStatusCommandSender.h"
+				>
+			</File>
 			<File
 				RelativePath=".\GitFolderStatus.h"
 				>
