@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -20,7 +20,7 @@
 #include "ResolveCommand.h"
 
 #include "ResolveDlg.h"
-#include "SVNProgressDlg.h"
+#include "GITProgressDlg.h"
 
 bool ResolveCommand::Execute()
 {

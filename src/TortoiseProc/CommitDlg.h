@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -140,6 +140,8 @@ protected:
 	INT_PTR				m_itemsCount;
 	CComPtr<IBugTraqProvider> m_BugTraqProvider;
 	CString				m_NoAmendStr;
+	BOOL				m_bCreateNewBranch;
+	CString				m_sCreateNewBranch;
 
 	int					CheckHeadDetach();
 
@@ -176,6 +178,7 @@ private:
 
 	CBugTraqAssociation	m_bugtraq_association;
 	HACCEL				m_hAccel;
+	void				RestoreFiles(bool doNotAsk = false);
 
 protected:
 	afx_msg void OnBnClickedSignOff();
@@ -189,4 +192,5 @@ protected:
 	afx_msg void OnBnClickedCommitAmenddiff();
 	afx_msg void OnBnClickedNoautoselectsubmodules();
 	afx_msg void OnBnClickedCommitSetDateTime();
+	afx_msg void OnBnClickedCheckNewBranch();
 };

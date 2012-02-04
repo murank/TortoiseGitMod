@@ -1,8 +1,8 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2003-2008 - TortoiseSVN
-// Copyright (C) 2010-2011 Sven Strickroth <email@cs-ware.de>
+// Copyright (C) 2010-2012 Sven Strickroth <email@cs-ware.de>
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,24 +24,24 @@
 #include "GitRev.h"
 #include "GitConfig.h"
 #include "Colors.h"
-#include "CommonResource.h"
+#include "LoglistCommonResource.h"
 #include "HintListCtrl.h"
 
-#define SVN_WC_ENTRY_WORKING_SIZE_UNKNOWN (-1)
+#define GIT_WC_ENTRY_WORKING_SIZE_UNKNOWN (-1)
 
 // these defines must be in the order the columns are inserted!
-#define SVNSLC_COLFILENAME			0x000000002
-#define SVNSLC_COLEXT				0x000000004
-#define SVNSLC_COLSTATUS			0x000000008
+#define GITSLC_COLFILENAME			0x000000002
+#define GITSLC_COLEXT				0x000000004
+#define GITSLC_COLSTATUS			0x000000008
 //#define SVNSLC_COLTEXTSTATUS		0x000000010
 //#define SVNSLC_COLPROPSTATUS		0x000000020
 //#define SVNSLC_COLAUTHOR			0x000000040
 //#define	SVNSLC_COLREVISION			0x000000080
 //#define	SVNSLC_COLDATE				0x000000100
 //#define	SVNSLC_COLMODIFICATIONDATE	0x000000200
-#define SVNSLC_COLADD				0x000000010
-#define SVNSLC_COLDEL				0x000000020
-#define SVNSLC_NUMCOLUMNS			6
+#define GITSLC_COLADD				0x000000010
+#define GITSLC_COLDEL				0x000000020
+#define GITSLC_NUMCOLUMNS			6
 
 //#define SVNSLC_COLREMOTESTATUS		0x000000010
 //#define SVNSLC_COLREMOTETEXT		0x000000080
@@ -55,95 +55,100 @@
 //#define SVNSLC_COLSVNNEEDSLOCK		0x000010000
 //#define SVNSLC_COLCOPYFROM			0x000020000
 
-#define SVNSLC_SHOWUNVERSIONED	CTGitPath::LOGACTIONS_UNVER
-#define SVNSLC_SHOWNORMAL		0x000000000
-#define SVNSLC_SHOWMODIFIED		(CTGitPath::LOGACTIONS_MODIFIED)
-#define SVNSLC_SHOWADDED		(CTGitPath::LOGACTIONS_ADDED|CTGitPath::LOGACTIONS_COPY)
-#define SVNSLC_SHOWREMOVED		CTGitPath::LOGACTIONS_DELETED
-#define SVNSLC_SHOWCONFLICTED	CTGitPath::LOGACTIONS_UNMERGED
-#define SVNSLC_SHOWMISSING		0x00000000
-#define SVNSLC_SHOWREPLACED		CTGitPath::LOGACTIONS_REPLACED
-#define SVNSLC_SHOWMERGED		CTGitPath::LOGACTIONS_MERGED
-#define SVNSLC_SHOWIGNORED		CTGitPath::LOGACTIONS_IGNORE
-#define SVNSLC_SHOWOBSTRUCTED	0x00000000
-#define SVNSLC_SHOWEXTERNAL		0x00000000
-#define SVNSLC_SHOWINCOMPLETE	0x00000000
-#define SVNSLC_SHOWINEXTERNALS	0x00000000
-#define SVNSLC_SHOWREMOVEDANDPRESENT 0x00000000
-#define SVNSLC_SHOWLOCKS		0x00000000
-#define SVNSLC_SHOWDIRECTFILES	0x00000000
-#define SVNSLC_SHOWDIRECTFOLDER 0x00000000
-#define SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x00000000
-#define SVNSLC_SHOWSWITCHED		0x00000000
-#define SVNSLC_SHOWINCHANGELIST 0x00000000
+#define GITSLC_SHOWUNVERSIONED	CTGitPath::LOGACTIONS_UNVER
+#define GITSLC_SHOWNORMAL		0x000000000
+#define GITSLC_SHOWMODIFIED		(CTGitPath::LOGACTIONS_MODIFIED)
+#define GITSLC_SHOWADDED		(CTGitPath::LOGACTIONS_ADDED|CTGitPath::LOGACTIONS_COPY)
+#define GITSLC_SHOWREMOVED		CTGitPath::LOGACTIONS_DELETED
+#define GITSLC_SHOWCONFLICTED	CTGitPath::LOGACTIONS_UNMERGED
+#define GITSLC_SHOWMISSING		0x00000000
+#define GITSLC_SHOWREPLACED		CTGitPath::LOGACTIONS_REPLACED
+#define GITSLC_SHOWMERGED		CTGitPath::LOGACTIONS_MERGED
+#define GITSLC_SHOWIGNORED		CTGitPath::LOGACTIONS_IGNORE
+#define GITSLC_SHOWOBSTRUCTED	0x00000000
+#define GITSLC_SHOWEXTERNAL		0x00000000
+#define GITSLC_SHOWINCOMPLETE	0x00000000
+#define GITSLC_SHOWINEXTERNALS	0x00000000
+#define GITSLC_SHOWREMOVEDANDPRESENT 0x00000000
+#define GITSLC_SHOWLOCKS		0x00000000
+#define GITSLC_SHOWDIRECTFILES	0x00000000
+#define GITSLC_SHOWDIRECTFOLDER 0x00000000
+#define GITSLC_SHOWEXTERNALFROMDIFFERENTREPO 0x00000000
+#define GITSLC_SHOWSWITCHED		0x00000000
+#define GITSLC_SHOWINCHANGELIST 0x00000000
 
-#define SVNSLC_SHOWDIRECTS		(SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWDIRECTFOLDER)
+#define GITSLC_SHOWDIRECTS		(GITSLC_SHOWDIRECTFILES | GITSLC_SHOWDIRECTFOLDER)
 
 
-#define SVNSLC_SHOWVERSIONED (CTGitPath::LOGACTIONS_FORWORD|SVNSLC_SHOWNORMAL|SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
-SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
+#define GITSLC_SHOWVERSIONED (CTGitPath::LOGACTIONS_FORWORD|GITSLC_SHOWNORMAL|GITSLC_SHOWMODIFIED|\
+GITSLC_SHOWADDED|GITSLC_SHOWREMOVED|GITSLC_SHOWCONFLICTED|GITSLC_SHOWMISSING|\
+GITSLC_SHOWREPLACED|GITSLC_SHOWMERGED|GITSLC_SHOWIGNORED|GITSLC_SHOWOBSTRUCTED|\
+GITSLC_SHOWEXTERNAL|GITSLC_SHOWINCOMPLETE|GITSLC_SHOWINEXTERNALS|\
+GITSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
-#define SVNSLC_SHOWVERSIONEDBUTNORMAL (SVNSLC_SHOWMODIFIED|SVNSLC_SHOWADDED|\
-SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWINEXTERNALS|\
-SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO)
+#define GITSLC_SHOWVERSIONEDBUTNORMAL (GITSLC_SHOWMODIFIED|GITSLC_SHOWADDED|\
+GITSLC_SHOWREMOVED|GITSLC_SHOWCONFLICTED|GITSLC_SHOWMISSING|\
+GITSLC_SHOWREPLACED|GITSLC_SHOWMERGED|GITSLC_SHOWIGNORED|GITSLC_SHOWOBSTRUCTED|\
+GITSLC_SHOWEXTERNAL|GITSLC_SHOWINCOMPLETE|GITSLC_SHOWINEXTERNALS|\
+GITSLC_SHOWEXTERNALFROMDIFFERENTREPO)
 
-#define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS (SVNSLC_SHOWMODIFIED|\
-SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-SVNSLC_SHOWINCOMPLETE|SVNSLC_SHOWEXTERNAL|SVNSLC_SHOWINEXTERNALS)
+#define GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS (GITSLC_SHOWMODIFIED|\
+GITSLC_SHOWADDED|GITSLC_SHOWREMOVED|GITSLC_SHOWCONFLICTED|GITSLC_SHOWMISSING|\
+GITSLC_SHOWREPLACED|GITSLC_SHOWMERGED|GITSLC_SHOWIGNORED|GITSLC_SHOWOBSTRUCTED|\
+GITSLC_SHOWINCOMPLETE|GITSLC_SHOWEXTERNAL|GITSLC_SHOWINEXTERNALS)
 
-#define SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS (SVNSLC_SHOWMODIFIED|\
-	SVNSLC_SHOWADDED|SVNSLC_SHOWREMOVED|SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWMISSING|\
-	SVNSLC_SHOWREPLACED|SVNSLC_SHOWMERGED|SVNSLC_SHOWIGNORED|SVNSLC_SHOWOBSTRUCTED|\
-	SVNSLC_SHOWINCOMPLETE)
+#define GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS (GITSLC_SHOWMODIFIED|\
+	GITSLC_SHOWADDED|GITSLC_SHOWREMOVED|GITSLC_SHOWCONFLICTED|GITSLC_SHOWMISSING|\
+	GITSLC_SHOWREPLACED|GITSLC_SHOWMERGED|GITSLC_SHOWIGNORED|GITSLC_SHOWOBSTRUCTED|\
+	GITSLC_SHOWINCOMPLETE)
 
-#define SVNSLC_SHOWALL (SVNSLC_SHOWVERSIONED|SVNSLC_SHOWUNVERSIONED)
+#define GITSLC_SHOWALL (GITSLC_SHOWVERSIONED|GITSLC_SHOWUNVERSIONED)
 
-#define SVNSLC_POPALL					0xFFFFFFFFFFFFFFFF
-#define SVNSLC_POPCOMPAREWITHBASE		CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMPARE)
-#define SVNSLC_POPCOMPARE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMPAREWC)
-#define SVNSLC_POPGNUDIFF				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_GNUDIFF1)
-#define SVNSLC_POPREVERT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_REVERT)
-#define SVNSLC_POPUPDATE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_UPDATE)
-#define SVNSLC_POPSHOWLOG				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_LOG)
-#define SVNSLC_POPOPEN					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_OPEN)
-#define SVNSLC_POPDELETE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_DELETE)
-#define SVNSLC_POPADD					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_ADD)
-#define SVNSLC_POPIGNORE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_IGNORE)
-#define SVNSLC_POPCONFLICT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_EDITCONFLICT)
-#define SVNSLC_POPRESOLVE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_RESOLVECONFLICT)
-#define SVNSLC_POPLOCK					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_LOCK)
-#define SVNSLC_POPUNLOCK				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_UNLOCK)
-#define SVNSLC_POPUNLOCKFORCE			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_UNLOCKFORCE)
-#define SVNSLC_POPEXPLORE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_EXPLORE)
-#define SVNSLC_POPCOMMIT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMMIT)
-#define SVNSLC_POPPROPERTIES			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_PROPERTIES)
-#define SVNSLC_POPREPAIRMOVE			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_REPAIRMOVE)
-#define SVNSLC_POPCHANGELISTS			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_CHECKGROUP)
-#define SVNSLC_POPBLAME					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_BLAME)
-#define SVNSLC_POPSAVEAS				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_SAVEAS)
+#define GITSLC_POPALL					0xFFFFFFFFFFFFFFFF
+#define GITSLC_POPCOMPAREWITHBASE		CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPARE)
+#define GITSLC_POPCOMPARE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPAREWC)
+#define GITSLC_POPGNUDIFF				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_GNUDIFF1)
+#define GITSLC_POPREVERT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_REVERT)
+#define GITSLC_POPUPDATE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_UPDATE)
+#define GITSLC_POPSHOWLOG				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_LOG)
+#define GITSLC_POPSHOWLOGOLDNAME		CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_LOGOLDNAME)
+#define GITSLC_POPOPEN					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_OPEN)
+#define GITSLC_POPDELETE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_DELETE)
+#define GITSLC_POPADD					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_ADD)
+#define GITSLC_POPIGNORE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_IGNORE)
+#define GITSLC_POPCONFLICT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_EDITCONFLICT)
+#define GITSLC_POPRESOLVE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_RESOLVECONFLICT)
+#define GITSLC_POPLOCK					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_LOCK)
+#define GITSLC_POPUNLOCK				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_UNLOCK)
+#define GITSLC_POPUNLOCKFORCE			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_UNLOCKFORCE)
+#define GITSLC_POPEXPLORE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_EXPLORE)
+#define GITSLC_POPCOMMIT				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMMIT)
+#define GITSLC_POPPROPERTIES			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_PROPERTIES)
+#define GITSLC_POPREPAIRMOVE			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_REPAIRMOVE)
+#define GITSLC_POPCHANGELISTS			CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_CHECKGROUP)
+#define GITSLC_POPBLAME					CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_BLAME)
+#define GITSLC_POPSAVEAS				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_SAVEAS)
+#define GITSLC_POPCOMPARETWOFILES		CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPARETWO)
+#define GITSLC_POPRESTORE				CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_POPRESTORE)
 
-#define SVNSLC_IGNORECHANGELIST			_T("ignore-on-commit")
+#define GITSLC_IGNORECHANGELIST			_T("ignore-on-commit")
 
 // This gives up to 64 standard properties and menu entries
 // plus 192 user-defined properties (should be plenty).
 // User-defined properties will start at column SVNSLC_NUMCOLUMNS+1
 // but in the registry, we will record them starting at SVNSLC_USERPROPCOLOFFSET.
 
-#define SVNSLC_USERPROPCOLOFFSET        0x40
-#define SVNSLC_USERPROPCOLLIMIT         0xff
-#define SVNSLC_MAXCOLUMNCOUNT           0xff
+#define GITSLC_USERPROPCOLOFFSET        0x40
+#define GITSLC_USERPROPCOLLIMIT         0xff
+#define GITSLC_MAXCOLUMNCOUNT           0xff
+
+#define OVL_RESTORE			1
 
 // Supporting extreamly long user props makes no sense here --
 // especially for binary properties. CString uses a pool allocator
 // that works for up to 256 chars. Make sure we are well below that.
 
-#define SVNSLC_MAXUSERPROPLENGTH        0x70
+#define GITSLC_MAXUSERPROPLENGTH        0x70
 
 typedef int (__cdecl *GENERICCOMPAREFN)(const void * elem1, const void * elem2);
 typedef CComCritSecLock<CComCriticalSection> Locker;
@@ -302,15 +307,6 @@ public:
 	}
 	void OnContextMenuHeader(CWnd * pWnd, CPoint point, bool isGroundEnable=false)
 	{
-		bool XPorLater = false;
-		OSVERSIONINFOEX inf;
-		SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-		inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-		GetVersionEx((OSVERSIONINFO *)&inf);
-		WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-		if (fullver >= 0x0501)
-			XPorLater = true;
-
 		CHeaderCtrl * pHeaderCtrl = (CHeaderCtrl *)pWnd;
 		if ((point.x == -1) && (point.y == -1))
 		{
@@ -331,11 +327,8 @@ public:
 
 			// build control menu
 
-			if (XPorLater)
-			{
-				//temp.LoadString(IDS_STATUSLIST_SHOWGROUPS);
-				//popup.AppendMenu(isGroundEnable? uCheckedFlags : uUnCheckedFlags, columnCount, temp);
-			}
+			//temp.LoadString(IDS_STATUSLIST_SHOWGROUPS);
+			//popup.AppendMenu(isGroundEnable? uCheckedFlags : uUnCheckedFlags, columnCount, temp);
 
 			if (AnyUnusedProperties())
 			{
@@ -526,49 +519,54 @@ class CGitStatusListCtrl :
 public:
 	enum
 	{
-		IDSVNLC_REVERT = 1,
-		IDSVNLC_COMPARE,
-		IDSVNLC_OPEN,
-		IDSVNLC_DELETE,
-		IDSVNLC_IGNORE,
-		IDSVNLC_GNUDIFF1		 ,
-		IDSVNLC_UPDATE          ,
-		IDSVNLC_LOG              ,
-		IDSVNLC_EDITCONFLICT     ,
-		IDSVNLC_IGNOREMASK	    ,
-		IDSVNLC_ADD			    ,
-		IDSVNLC_RESOLVECONFLICT ,
-		IDSVNLC_LOCK			,
-		IDSVNLC_LOCKFORCE		,
-		IDSVNLC_UNLOCK			,
-		IDSVNLC_UNLOCKFORCE		,
-		IDSVNLC_OPENWITH		,
-		IDSVNLC_EXPLORE			,
-		IDSVNLC_RESOLVETHEIRS	,
-		IDSVNLC_RESOLVEMINE		,
-		IDSVNLC_REMOVE			,
-		IDSVNLC_COMMIT			,
-		IDSVNLC_PROPERTIES		,
-		IDSVNLC_COPY			,
-		IDSVNLC_COPYEXT			,
-		IDSVNLC_REPAIRMOVE		,
-		IDSVNLC_REMOVEFROMCS	,
-		IDSVNLC_CREATECS		,
-		IDSVNLC_CREATEIGNORECS	,
-		IDSVNLC_CHECKGROUP		,
-		IDSVNLC_UNCHECKGROUP	,
-		IDSVNLC_ADD_RECURSIVE   ,
-		IDSVNLC_COMPAREWC		,
-		IDSVNLC_BLAME			,
-		IDSVNLC_SAVEAS			,
-		IDSVNLC_REVERTTOREV		,
-		IDSVNLC_VIEWREV			,
-		IDSVNLC_FINDENTRY       ,
-		IDSVNLC_COMPARETWO		,
-		IDSVNLC_GNUDIFF2		,
+		IDGITLC_REVERT = 1,
+		IDGITLC_COMPARE,
+		IDGITLC_OPEN,
+		IDGITLC_DELETE,
+		IDGITLC_IGNORE,
+		IDGITLC_GNUDIFF1		 ,
+		IDGITLC_UPDATE          ,
+		IDGITLC_LOG              ,
+		IDGITLC_LOGOLDNAME,
+		IDGITLC_EDITCONFLICT     ,
+		IDGITLC_IGNOREMASK	    ,
+		IDGITLC_ADD			    ,
+		IDGITLC_RESOLVECONFLICT ,
+		IDGITLC_LOCK			,
+		IDGITLC_LOCKFORCE		,
+		IDGITLC_UNLOCK			,
+		IDGITLC_UNLOCKFORCE		,
+		IDGITLC_OPENWITH		,
+		IDGITLC_EXPLORE			,
+		IDGITLC_RESOLVETHEIRS	,
+		IDGITLC_RESOLVEMINE		,
+		IDGITLC_REMOVE			,
+		IDGITLC_COMMIT			,
+		IDGITLC_PROPERTIES		,
+		IDGITLC_COPY			,
+		IDGITLC_COPYEXT			,
+		IDGITLC_REPAIRMOVE		,
+		IDGITLC_REMOVEFROMCS	,
+		IDGITLC_CREATECS		,
+		IDGITLC_CREATEIGNORECS	,
+		IDGITLC_CHECKGROUP		,
+		IDGITLC_UNCHECKGROUP	,
+		IDGITLC_ADD_RECURSIVE   ,
+		IDGITLC_COMPAREWC		,
+		IDGITLC_BLAME			,
+		IDGITLC_SAVEAS			,
+		IDGITLC_REVERTTOREV		,
+		IDGITLC_VIEWREV			,
+		IDGITLC_FINDENTRY       ,
+		IDGITLC_COMPARETWO		,
+		IDGITLC_GNUDIFF2		,
+		IDGITLC_COMPARETWOFILES	,
+		IDGITLC_POPRESTORE		,
+		IDGITLC_CREATERESTORE	,
+		IDGITLC_RESTOREPATH		,
 // the IDSVNLC_MOVETOCS *must* be the last index, because it contains a dynamic submenu where
 // the submenu items get command ID's sequent to this number
-		IDSVNLC_MOVETOCS		,
+		IDGITLC_MOVETOCS		,
 	};
 	int GetColumnIndex(int colmask);
 	static inline unsigned __int64 GetContextMenuBit(int i){ return ((unsigned __int64 )0x1)<<i ;}
@@ -576,29 +574,29 @@ public:
 	 * Sent to the parent window (using ::SendMessage) after a context menu
 	 * command has finished if the item count has changed.
 	 */
-	static const UINT SVNSLNM_ITEMCOUNTCHANGED;
+	static const UINT GITSLNM_ITEMCOUNTCHANGED;
 	/**
 	 * Sent to the parent window (using ::SendMessage) when the control needs
 	 * to be refreshed. Since this is done usually in the parent window using
 	 * a thread, this message is used to tell the parent to do exactly that.
 	 */
-	static const UINT SVNSLNM_NEEDSREFRESH;
+	static const UINT GITSLNM_NEEDSREFRESH;
 
 	/**
 	 * Sent to the parent window (using ::SendMessage) when the user drops
 	 * files on the control. The LPARAM is a pointer to a TCHAR string
 	 * containing the dropped path.
 	 */
-	static const UINT SVNSLNM_ADDFILE;
+	static const UINT GITSLNM_ADDFILE;
 
 	/**
 	 * Sent to the parent window (using ::SendMessage) when the user checks/unchecks
 	 * one or more items in the control. The WPARAM contains the number of
 	 * checked items in the control.
 	 */
-	static const UINT SVNSLNM_CHECKCHANGED;
+	static const UINT GITSLNM_CHECKCHANGED;
 
-	static const UINT SVNSLNM_ITEMCHANGED;
+	static const UINT GITSLNM_ITEMCHANGED;
 
 	CGitStatusListCtrl(void);
 	~CGitStatusListCtrl(void);
@@ -750,8 +748,9 @@ public:
 	 * \param dwContextMenus mask of context menus to be active, not all make sense for every use of this control.
 	 *                       Use the GitSLC_POPxxx defines.
 	 * \param bHasCheckboxes TRUE if the control should show check boxes on the left of each file entry.
+	 * \param bHasWC TRUE if the reporisty is not a bare repository (hides wc related items on the contextmenu)
 	 */
-	void Init(DWORD dwColumns, const CString& sColumnInfoContainer, unsigned __int64 dwContextMenus = (SVNSLC_POPALL ^ SVNSLC_POPCOMMIT), bool bHasCheckboxes = true);
+	void Init(DWORD dwColumns, const CString& sColumnInfoContainer, unsigned __int64 dwContextMenus = ((GITSLC_POPALL ^ GITSLC_POPCOMMIT) ^ GITSLC_POPRESTORE), bool bHasCheckboxes = true, bool bHasWC = true);
 	/**
 	 * Sets a background image for the list control.
 	 * The image is shown in the right bottom corner.
@@ -935,16 +934,6 @@ public:
 	void SetEmptyString(UINT id) {m_sEmpty.LoadString(id);}
 
 	/**
-	 * Determines if the control should recurse into unversioned folders
-	 * when fetching the status. The default behavior is defined by the
-	 * registry key HKCU\Software\TortoiseGit\UnversionedRecurse, which
-	 * is read in the Init() method.
-	 * If you want to change the behavior, call this method *after*
-	 * calling Init().
-	 */
-	void SetUnversionedRecurse(bool bUnversionedRecurse) {m_bUnversionedRecurse = bUnversionedRecurse;}
-
-	/**
 	 * Returns the number of selected items
 	 */
 	LONG GetSelected(){return m_nSelected;};
@@ -977,6 +966,7 @@ public:
 	 * Returns the currently used show flags passed to the Show() method.
 	 */
 	DWORD GetShowFlags() {return m_dwShow;}
+
 public:
 	CString GetLastErrorMessage() {return m_sLastError;}
 
@@ -1117,6 +1107,7 @@ private:
 	bool					    m_bAscending;		///< sort direction
 	int					        m_nSortedColumn;	///< which column to sort
 	bool						m_bHasCheckboxes;
+	bool						m_bHasWC;
 	bool						m_bUnversionedLast;
 	bool						m_bHasExternalsFromDifferentRepos;
 	bool						m_bHasExternals;
@@ -1164,6 +1155,7 @@ private:
 	bool						m_bOwnDrag;
 
 	int							m_nIconFolder;
+	int							m_nRestoreOvl;
 
 	CWnd *						m_pStatLabel;
 	CButton *					m_pSelectButton;
@@ -1173,8 +1165,6 @@ private:
 	CString						m_sEmpty;
 	CString						m_sBusy;
 	CString						m_sNoPropValueText;
-
-	bool						m_bUnversionedRecurse;
 
 	bool						m_bCheckChildrenWithParent;
 	CGitStatusListCtrlDropTarget * m_pDropTarget;
@@ -1205,6 +1195,7 @@ public:
 	int m_FileLoaded;
 	git_revnum_t m_CurrentVersion;
 	bool m_bDoNotAutoselectSubmodules;
+	std::map<CString, CString>	m_restorepaths;
 };
 
 #if 0

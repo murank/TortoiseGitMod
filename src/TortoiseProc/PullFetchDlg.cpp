@@ -40,6 +40,8 @@ CPullFetchDlg::CPullFetchDlg(CWnd* pParent /*=NULL*/)
 	m_bNoFF = false;
 	m_bSquash = false;
 	m_bNoCommit = false;
+	m_bFFonly = false;
+	m_bFetchTags = false;
 }
 
 CPullFetchDlg::~CPullFetchDlg()
@@ -59,6 +61,8 @@ void CPullFetchDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX,IDC_PUTTYKEY_AUTOLOAD,m_bAutoLoad);
 	DDX_Check(pDX,IDC_CHECK_REBASE,m_bRebase);
 	DDX_Check(pDX,IDC_CHECK_PRUNE,m_bPrune);
+	DDX_Check(pDX, IDC_CHECK_FFONLY, m_bFFonly);
+	DDX_Check(pDX, IDC_CHECK_FETCHTAGS, m_bFetchTags);
 }
 
 
@@ -132,14 +136,19 @@ BOOL CPullFetchDlg::OnInitDialog()
 	{
 		GetDlgItem(IDC_CHECK_REBASE)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_CHECK_PRUNE)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_CHECK_FETCHTAGS)->EnableWindow(FALSE);
 	}
 	else
 	{
 		this->GetDlgItem(IDC_GROUP_OPTION)->EnableWindow(FALSE);
 		this->GetDlgItem(IDC_CHECK_SQUASH)->EnableWindow(FALSE);
 		this->GetDlgItem(IDC_CHECK_NOFF)->EnableWindow(FALSE);
+		this->GetDlgItem(IDC_CHECK_FFONLY)->EnableWindow(FALSE);
 		this->GetDlgItem(IDC_CHECK_NOCOMMIT)->EnableWindow(FALSE);
 	}
+
+	if (g_GitAdminDir.IsBareRepo(g_Git.m_CurrentDir))
+		this->GetDlgItem(IDC_CHECK_REBASE)->EnableWindow(FALSE);
 
 	m_Other.SetURLHistory(TRUE);
 	m_Other.LoadHistory(_T("Software\\TortoiseGit\\History\\PullURLS"), _T("url"));
@@ -154,11 +163,10 @@ BOOL CPullFetchDlg::OnInitDialog()
 
 	CString sWindowTitle;
 	if(m_IsPull)
-		sWindowTitle = _T("Pull - ");
+		sWindowTitle = _T("Pull");
 	else
-		sWindowTitle = _T("Fetch - ");
+		sWindowTitle = _T("Fetch");
 
-	GetWindowText(sWindowTitle);
 	CAppUtils::SetWindowTitle(m_hWnd, g_Git.m_CurrentDir, sWindowTitle);
 
 	Refresh();

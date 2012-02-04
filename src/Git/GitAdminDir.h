@@ -1,6 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
+// Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -43,6 +44,9 @@ public:
 	/// Returns true if the path points to or below an admin directory
 	bool IsAdminDirPath(const CString& path) const;
 
+	/// Returns true if the path points is a bare repository
+	bool IsBareRepo(const CString& path) const;
+
 	/// Returns true if the path (file or folder) has an admin directory
 	/// associated, i.e. if the path is in a working copy.
 	bool HasAdminDir(const CString& path) const;
@@ -50,16 +54,13 @@ public:
 	bool HasAdminDir(const CString& path, bool bDir,CString * ProjectTopDir=NULL) const;
 	CString GetSuperProjectRoot(const CString& path);
 
+	bool GitAdminDir::GetAdminDirPath(const CString &projectTopDir, CString &adminDir) const;
+
 	CString GetGitTopDir(const CString& path);
 
-	/// Returns true if the admin dir name is set to "_svn".
-	bool IsVSNETHackActive() const {return m_bVSNETHack;}
-
 	CString GetAdminDirName() const {return _T(".git");}
-	CString GetVSNETAdminDirName() const {return _T("_git");}
 
 private:
-	bool m_bVSNETHack;
 	int m_nInit;
 
 };

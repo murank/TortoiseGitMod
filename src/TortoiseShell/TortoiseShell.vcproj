@@ -188,7 +188,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -389,7 +389,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -453,6 +453,10 @@
 			</File>
 			<File
 				RelativePath=".\GitFolderStatus.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GITPropertyPage.cpp"
 				>
 			</File>
 			<File
@@ -544,15 +548,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SVNPropertyPage.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\Utils\SysInfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\TortoiseSVN.cpp"
+				RelativePath=".\TortoiseGIT.cpp"
 				>
 			</File>
 			<File
@@ -569,7 +569,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\GitFolderStatus.h"
+				RelativePath=".\GITPropertyPage.h"
 				>
 			</File>
 			<File
@@ -634,10 +634,6 @@
 			</File>
 			<File
 				RelativePath="stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SVNPropertyPage.h"
 				>
 			</File>
 			<File
@@ -843,6 +839,14 @@
 			</File>
 			<File
 				RelativePath="..\Resources\tag.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\thumb_down.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\thumb_up.ico"
 				>
 			</File>
 			<File

@@ -65,7 +65,8 @@ CBrowseRefsDlg::CBrowseRefsDlg(CString cmdPath, CWnd* pParent /*=NULL*/)
 	m_currSortDesc(false),
 	m_initialRef(L"HEAD"),
 	m_pickRef_Kind(gPickRef_All),
-	m_pListCtrlRoot(NULL)
+	m_pListCtrlRoot(NULL),
+	m_bHasWC(true)
 {
 
 }
@@ -126,6 +127,8 @@ BOOL CBrowseRefsDlg::OnInitDialog()
 	CString sWindowTitle;
 	GetWindowText(sWindowTitle);
 	CAppUtils::SetWindowTitle(m_hWnd, g_Git.m_CurrentDir, sWindowTitle);
+
+	m_bHasWC = !g_GitAdminDir.IsBareRepo(g_Git.m_CurrentDir);
 
 	m_ListRefLeafs.SetFocus();
 	return FALSE;
@@ -231,8 +234,7 @@ void CBrowseRefsDlg::Refresh(CString selectRef)
 	m_RefTreeCtrl.DeleteAllItems();
 	m_ListRefLeafs.DeleteAllItems();
 	m_TreeRoot.m_ShadowTree.clear();
-	m_TreeRoot.m_csRefName="refs";
-//	m_TreeRoot.m_csShowName="Refs";
+	m_TreeRoot.m_csRefName = "refs";
 	m_TreeRoot.m_hTree=m_RefTreeCtrl.InsertItem(L"Refs",NULL,NULL);
 	m_RefTreeCtrl.SetItemData(m_TreeRoot.m_hTree,(DWORD_PTR)&m_TreeRoot);
 
@@ -244,7 +246,7 @@ void CBrowseRefsDlg::Refresh(CString selectRef)
 			  L"%(subject)%04"
 			  L"%(authorname)%04"
 			  L"%(authordate:iso8601)%03",
-			  &allRefs,CP_UTF8);
+			  &allRefs, NULL, CP_UTF8);
 
 	int linePos=0;
 	CString singleRef;
@@ -306,7 +308,7 @@ bool CBrowseRefsDlg::SelectRef(CString refName, bool bExactMatch)
 			refName = newRefName;
 		//else refName is not a valid ref. Try to select as good as possible.
 	}
-	if(wcsnicmp(refName,L"refs/",5)!=0)
+	if(_wcsnicmp(refName, L"refs/", 5) != 0)
 		return false; // Not a ref name
 
 	CShadowTree& treeLeafHead=GetTreeNode(refName,NULL,false);
@@ -340,7 +342,7 @@ CShadowTree& CBrowseRefsDlg::GetTreeNode(CString refName, CShadowTree* pTreePos,
 {
 	if(pTreePos==NULL)
 	{
-		if(wcsnicmp(refName,L"refs/",5)==0)
+		if(_wcsnicmp(refName, L"refs/", 5) == 0)
 			refName=refName.Mid(5);
 		pTreePos=&m_TreeRoot;
 	}
@@ -399,13 +401,16 @@ void CBrowseRefsDlg::FillListCtrlForShadowTree(CShadowTree* pTree, CString refNa
 {
 	if(pTree->IsLeaf())
 	{
-		int indexItem=m_ListRefLeafs.InsertItem(m_ListRefLeafs.GetItemCount(),L"");
+		if (!(pTree->m_csRefName.IsEmpty() || pTree->m_csRefName == "refs" && pTree->m_pParent == NULL))
+		{
+			int indexItem = m_ListRefLeafs.InsertItem(m_ListRefLeafs.GetItemCount(), L"");
 
-		m_ListRefLeafs.SetItemData(indexItem,(DWORD_PTR)pTree);
-		m_ListRefLeafs.SetItemText(indexItem,eCol_Name,	refNamePrefix+pTree->m_csRefName);
-		m_ListRefLeafs.SetItemText(indexItem,eCol_Date,	pTree->m_csDate);
-		m_ListRefLeafs.SetItemText(indexItem,eCol_Msg,	pTree->m_csSubject);
-		m_ListRefLeafs.SetItemText(indexItem,eCol_Hash,	pTree->m_csRefHash);
+			m_ListRefLeafs.SetItemData(indexItem,(DWORD_PTR)pTree);
+			m_ListRefLeafs.SetItemText(indexItem,eCol_Name, refNamePrefix+pTree->m_csRefName);
+			m_ListRefLeafs.SetItemText(indexItem,eCol_Date, pTree->m_csDate);
+			m_ListRefLeafs.SetItemText(indexItem,eCol_Msg, pTree->m_csSubject);
+			m_ListRefLeafs.SetItemText(indexItem,eCol_Hash, pTree->m_csRefHash);
+		}
 	}
 	else
 	{
@@ -459,7 +464,7 @@ bool CBrowseRefsDlg::ConfirmDeleteRef(VectorPShadowTree& leafs)
 			CString commonAncestorstr;
 			CString cmd;
 			cmd.Format(L"git.exe merge-base HEAD %s", leafs[0]->GetRefName());
-			g_Git.Run(cmd,&commonAncestorstr,CP_UTF8);
+			g_Git.Run(cmd, &commonAncestorstr, NULL, CP_UTF8);
 
 			commonAncestor=commonAncestorstr;
 
@@ -645,6 +650,7 @@ void CBrowseRefsDlg::ShowContextMenu(CPoint point, HTREEITEM hTreePos, VectorPSh
 		bool bShowFetchOption				= false;
 		bool bShowSwitchOption				= false;
 		bool bShowRenameOption				= false;
+		bool bShowCreateBranchOption		= false;
 
 		CString fetchFromCmd;
 
@@ -658,6 +664,7 @@ void CBrowseRefsDlg::ShowContextMenu(CPoint point, HTREEITEM hTreePos, VectorPSh
 		{
 			bShowReflogOption = true;
 			bShowFetchOption  = true;
+			bShowCreateBranchOption = true;
 
 			int dummy = 0;//Needed for tokenize
 			remoteName = selectedLeafs[0]->GetRefName();
@@ -684,9 +691,18 @@ void CBrowseRefsDlg::ShowContextMenu(CPoint point, HTREEITEM hTreePos, VectorPSh
 		if(bAddSeparator)
 			popupMenu.AppendMenu(MF_SEPARATOR);
 
-		popupMenu.AppendMenuIcon(eCmd_Switch, L"Switch to this Ref", IDI_SWITCH);
 		bAddSeparator = false;
-		popupMenu.AppendMenu(MF_SEPARATOR);
+		if (m_bHasWC)
+		{
+			popupMenu.AppendMenuIcon(eCmd_Switch, L"Switch to this Ref", IDI_SWITCH);
+			popupMenu.AppendMenu(MF_SEPARATOR);
+		}
+
+		if(bShowCreateBranchOption)
+		{
+			bAddSeparator = true;
+			popupMenu.AppendMenuIcon(eCmd_CreateBranch, L"Create branch", IDI_COPY);
+		}
 
 		if(bShowRenameOption)
 		{
@@ -744,7 +760,7 @@ void CBrowseRefsDlg::ShowContextMenu(CPoint point, HTREEITEM hTreePos, VectorPSh
 	}
 
 
-	if(hTreePos!=NULL)
+	if(hTreePos!=NULL && selectedLeafs.empty())
 	{
 		CShadowTree* pTree=(CShadowTree*)m_RefTreeCtrl.GetItemData(hTreePos);
 		if(pTree->IsFrom(L"refs/remotes"))
@@ -848,7 +864,10 @@ void CBrowseRefsDlg::ShowContextMenu(CPoint point, HTREEITEM hTreePos, VectorPSh
 		break;
 	case eCmd_CreateBranch:
 		{
-			CAppUtils::CreateBranchTag(false);
+			CString *commitHash = NULL;
+			if (selectedLeafs.size() == 1)
+				commitHash = &(selectedLeafs[0]->m_csRefHash);
+			CAppUtils::CreateBranchTag(false, commitHash);
 			Refresh();
 		}
 		break;

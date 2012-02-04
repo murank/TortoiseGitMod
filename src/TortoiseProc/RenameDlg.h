@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2006 - Stefan Kueng
 
@@ -17,13 +17,13 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #pragma once
-#include "StandAloneDlg.h"
+#include "HorizontalResizableStandAloneDialog.h"
 
 /**
  * \ingroup TortoiseProc
  * Helper dialog, asking for a new name.
  */
-class CRenameDlg : public CResizableStandAloneDialog
+class CRenameDlg : public CHorizontalResizableStandAloneDialog
 {
 	DECLARE_DYNAMIC(CRenameDlg)
 
@@ -41,7 +41,6 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
-	afx_msg void OnSizing(UINT fwSide, LPRECT pRect);
 	afx_msg void OnEnChangeName();
 
 public:

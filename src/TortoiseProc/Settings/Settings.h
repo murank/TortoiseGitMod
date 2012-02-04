@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
-// Copyright (C) 2003-2010 - TortoiseSVN
+// Copyright (C) 2008-2012 - TortoiseGit
+// Copyright (C) 2003-2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -28,13 +28,11 @@
 #include "SettingsProgsDiff.h"
 #include "SettingsProgsAlternativeEditor.h"
 #include "SettingsProgsMerge.h"
-#include "SettingsProgsUniDiff.h"
 #include "SetLookAndFeelPage.h"
 #include "SetDialogs.h"
 #include "SettingsColors.h"
 #include "SettingsColors2.h"
 #include "SettingsColors3.h"
-#include "SetMisc.h"
 #include "SetSavedDataPage.h"
 #include "SetHooks.h"
 #include "SetBugTraq.h"
@@ -44,6 +42,7 @@
 #include "SettingGitRemote.h"
 #include "SettingsBugtraqConfig.h"
 #include "SetExtMenu.h"
+#include "SettingsAdvanced.h"
 
 using namespace TreePropSheet;
 
@@ -78,14 +77,12 @@ private:
 	CSetOverlayHandlers *				m_pOverlayHandlersPage;
 	CSettingsProgsDiff*					m_pProgsDiffPage;
 	CSettingsProgsMerge *				m_pProgsMergePage;
-	CSettingsProgsUniDiff *				m_pProgsUniDiffPage;
 	CSettingsProgsAlternativeEditor *	m_pProgsAlternativeEditor;
 	CSetLookAndFeelPage *				m_pLookAndFeelPage;
 	CSetDialogs *						m_pDialogsPage;
 	CSettingsColors *					m_pColorsPage;
     CSettingsColors2 *					m_pColorsPage2;
     CSettingsColors3 *					m_pColorsPage3;
-	CSetMisc *							m_pMiscPage;
 	CSetSavedDataPage *					m_pSavedPage;
 	CSetHooks *							m_pHooksPage;
 	CSetBugTraq *						m_pBugTraqPage;
@@ -95,6 +92,7 @@ private:
 	CSettingsBugtraqConfig *			m_pBugtraqConfig;
 
 	CSetExtMenu	*						m_pExtMenu;
+	CSettingsAdvanced *					m_pAdvanced;
 
 	HICON								m_hIcon;
 

@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -23,7 +23,6 @@
 #include "Git.h"
 #include "Registry.h"
 #include ".\revertdlg.h"
-#include "CommonResource.h"
 #include "AppUtils.h"
 
 #define REFRESHTIMER   100
@@ -53,8 +52,8 @@ void CRevertDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CRevertDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ADDFILE, OnFileDropped)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -121,9 +120,9 @@ UINT CRevertDlg::RevertThread()
 	{
 		m_RevertList.SetEmptyString(m_RevertList.GetLastErrorMessage());
 	}
-	m_RevertList.Show(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWDIRECTFILES | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO,
+	m_RevertList.Show(GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | GITSLC_SHOWDIRECTFILES | GITSLC_SHOWEXTERNALFROMDIFFERENTREPO,
 						// do not select all files, only the ones the user has selected directly
-						SVNSLC_SHOWDIRECTFILES|SVNSLC_SHOWADDED);
+						GITSLC_SHOWDIRECTFILES|GITSLC_SHOWADDED);
 
 	if (m_RevertList.HasUnversionedItems())
 	{

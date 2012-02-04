@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -31,14 +31,15 @@
 #include "GitStatus.h"
 #include "HistoryDlg.h"
 #include "Hooks.h"
-#include "CommonResource.h"
 #include "UnicodeUtils.h"
+#include "../TGitCache/CacheInterface.h"
 #include "ProgressDlg.h"
 #include "ShellUpdater.h"
 #include "Commands/PushCommand.h"
 #include "PatchViewDlg.h"
 #include "COMError.h"
 #include "Globals.h"
+#include "SysProgressDlg.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -65,6 +66,7 @@ CCommitDlg::CCommitDlg(CWnd* pParent /*=NULL*/)
 	, m_bNoPostActions(FALSE)
 	, m_bAutoClose(false)
 	, m_bSetCommitDateTime(FALSE)
+	, m_bCreateNewBranch(FALSE)
 {
 	this->m_bCommitAmend=FALSE;
 	m_bPushAfterCommit = FALSE;
@@ -85,6 +87,8 @@ void CCommitDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_LOGMESSAGE, m_cLogMessage);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_COMMIT_SETDATETIME, m_bSetCommitDateTime);
+	DDX_Check(pDX, IDC_CHECK_NEWBRANCH, m_bCreateNewBranch);
+	DDX_Text(pDX, IDC_NEWBRANCH, m_sCreateNewBranch);
 	DDX_Control(pDX, IDC_SELECTALL, m_SelectAll);
 	DDX_Text(pDX, IDC_BUGID, m_sBugID);
 	DDX_Check(pDX, IDC_WHOLE_PROJECT, m_bWholeProject);
@@ -106,11 +110,11 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
 //	ON_BN_CLICKED(IDC_HISTORY, OnBnClickedHistory)
 	ON_BN_CLICKED(IDC_BUGTRAQBUTTON, OnBnClickedBugtraqbutton)
 	ON_EN_CHANGE(IDC_LOGMESSAGE, OnEnChangeLogmessage)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnGitStatusListCtrlItemCountChanged)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnGitStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_CHECKCHANGED, &CCommitDlg::OnGitStatusListCtrlCheckChanged)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ITEMCHANGED, &CCommitDlg::OnGitStatusListCtrlItemChanged)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ITEMCOUNTCHANGED, OnGitStatusListCtrlItemCountChanged)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_NEEDSREFRESH, OnGitStatusListCtrlNeedsRefresh)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ADDFILE, OnFileDropped)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_CHECKCHANGED, &CCommitDlg::OnGitStatusListCtrlCheckChanged)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ITEMCHANGED, &CCommitDlg::OnGitStatusListCtrlItemChanged)
 
 	ON_REGISTERED_MESSAGE(WM_AUTOLISTREADY, OnAutoListReady)
 	ON_WM_TIMER()
@@ -128,6 +132,7 @@ BEGIN_MESSAGE_MAP(CCommitDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_COMMIT_AMENDDIFF, &CCommitDlg::OnBnClickedCommitAmenddiff)
 	ON_BN_CLICKED(IDC_NOAUTOSELECTSUBMODULES, &CCommitDlg::OnBnClickedNoautoselectsubmodules)
 	ON_BN_CLICKED(IDC_COMMIT_SETDATETIME, &CCommitDlg::OnBnClickedCommitSetDateTime)
+	ON_BN_CLICKED(IDC_CHECK_NEWBRANCH, &CCommitDlg::OnBnClickedCheckNewBranch)
 END_MESSAGE_MAP()
 
 BOOL CCommitDlg::OnInitDialog()
@@ -137,10 +142,12 @@ BOOL CCommitDlg::OnInitDialog()
 
 	CAppUtils::GetCommitTemplate(this->m_sLogMessage);
 
-	if(PathFileExists(g_Git.m_CurrentDir+_T("\\.git\\MERGE_MSG")))
+	CString dotGitPath;
+	g_GitAdminDir.GetAdminDirPath(g_Git.m_CurrentDir, dotGitPath);
+	if(PathFileExists(dotGitPath + _T("MERGE_MSG")))
 	{
 		CStdioFile file;
-		if(file.Open(g_Git.m_CurrentDir+_T("\\.git\\MERGE_MSG"), CFile::modeRead))
+		if(file.Open(dotGitPath + _T("MERGE_MSG"), CFile::modeRead))
 		{
 			CString str;
 			while(file.ReadString(str))
@@ -151,6 +158,10 @@ BOOL CCommitDlg::OnInitDialog()
 			}
 		}
 	}
+
+	if (CTGitPath(g_Git.m_CurrentDir).IsMergeActive())
+		DialogEnableWindow(IDC_CHECK_NEWBRANCH, FALSE);
+
 	m_regAddBeforeCommit = CRegDWORD(_T("Software\\TortoiseGit\\AddBeforeCommit"), TRUE);
 	m_bShowUnversioned = m_regAddBeforeCommit;
 
@@ -177,7 +188,7 @@ BOOL CCommitDlg::OnInitDialog()
 
 	UpdateData(FALSE);
 
-	m_ListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS | SVNSLC_COLADD |SVNSLC_COLDEL, _T("CommitDlg"),(SVNSLC_POPALL ^ (SVNSLC_POPCOMMIT | SVNSLC_POPSAVEAS)));
+	m_ListCtrl.Init(GITSLC_COLEXT | GITSLC_COLSTATUS | GITSLC_COLADD |GITSLC_COLDEL, _T("CommitDlg"),(GITSLC_POPALL ^ (GITSLC_POPCOMMIT | GITSLC_POPSAVEAS)));
 	m_ListCtrl.SetSelectButton(&m_SelectAll);
 	m_ListCtrl.SetStatLabel(GetDlgItem(IDC_STATISTICS));
 	m_ListCtrl.SetCancelBool(&m_bCancelled);
@@ -268,6 +279,8 @@ BOOL CCommitDlg::OnInitDialog()
 	AddAnchor(IDC_BUGID, TOP_RIGHT);
 	AddAnchor(IDC_BUGTRAQBUTTON, TOP_RIGHT);
 	AddAnchor(IDC_COMMIT_TO, TOP_LEFT, TOP_RIGHT);
+	AddAnchor(IDC_CHECK_NEWBRANCH, TOP_RIGHT);
+	AddAnchor(IDC_NEWBRANCH, TOP_LEFT, TOP_RIGHT);
 	AddAnchor(IDC_MESSAGEGROUP, TOP_LEFT, TOP_RIGHT);
 //	AddAnchor(IDC_HISTORY, TOP_LEFT);
 	AddAnchor(IDC_LOGMESSAGE, TOP_LEFT, TOP_RIGHT);
@@ -377,6 +390,11 @@ BOOL CCommitDlg::OnInitDialog()
 
 	this->m_ctrlShowPatch.SetURL(CString());
 
+	BOOL viewPatchEnabled = FALSE;
+	m_ProjectProperties.GetBOOLProps(viewPatchEnabled, _T("tgit.commitshowpatch"));
+	if (viewPatchEnabled)
+		OnStnClickedViewPatch();
+
 	return FALSE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
 }
@@ -400,11 +418,17 @@ void CCommitDlg::OnOK()
 	}
 	this->UpdateData();
 
+	if (m_bCreateNewBranch && !g_Git.IsBranchNameValid(m_sCreateNewBranch))
+	{
+		ShowEditBalloon(IDC_NEWBRANCH, IDS_B_T_NOTEMPTY, TTI_ERROR);
+		return;
+	}
+
 	CString id;
 	GetDlgItemText(IDC_BUGID, id);
 	if (!m_ProjectProperties.CheckBugID(id))
 	{
-		ShowBalloon(IDC_BUGID, IDS_COMMITDLG_ONLYNUMBERS, IDI_EXCLAMATION);
+		ShowEditBalloon(IDC_BUGID, IDS_COMMITDLG_ONLYNUMBERS, TTI_ERROR);
 		return;
 	}
 	m_sLogMessage = m_cLogMessage.GetText();
@@ -435,25 +459,6 @@ void CCommitDlg::OnOK()
 	}
 
 	m_ListCtrl.WriteCheckedNamesToPathList(m_selectedPathList);
-#if 0
-	CRegDWORD regUnversionedRecurse (_T("Software\\TortoiseGit\\UnversionedRecurse"), TRUE);
-	if (!(DWORD)regUnversionedRecurse)
-	{
-		// Find unversioned directories which are marked for commit. The user might expect them
-		// to be added recursively since he cannot the the files. Let's ask the user if he knows
-		// what he is doing.
-		int nListItems = m_ListCtrl.GetItemCount();
-		for (int j=0; j<nListItems; j++)
-		{
-			const CGitStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(j);
-			if (entry->IsChecked() && (entry->status == Git_wc_status_unversioned) && entry->IsFolder() )
-			{
-				if (CMessageBox::Show(this->m_hWnd, IDS_COMMITDLG_UNVERSIONEDFOLDERWARNING, IDS_APPNAME, MB_YESNO | MB_ICONWARNING)!=IDYES)
-					return;
-			}
-		}
-	}
-#endif
 	m_pathwatcher.Stop();
 	InterlockedExchange(&m_bBlock, TRUE);
 	CDWordArray arDeleted;
@@ -515,10 +520,28 @@ void CCommitDlg::OnOK()
 	bool bAddSuccess=true;
 	bool bCloseCommitDlg=false;
 
+	CSysProgressDlg sysProgressDlg;
+	if (nListItems >= 10  && sysProgressDlg.IsValid())
+	{
+		sysProgressDlg.SetTitle(_T("Preparing commit..."));
+		sysProgressDlg.SetLine(1, _T("Updating index"));
+		sysProgressDlg.SetTime(true);
+		sysProgressDlg.SetShowProgressBar(true);
+		sysProgressDlg.ShowModal(this, true);
+	}
+
+	CBlockCacheForPath cacheBlock(g_Git.m_CurrentDir);
+
 	for (int j=0; j<nListItems; j++)
 	{
-		//const CGitStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(j);
 		CTGitPath *entry = (CTGitPath*)m_ListCtrl.GetItemData(j);
+		if (sysProgressDlg.IsValid())
+		{
+			sysProgressDlg.SetLine(2, entry->GetGitPathString(), true);
+			sysProgressDlg.SetProgress(j, nListItems);
+			AfxGetThread()->PumpMessage(); // process messages, in order to avoid freezing
+		}
+		//const CGitStatusListCtrl::FileEntry * entry = m_ListCtrl.GetListEntry(j);
 		if (entry->m_Checked)
 		{
 #if 0
@@ -572,7 +595,7 @@ void CCommitDlg::OnOK()
 			//uncheckedLists.insert(entry->GetGitPathString());
 			if(entry->m_Action & CTGitPath::LOGACTIONS_ADDED)
 			{	//To init git repository, there are not HEAD, so we can use git reset command
-				cmd.Format(_T("git.exe rm --cache -- \"%s\""),entry->GetGitPathString());
+				cmd.Format(_T("git.exe rm -f --cache -- \"%s\""),entry->GetGitPathString());
 				if(g_Git.Run(cmd,&out,CP_ACP))
 				{
 					CMessageBox::Show(NULL,out,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
@@ -633,7 +656,30 @@ void CCommitDlg::OnOK()
 #endif
 		}
 
+		if (sysProgressDlg.IsValid() && sysProgressDlg.HasUserCancelled())
+		{
+			bAddSuccess = false;
+			break;
+		}
+
 		CShellUpdater::Instance().AddPathForUpdate(*entry);
+	}
+
+	if (sysProgressDlg.IsValid())
+		sysProgressDlg.Stop();
+
+	if (m_bCreateNewBranch)
+	{
+		if (g_Git.Run(_T("git branch ") + m_sCreateNewBranch, &out, CP_ACP))
+		{
+			MessageBox(_T("Creating branch failed:\n") + out, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
+			bAddSuccess = false;
+		}
+		if (g_Git.Run(_T("git checkout ") + m_sCreateNewBranch, &out, CP_ACP))
+		{
+			MessageBox(_T("Switching to new branch failed:\n") + out, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
+			bAddSuccess = false;
+		}
 	}
 
 	//if(uncheckedfiles.GetLength()>0)
@@ -655,13 +701,8 @@ void CCommitDlg::OnOK()
 			m_sLogMessage = sBugID + _T("\n") + m_sLogMessage;
 	}
 
-	BOOL bIsMerge=false;
-	if(PathFileExists(g_Git.m_CurrentDir+_T("\\.git\\MERGE_HEAD")))
-	{
-		bIsMerge=true;
-	}
 	//if(checkedfiles.GetLength()>0)
-	if( bAddSuccess && (nchecked||m_bCommitAmend||bIsMerge) )
+	if (bAddSuccess && (nchecked || m_bCommitAmend ||  CTGitPath(g_Git.m_CurrentDir).IsMergeActive()))
 	{
 	//	cmd.Format(_T("git.exe update-index -- %s"),checkedfiles);
 	//	g_Git.Run(cmd,&out);
@@ -770,7 +811,7 @@ void CCommitDlg::OnOK()
 				SysFreeString(temp);
 			}
 		}
-
+		RestoreFiles(progress.m_GitStatus == 0);
 	}
 	else if(bAddSuccess)
 	{
@@ -981,8 +1022,8 @@ UINT CCommitDlg::StatusThread()
 
 	m_ListCtrl.CheckIfChangelistsArePresent(false);
 
-	DWORD dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWLOCKS | SVNSLC_SHOWINCHANGELIST;
-	dwShow |= DWORD(m_regAddBeforeCommit) ? SVNSLC_SHOWUNVERSIONED : 0;
+	DWORD dwShow = GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | GITSLC_SHOWLOCKS | GITSLC_SHOWINCHANGELIST;
+	dwShow |= DWORD(m_regAddBeforeCommit) ? GITSLC_SHOWUNVERSIONED : 0;
 	if (success)
 	{
 		if (m_checkedPathList.GetCount())
@@ -1010,6 +1051,7 @@ UINT CCommitDlg::StatusThread()
 			m_ListCtrl.SetEmptyString(m_ListCtrl.GetLastErrorMessage());
 		m_ListCtrl.Show(dwShow);
 	}
+	//
 	if ((m_ListCtrl.GetItemCount()==0)&&(m_ListCtrl.HasUnversionedItems())
 		 && !PathFileExists(g_Git.m_CurrentDir+_T("\\.git\\MERGE_HEAD")))
 	{
@@ -1017,7 +1059,7 @@ UINT CCommitDlg::StatusThread()
 		{
 			m_bShowUnversioned = TRUE;
 			GetDlgItem(IDC_SHOWUNVERSIONED)->SendMessage(BM_SETCHECK, BST_CHECKED);
-			DWORD dwShow = (DWORD)(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWLOCKS);
+			DWORD dwShow = (DWORD)(GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | GITSLC_SHOWUNVERSIONED | GITSLC_SHOWLOCKS);
 			m_ListCtrl.UpdateFileList(CGitStatusListCtrl::FILELIST_UNVER);
 			m_ListCtrl.Show(dwShow,dwShow&(~CTGitPath::LOGACTIONS_UNVER));
 		}
@@ -1112,6 +1154,7 @@ void CCommitDlg::OnCancel()
 	if (m_ProjectProperties.sLogTemplate.Compare(m_sLogMessage) != 0)
 		m_History.AddEntry(m_sLogMessage);
 	m_History.Save();
+	RestoreFiles();
 	SaveSplitterPos();
 	CResizableStandAloneDialog::OnCancel();
 }
@@ -1211,10 +1254,10 @@ void CCommitDlg::OnBnClickedShowunversioned()
 	{
 		DWORD dwShow = m_ListCtrl.GetShowFlags();
 		if (DWORD(m_regAddBeforeCommit))
-			dwShow |= SVNSLC_SHOWUNVERSIONED;
+			dwShow |= GITSLC_SHOWUNVERSIONED;
 		else
-			dwShow &= ~SVNSLC_SHOWUNVERSIONED;
-		if(dwShow & SVNSLC_SHOWUNVERSIONED)
+			dwShow &= ~GITSLC_SHOWUNVERSIONED;
+		if(dwShow & GITSLC_SHOWUNVERSIONED)
 		{
 			if(m_bWholeProject)
 				m_ListCtrl.GetStatus(NULL,false,false,true);
@@ -1823,9 +1866,9 @@ void CCommitDlg::UpdateOKButton()
 		return;
 
 	bool bValidLogSize = m_cLogMessage.GetText().GetLength() >= m_ProjectProperties.nMinLogSize && m_cLogMessage.GetText().GetLength() > 0;
-	bool bAmendOrSelectFiles = m_ListCtrl.GetSelected() > 0 || (m_bCommitAmend && m_bAmendDiffToLastCommit);
+	bool bAmendOrSelectFilesOrMerge = m_ListCtrl.GetSelected() > 0 || (m_bCommitAmend && m_bAmendDiffToLastCommit) || CTGitPath(g_Git.m_CurrentDir).IsMergeActive();
 
-	DialogEnableWindow(IDOK, bValidLogSize && bAmendOrSelectFiles);
+	DialogEnableWindow(IDOK, bValidLogSize && bAmendOrSelectFilesOrMerge);
 }
 
 LRESULT CCommitDlg::DefWindowProc(UINT message, WPARAM wParam, LPARAM lParam)
@@ -1990,7 +2033,7 @@ void CCommitDlg::OnBnClickedWholeProject()
 		else
 			m_ListCtrl.GetStatus(&this->m_pathList,true,false,true);
 
-		DWORD dwShow = (DWORD)(SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | SVNSLC_SHOWUNVERSIONED | SVNSLC_SHOWLOCKS);
+		DWORD dwShow = (DWORD)(GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALSFROMDIFFERENTREPOS | GITSLC_SHOWUNVERSIONED | GITSLC_SHOWLOCKS);
 		m_ListCtrl.Show(m_ListCtrl.GetShowFlags(), dwShow & (~CTGitPath::LOGACTIONS_UNVER|~CTGitPath::LOGACTIONS_IGNORE));
 	}
 
@@ -2022,6 +2065,10 @@ void CCommitDlg::OnStnClickedViewPatch()
 	m_patchViewdlg.m_ParentCommitDlg = this;
 	if(!IsWindow(this->m_patchViewdlg.m_hWnd))
 	{
+		BOOL viewPatchEnabled = FALSE;
+		m_ProjectProperties.GetBOOLProps(viewPatchEnabled, _T("tgit.commitshowpatch"));
+		if (viewPatchEnabled == FALSE)
+			g_Git.SetConfigValue(_T("tgit.showpatch"), _T("true"));
 		m_patchViewdlg.Create(IDD_PATCH_VIEW,this);
 		CRect rect;
 		this->GetWindowRect(&rect);
@@ -2036,6 +2083,7 @@ void CCommitDlg::OnStnClickedViewPatch()
 	}
 	else
 	{
+		g_Git.SetConfigValue(_T("tgit.commitshowpatch"), _T("false"));
 		m_patchViewdlg.ShowWindow(SW_HIDE);
 		m_patchViewdlg.DestroyWindow();
 		ShowViewPatchText(true);
@@ -2149,5 +2197,30 @@ void CCommitDlg::OnBnClickedCommitSetDateTime()
 	{
 		GetDlgItem(IDC_COMMIT_DATEPICKER)->ShowWindow(SW_HIDE);
 		GetDlgItem(IDC_COMMIT_TIMEPICKER)->ShowWindow(SW_HIDE);
+	}
+}
+
+void CCommitDlg::OnBnClickedCheckNewBranch()
+{
+	UpdateData();
+	if (m_bCreateNewBranch)
+	{
+		GetDlgItem(IDC_COMMIT_TO)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_NEWBRANCH)->ShowWindow(SW_SHOW);
+	}
+	else
+	{
+		GetDlgItem(IDC_NEWBRANCH)->ShowWindow(SW_HIDE);
+		GetDlgItem(IDC_COMMIT_TO)->ShowWindow(SW_SHOW);
+	}
+}
+
+void CCommitDlg::RestoreFiles(bool doNotAsk)
+{
+	if (m_ListCtrl.m_restorepaths.size() && (doNotAsk || CMessageBox::Show(m_hWnd, _T("You marked some files as \"Restore after commit\".\nDo you want to restore them now? You might loose all changes to this file after marking it."), _T("TortoiseGit"), 2, IDI_QUESTION, _T("Restore old state"), _T("Keep current state")) == 1))
+	{
+		for (std::map<CString, CString>::iterator it = m_ListCtrl.m_restorepaths.begin(); it != m_ListCtrl.m_restorepaths.end(); ++it)
+			CopyFile(it->second, g_Git.m_CurrentDir + _T("\\") + it->first, FALSE);
+		m_ListCtrl.m_restorepaths.clear();
 	}
 }

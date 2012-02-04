@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -178,7 +178,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 			int drivenumber = -1;
 			if ((m_State == FileStateVersioned) && g_ShellCache.ShowExcludedAsNormal() &&
 				((drivenumber=PathGetDriveNumber(pPath))!=0)&&(drivenumber!=1) &&
-				PathIsDirectory(pPath) && g_ShellCache.HasSVNAdminDir(pPath, true))
+				PathIsDirectory(pPath) && g_ShellCache.HasGITAdminDir(pPath, true))
 			{
 				return S_OK;
 			}
@@ -223,7 +223,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 					// we have to check if the path is a folder ourselves :(
 					if (PathIsDirectory(pPath))
 					{
-						if (g_ShellCache.HasSVNAdminDir(pPath, TRUE))
+						if (g_ShellCache.HasGITAdminDir(pPath, TRUE))
 						{
 							if ((!g_ShellCache.IsRecursive()) && (!g_ShellCache.IsFolderOverlay()))
 							{
@@ -271,7 +271,7 @@ STDMETHODIMP CShellExt::IsMemberOf(LPCWSTR pwszPath, DWORD /*dwAttrib*/)
 				// with an admin directory
 				if (PathIsDirectory(pPath))
 				{
-					if (g_ShellCache.HasSVNAdminDir(pPath, TRUE))
+					if (g_ShellCache.HasGITAdminDir(pPath, TRUE))
 					{
 						status = git_wc_status_normal;
 					}

@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -56,16 +56,16 @@ BOOL CAboutDlg::OnInitDialog()
 	// set the version string
 	CString temp;
 
-	CString cmd,out;
+	CString cmd, out, err;
 	cmd=_T("git.exe --version");
-	if(g_Git.Run(cmd,&out,CP_ACP))
-		out=_T("git not found");
+	if (g_Git.Run(cmd, &out, &err, CP_ACP))
+		out = _T("git not found (") + err + _T(")");;
 	int start =0;
 	out=out.Tokenize(_T("\n"),start);
 
 	CAppUtils::GetMsysgitVersion(&out);
 
-	temp.Format(IDS_ABOUTVERSION, TSVN_VERMAJOR, TSVN_VERMINOR, TSVN_VERMICRO, TSVN_VERBUILD,out);
+	temp.Format(IDS_ABOUTVERSION, TGIT_VERMAJOR, TGIT_VERMINOR, TGIT_VERMICRO, TGIT_VERBUILD,out);
 #if 0
 	const svn_version_t * svnver = svn_client_version();
 

@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,6 +24,7 @@
 #include "resource.h"
 #include "MessageBox.h"
 #include "FileDiffDlg.h"
+#include "SubmoduleDiffDlg.h"
 
 CGitDiff::CGitDiff(void)
 {
@@ -41,7 +42,7 @@ int CGitDiff::Parser(git_revnum_t &rev)
 		CString cmd;
 		cmd.Format(_T("git.exe rev-parse %s"),rev);
 		CString output;
-		if(!g_Git.Run(cmd,&output,CP_UTF8))
+		if (!g_Git.Run(cmd, &output, NULL, CP_UTF8))
 		{
 			//int start=output.Find(_T('\n'));
 			rev=output.Left(40);
@@ -56,14 +57,13 @@ int CGitDiff::SubmoduleDiffNull(CTGitPath *pPath, git_revnum_t &/*rev1*/)
 	CString oldsub ;
 	CString newsub;
 	CString newhash;
-	CString workingcopy;
 
 	CString cmd;
 	cmd.Format(_T("git.exe ls-tree  HEAD -- \"%s\""), pPath->GetGitPathString());
-	CString output;
-	if(g_Git.Run(cmd,&output,CP_ACP))
+	CString output, err;
+	if(g_Git.Run(cmd, &output, &err, CP_ACP))
 	{
-		CMessageBox::Show(NULL,output,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
+		CMessageBox::Show(NULL, output + L"\n" + err, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
 		return -1;
 	}
 
@@ -82,15 +82,10 @@ int CGitDiff::SubmoduleDiffNull(CTGitPath *pPath, git_revnum_t &/*rev1*/)
 		cmd.Format(_T("git.exe log -n1  --pretty=format:\"%%s\" %s"),newhash);
 		subgit.Run(cmd,&newsub,encode);
 
-		CString msg;
-		msg.Format(_T("Submodule <b>%s</b> Change\r\n\r\n<b>From:</b> %s\r\n\t%s\r\n\r\n<b>To%s:</b>     %s\r\n\t\t%s"),
-				pPath->GetWinPath(),
-				oldhash,
-				oldsub ,
-				workingcopy,
-				newhash,
-				newsub);
-		CMessageBox::Show(NULL,msg,_T("TortoiseGit"),MB_OK);
+		CSubmoduleDiffDlg submoduleDiffDlg;
+		submoduleDiffDlg.SetDiff(pPath->GetWinPath(), false, oldhash, oldsub, newhash, newsub);
+		submoduleDiffDlg.DoModal();
+
 		return 0;
 	}
 
@@ -138,6 +133,7 @@ int CGitDiff::DiffNull(CTGitPath *pPath, git_revnum_t rev1,bool bIsAdd)
 	CStdioFile file(tempfile,CFile::modeReadWrite|CFile::modeCreate );
 	//file.WriteString();
 	file.Close();
+	::SetFileAttributes(tempfile, FILE_ATTRIBUTE_READONLY);
 
 	CAppUtils::DiffFlags flags;
 
@@ -158,9 +154,8 @@ int CGitDiff::SubmoduleDiff(CTGitPath * pPath,CTGitPath * /*pPath2*/, git_revnum
 {
 	CString oldhash;
 	CString newhash;
-	CString cmd,err;
-	CString workingcopy;
-
+	CString cmd;
+	bool isWorkingCopy = false;
 	if( rev2 == GIT_REV_ZERO || rev1 == GIT_REV_ZERO )
 	{
 		oldhash = GIT_REV_ZERO;
@@ -172,15 +167,15 @@ int CGitDiff::SubmoduleDiff(CTGitPath * pPath,CTGitPath * /*pPath2*/, git_revnum
 		if( rev1 != GIT_REV_ZERO )
 			rev = rev1;
 
-		workingcopy = _T(" (Work Copy)");
+		isWorkingCopy = true;
 
 		cmd.Format(_T("git.exe diff %s -- \"%s\""),
 		rev,pPath->GetGitPathString());
 
-		CString output;
-		if(g_Git.Run(cmd,&output,CP_ACP))
+		CString output, err;
+		if (g_Git.Run(cmd, &output, &err, CP_ACP))
 		{
-			CMessageBox::Show(NULL,output,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
+			CMessageBox::Show(NULL, output + L"\n" + err, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
 			return -1;
 		}
 		int start =0;
@@ -206,11 +201,11 @@ int CGitDiff::SubmoduleDiff(CTGitPath * pPath,CTGitPath * /*pPath2*/, git_revnum
 		cmd.Format(_T("git.exe diff-tree -r -z %s %s -- \"%s\""),
 		rev2,rev1,pPath->GetGitPathString());
 
-		BYTE_VECTOR bytes;
-		if(g_Git.Run(cmd,&bytes))
+		BYTE_VECTOR bytes, errBytes;
+		if(g_Git.Run(cmd, &bytes, &errBytes))
 		{
 			CString err;
-			g_Git.StringAppend(&err,&bytes[0],CP_ACP);
+			g_Git.StringAppend(&err,&errBytes[0],CP_ACP);
 			CMessageBox::Show(NULL,err,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
 			return -1;
 		}
@@ -241,15 +236,10 @@ int CGitDiff::SubmoduleDiff(CTGitPath * pPath,CTGitPath * /*pPath2*/, git_revnum
 			subgit.Run(cmd,&newsub,encode);
 		}
 	}
-	CString msg;
-	msg.Format(_T("Submodule <b>%s</b> Change\r\n\r\n<b>From:</b> %s\r\n\t%s\r\n\r\n<b>To%s:</b>     %s\r\n\t\t%s"),
-				pPath->GetWinPath(),
-				oldhash,
-				oldsub ,
-				workingcopy,
-				newhash,
-				newsub);
-	CMessageBox::Show(NULL,msg,_T("TortoiseGit"),MB_OK);
+
+	CSubmoduleDiffDlg submoduleDiffDlg;
+	submoduleDiffDlg.SetDiff(pPath->GetWinPath(), isWorkingCopy, oldhash, oldsub, newhash, newsub);
+	submoduleDiffDlg.DoModal();
 
 	return 0;
 }
@@ -284,7 +274,7 @@ int CGitDiff::Diff(CTGitPath * pPath,CTGitPath * pPath2, git_revnum_t rev1, git_
 				pPath->GetFileExtension());
 		title1 = pPath->GetFileOrDirectoryName()+_T(":")+rev1.Left(6);
 		g_Git.GetOneFile(rev1,*pPath,file1);
-
+		::SetFileAttributes(file1, FILE_ATTRIBUTE_READONLY);
 	}
 	else
 	{
@@ -301,14 +291,19 @@ int CGitDiff::Diff(CTGitPath * pPath,CTGitPath * pPath2, git_revnum_t rev1, git_
 		CString temp(szTempName);
 		DeleteFile(szTempName);
 		CreateDirectory(szTempName, NULL);
+		CTGitPath fileName = *pPath2;
+		if (rev1 == GIT_REV_ZERO && pPath2->m_Action & CTGitPath::LOGACTIONS_REPLACED)
+			fileName = CTGitPath(pPath2->GetGitOldPathString());
+
 		// use original file extension, an external diff tool might need it
 		file2.Format(_T("%s\\%s-%s-left%s"),
 				temp,
-				pPath2->GetBaseFilename(),
+				fileName.GetBaseFilename(),
 				rev2.Left(6),
-				pPath2->GetFileExtension());
-		title2 = pPath2->GetFileOrDirectoryName()+_T(":")+rev2.Left(6);
-		g_Git.GetOneFile(rev2,*pPath2,file2);
+				fileName.GetFileExtension());
+		title2 = fileName.GetFileOrDirectoryName() + _T(":") + rev2.Left(6);
+		g_Git.GetOneFile(rev2, fileName, file2);
+		::SetFileAttributes(file2, FILE_ATTRIBUTE_READONLY);
 	}
 	else
 	{
@@ -337,10 +332,16 @@ int CGitDiff::Diff(CTGitPath * pPath,CTGitPath * pPath2, git_revnum_t rev1, git_
 
 int CGitDiff::DiffCommit(CTGitPath &path, GitRev *r1, GitRev *r2)
 {
-	if( path.GetWinPathString().IsEmpty() || path.IsDirectory() )
+	if (path.GetWinPathString().IsEmpty())
 	{
 		CFileDiffDlg dlg;
 		dlg.SetDiff(NULL,*r1,*r2);
+		dlg.DoModal();
+	}
+	else if (path.IsDirectory())
+	{
+		CFileDiffDlg dlg;
+		dlg.SetDiff(&path,*r1,*r2);
 		dlg.DoModal();
 	}
 	else
@@ -352,10 +353,16 @@ int CGitDiff::DiffCommit(CTGitPath &path, GitRev *r1, GitRev *r2)
 
 int CGitDiff::DiffCommit(CTGitPath &path, CString r1, CString r2)
 {
-	if( path.GetWinPathString().IsEmpty() || path.IsDirectory() )
+	if (path.GetWinPathString().IsEmpty())
 	{
 		CFileDiffDlg dlg;
 		dlg.SetDiff(NULL,r1,r2);
+		dlg.DoModal();
+	}
+	else if (path.IsDirectory())
+	{
+		CFileDiffDlg dlg;
+		dlg.SetDiff(&path,r1,r2);
 		dlg.DoModal();
 	}
 	else

@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -28,7 +28,7 @@
 //#include "..\version.h"
 //#include "libintl.h"
 #undef swprintf
-#include "SVNPropertyPage.h"
+#include "GitPropertyPage.h"
 #include "SysInfo.h"
 
 std::set<CShellExt *> g_exts;

@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -25,7 +25,6 @@
 #include "RenameDlg.h"
 #include "Git.h"
 #include "ShellUpdater.h"
-#include "CommonResource.h"
 
 bool DropCopyCommand::Execute()
 {

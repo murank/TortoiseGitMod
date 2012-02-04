@@ -1,5 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
+// Copyright (C) 2008-2011 - TortoiseGit
 // Copyright (C) 2007-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -23,7 +24,6 @@
 #include "MessageBox.h"
 #include "ChangedDlg.h"
 #include "LogDlgHelper.h"
-#include "CommonResource.h"
 #include "FileDiffDlg.h"
 
 bool PrevDiffCommand::Execute()
@@ -36,6 +36,7 @@ bool PrevDiffCommand::Execute()
 
 		dlg.m_strRev1 = GIT_REV_ZERO;
 		dlg.m_strRev2 = _T("HEAD~1");
+		dlg.m_sFilter = this->cmdLinePath.GetGitPathString();
 
 		//dlg.m_pathList = CTGitPathList(cmdLinePath);
 		dlg.DoModal();

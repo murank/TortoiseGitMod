@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2005-2007 Marco Costalba
 
 // This program is free software; you can redistribute it and/or
@@ -28,8 +28,7 @@
 // CGitLogList
 #include "cursor.h"
 #include "InputDlg.h"
-#include "PropDlg.h"
-#include "SVNProgressDlg.h"
+#include "GITProgressDlg.h"
 #include "ProgressDlg.h"
 #include "SysProgressDlg.h"
 //#include "RepositoryBrowser.h"
@@ -59,6 +58,7 @@
 #include "CommitDlg.h"
 #include "RebaseDlg.h"
 #include "GitDiff.h"
+#include "../TGitCache/CacheInterface.h"
 
 IMPLEMENT_DYNAMIC(CGitLogList, CHintListCtrl)
 
@@ -82,6 +82,8 @@ int CGitLogList::RevertSelectedCommits()
 		progress.SetTime(true);
 		progress.ShowModeless(this);
 	}
+
+	CBlockCacheForPath cacheBlock(g_Git.m_CurrentDir);
 
 	POSITION pos = GetFirstSelectedItemPosition();
 	int i=0;
@@ -147,6 +149,8 @@ int CGitLogList::CherryPickFrom(CString from, CString to)
 		progress.ShowModeless(this);
 	}
 
+	CBlockCacheForPath cacheBlock(g_Git.m_CurrentDir);
+
 	for(int i=logs.size()-1;i>=0;i--)
 	{
 		if (progress.IsValid())
@@ -199,7 +203,7 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 				this->GetParent()->PostMessage(WM_COMMAND,ID_LOGDLG_REFRESH,0);
 			}
 			break;
-			case ID_GNUDIFF1:
+			case ID_GNUDIFF1: // compare with WC, unified
 			{
 				CString tempfile=GetTempFile();
 				CString command;
@@ -242,7 +246,7 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 			}
 			break;
 
-			case ID_GNUDIFF2:
+			case ID_GNUDIFF2: // compare two revisions, unified
 			{
 				CString tempfile=GetTempFile();
 				CString cmd;
@@ -266,7 +270,7 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 			}
 			break;
 
-		case ID_COMPARETWO:
+		case ID_COMPARETWO: // compare two revisions
 			{
 				GitRev * r1 = reinterpret_cast<GitRev*>(m_arShownList.GetAt(FirstSelect));
 				GitRev * r2 = reinterpret_cast<GitRev*>(m_arShownList.GetAt(LastSelect));
@@ -275,7 +279,7 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 			}
 			break;
 
-		case ID_COMPARE:
+		case ID_COMPARE: // compare revision with WC
 			{
 				GitRev * r1 = &m_wcRev;
 				GitRev * r2 = pSelLogEntry;
@@ -375,16 +379,13 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 				CString *branch = (CString*)((CIconMenu*)popmenu)->GetMenuItemData(cmd);
 				if(branch)
 				{
-
-					CProgressDlg progress;
 					CString name;
 					if(branch->Find(_T("refs/heads/")) ==0 )
 						name = branch->Mid(11);
 					else
 						name = *branch;
-
-					progress.m_GitCmd.Format(_T("git.exe checkout %s"), name.GetString());
-					progress.DoModal();
+					
+					CAppUtils::PerformSwitch(name);
 				}
 				ReloadHashMap();
 				Invalidate();
@@ -625,44 +626,71 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 
 			break;
 
-		case ID_STASH_APPLY:
+		case ID_STASH_SAVE:
+			if (CAppUtils::StashSave())
+				Refresh();
+			break;
+
+		case ID_STASH_POP:
+			if (CAppUtils::StashPop())
+				Refresh();
+			break;
+
+		case ID_STASH_LIST:
+			CAppUtils::RunTortoiseProc(_T("/command:reflog /ref:refs/stash"));
+			break;
+
+		case ID_REFLOG_STASH_APPLY:
 			CAppUtils::StashApply(pSelLogEntry->m_Ref);
 			break;
 
 		case ID_REFLOG_DEL:
 			{
 				CString str;
-				str.Format(_T("Warning: %s will be permanently deleted. It can <ct=0x0000FF><b>NOT</b></ct> be recovered!\r\n\r\nDo you really want to continue?"),pSelLogEntry->m_Ref);
-				if(CMessageBox::Show(NULL, str, _T("TortoiseGit"), 1, IDI_QUESTION, _T("&Delete"), _T("&Abort")) == 1)
+				if (GetSelectedCount() > 1)
+					str.Format(_T("Do you really want to permanently delete the %d selected refs? It can <ct=0x0000FF><b>NOT</b></ct> be recovered!"), GetSelectedCount());
+				else
+					str.Format(_T("Warning: \"%s\" will be permanently deleted. It can <ct=0x0000FF><b>NOT</b></ct> be recovered!\r\n\r\nDo you really want to continue?"), pSelLogEntry->m_Ref);
+
+				if (CMessageBox::Show(NULL, str, _T("TortoiseGit"), 1, IDI_QUESTION, _T("&Delete"), _T("&Abort")) == 2)
+					return;
+
+				POSITION pos = GetFirstSelectedItemPosition();
+				while (pos)
 				{
-					CString cmd,out;
-					cmd.Format(_T("git.exe reflog delete %s"),pSelLogEntry->m_Ref);
+					CString ref = ((GitRev *)m_arShownList[GetNextSelectedItem(pos)])->m_Ref;
+					if (ref.Find(_T("refs/")) == 0)
+						ref = ref.Mid(5);
+					int refpos = ref.ReverseFind('{');
+					if (refpos > 0 && ref.Mid(refpos, 2) != _T("@{"))
+						ref = ref.Left(refpos) + _T("@")+ ref.Mid(refpos);
+
+					CString cmd, out;
+					if (ref.Find(_T("stash")) == 0)
+						cmd.Format(_T("git.exe stash drop %s"), ref);
+					else
+						cmd.Format(_T("git.exe reflog delete %s"), ref);
+
 					if(g_Git.Run(cmd,&out,CP_ACP))
-					{
 						CMessageBox::Show(NULL,out,_T("TortoiseGit"),MB_OK);
-					}
+
 					::PostMessage(this->GetParent()->m_hWnd,MSG_REFLOG_CHANGED,0,0);
 				}
 			}
 			break;
 		case ID_LOG:
 			{
-				CString cmd;
-				cmd = CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe");
-				cmd += _T(" /command:log");
+				CString cmd = _T("/command:log");
 				cmd += _T(" /path:\"")+g_Git.m_CurrentDir+_T("\" ");
 				GitRev * r1 = reinterpret_cast<GitRev*>(m_arShownList.GetAt(FirstSelect));
 				cmd += _T(" /endrev:")+r1->m_CommitHash.ToString();
-				CAppUtils::LaunchApplication(cmd,IDS_ERR_PROC,false);
+				CAppUtils::RunTortoiseProc(cmd);
 			}
 			break;
 		case ID_CREATE_PATCH:
 			{
 				int select=this->GetSelectedCount();
-				CString cmd;
-				cmd = CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe");
-				cmd += _T(" /command:formatpatch");
-
+				CString cmd = _T("/command:formatpatch");
 				cmd += _T(" /path:\"")+g_Git.m_CurrentDir+_T("\" ");
 
 				GitRev * r1 = reinterpret_cast<GitRev*>(m_arShownList.GetAt(FirstSelect));
@@ -688,51 +716,49 @@ void CGitLogList::ContextMenuAction(int cmd,int FirstSelect, int LastSelect, CMe
 
 				}
 
-				CAppUtils::LaunchApplication(cmd,IDS_ERR_PROC,false);
+				CAppUtils::RunTortoiseProc(cmd);
 			}
 			break;
 		case ID_PUSH:
-			if (CAppUtils::Push())
-				Refresh();
+			{
+				CString guessAssociatedBranch;
+				if (m_HashMap[pSelLogEntry->m_CommitHash].size() > 0)
+					guessAssociatedBranch = m_HashMap[pSelLogEntry->m_CommitHash].at(0);
+				if (CAppUtils::Push(guessAssociatedBranch))
+					Refresh();
+			}
 			break;
 		case ID_DELETE:
 			{
-				int index = cmd>>16;
-				if( this->m_HashMap.find(pSelLogEntry->m_CommitHash) == m_HashMap.end() )
+				CString *branch = (CString*)((CIconMenu*)popmenu)->GetMenuItemData(cmd);
+				if (!branch)
 				{
 					CMessageBox::Show(NULL,IDS_ERROR_NOREF,IDS_APPNAME,MB_OK|MB_ICONERROR);
 					return;
 				}
-				if( index >= m_HashMap[pSelLogEntry->m_CommitHash].size())
-				{
-					CMessageBox::Show(NULL,IDS_ERROR_INDEX,IDS_APPNAME,MB_OK|MB_ICONERROR);
-					return;
-				}
-				CString ref,msg;
-				ref=m_HashMap[pSelLogEntry->m_CommitHash][index];
-
-				msg=CString(_T("Do you really want to <ct=0x0000FF>delete</ct> <b>"))+ref;
+				CString msg;
+				msg=CString(_T("Do you really want to <ct=0x0000FF>delete</ct> <b>")) + *branch;
 				msg+=_T("</b>?");
 				if( CMessageBox::Show(NULL, msg, _T("TortoiseGit"), 2, IDI_QUESTION, _T("&Delete"), _T("&Abort")) == 1 )
 				{
 					CString shortname;
 					CString cmd;
-					if(this->GetShortName(ref,shortname,_T("refs/heads/")))
+					if(this->GetShortName(*branch,shortname,_T("refs/heads/")))
 					{
 						cmd.Format(_T("git.exe branch -D -- %s"),shortname);
 					}
 
-					if(this->GetShortName(ref,shortname,_T("refs/remotes/")))
+					if(this->GetShortName(*branch,shortname,_T("refs/remotes/")))
 					{
 						cmd.Format(_T("git.exe branch -r -D -- %s"),shortname);
 					}
 
-					if(this->GetShortName(ref,shortname,_T("refs/tags/")))
+					if(this->GetShortName(*branch,shortname,_T("refs/tags/")))
 					{
 						cmd.Format(_T("git.exe tag -d -- %s"),shortname);
 					}
 
-					if(this->GetShortName(ref,shortname,_T("refs/stash")))
+					if(this->GetShortName(*branch,shortname,_T("refs/stash")))
 					{
 						if(CMessageBox::Show(NULL, _T("<ct=0x0000FF>Do you really want to delete <b>ALL</b> stash?</ct>"),
 											   _T("TortoiseGit"), 2, IDI_QUESTION, _T("&Delete"), _T("&Abort")) == 1)
