@@ -23,6 +23,8 @@
 #include "stdafx.h"
 #include "SshAskPass.h"
 #include <stdio.h>
+#include "propsys.h"
+#include "PropKey.h"
 
 #define MAX_LOADSTRING 100
 
@@ -32,9 +34,6 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 
 // Forward declarations of functions included in this code module:
-ATOM				MyRegisterClass(HINSTANCE hInstance);
-BOOL				InitInstance(HINSTANCE, int);
-LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 
 TCHAR g_Promptphrase[] = _T("Enter your OpenSSH passphrase:");
@@ -60,25 +59,24 @@ int APIENTRY _tWinMain(HINSTANCE	hInstance,
 		g_Prompt = lpCmdLine;
 	}
 
-	_tcslwr(lpCmdLine); //low case
-
 	TCHAR *yesno=_T("(yes/no)");
-	int lens=_tcslen(yesno);
+	size_t lens = _tcslen(yesno);
 	TCHAR *p = lpCmdLine;
 	BOOL bYesNo=FALSE;
 
 	while(*p)
 	{
-		if(_tcsncmp(p,yesno,lens) == 0)
+		if (_tcsncicmp(p, yesno, lens) == 0)
 		{
 			bYesNo = TRUE;
+			break;
 		}
 		p++;
 	}
 
 	if(bYesNo)
 	{
-		if(::MessageBox(NULL,lpCmdLine,_T("OpenSSH"),MB_YESNO|MB_ICONQUESTION) == IDYES)
+		if (::MessageBox(NULL, lpCmdLine, _T("TortoiseGit - git CLI stdin wrapper"), MB_YESNO|MB_ICONQUESTION) == IDYES)
 		{
 			_tprintf(_T("yes"));
 		}
@@ -92,153 +90,39 @@ int APIENTRY _tWinMain(HINSTANCE	hInstance,
 	{
 		if(DialogBox(hInst, MAKEINTRESOURCE(IDD_ASK_PASSWORD), NULL, About) == IDOK)
 		{
-			_tprintf(_T("%s"), g_PassWord);
+			_tprintf(_T("%s\n"), g_PassWord);
 			return 0;
 		}
+		_tprintf(_T("\n"));
 		return -1;
 	}
-
-#if 0
-	// Initialize global strings
-	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_SSHASKPASS, szWindowClass, MAX_LOADSTRING);
-	MyRegisterClass(hInstance);
-
-	// Perform application initialization:
-	if (!InitInstance (hInstance, nCmdShow))
-	{
-		return FALSE;
-	}
-
-
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_SSHASKPASS));
-
-	// Main message loop:
-	while (GetMessage(&msg, NULL, 0, 0))
-	{
-		if (!TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-	}
-#endif
 	return (int) 0;
 }
 
-//
-//  FUNCTION: MyRegisterClass()
-//
-//  PURPOSE: Registers the window class.
-//
-//  COMMENTS:
-//
-//    This function and its usage are only necessary if you want this code
-//    to be compatible with Win32 systems prior to the 'RegisterClassEx'
-//    function that was added to Windows 95. It is important to call this function
-//    so that the application will get 'well formed' small icons associated
-//    with it.
-//
-ATOM MyRegisterClass(HINSTANCE hInstance)
+void MarkWindowAsUnpinnable(HWND hWnd)
 {
-	WNDCLASSEX wcex;
+	typedef HRESULT (WINAPI *SHGPSFW) (HWND hwnd,REFIID riid,void** ppv);
 
-	wcex.cbSize = sizeof(WNDCLASSEX);
+	HMODULE hShell = LoadLibrary(_T("Shell32.dll"));
 
-	wcex.style			= CS_HREDRAW | CS_VREDRAW;
-	wcex.lpfnWndProc	= WndProc;
-	wcex.cbClsExtra		= 0;
-	wcex.cbWndExtra		= 0;
-	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SSHASKPASS));
-	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_SSHASKPASS);
-	wcex.lpszClassName	= szWindowClass;
-	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
-
-	return RegisterClassEx(&wcex);
-}
-
-//
-//   FUNCTION: InitInstance(HINSTANCE, int)
-//
-//   PURPOSE: Saves instance handle and creates main window
-//
-//   COMMENTS:
-//
-//        In this function, we save the instance handle in a global variable and
-//        create and display the main program window.
-//
-BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
-{
-	HWND hWnd;
-
-	hInst = hInstance; // Store instance handle in our global variable
-
-	hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-						CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
-
-	if (!hWnd)
-	{
-		return FALSE;
-	}
-
-	ShowWindow(hWnd, nCmdShow);
-	UpdateWindow(hWnd);
-
-	return TRUE;
-}
-
-//
-//  FUNCTION: WndProc(HWND, UINT, WPARAM, LPARAM)
-//
-//  PURPOSE:  Processes messages for the main window.
-//
-//  WM_COMMAND	- process the application menu
-//  WM_PAINT	- Paint the main window
-//  WM_DESTROY	- post a quit message and return
-//
-//
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
-	int wmId, wmEvent;
-	PAINTSTRUCT ps;
-	HDC hdc;
-
-	switch (message)
-	{
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam);
-		wmEvent = HIWORD(wParam);
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, MAKEINTRESOURCE(IDD_ASK_PASSWORD), hWnd, About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
+	if (hShell) {
+		SHGPSFW pfnSHGPSFW = (SHGPSFW)::GetProcAddress(hShell, "SHGetPropertyStoreForWindow");
+		if (pfnSHGPSFW) {
+			IPropertyStore *pps;
+			HRESULT hr = pfnSHGPSFW(hWnd, IID_PPV_ARGS(&pps));
+			if (SUCCEEDED(hr)) {
+				PROPVARIANT var;
+				var.vt = VT_BOOL;
+				var.boolVal = VARIANT_TRUE;
+				hr = pps->SetValue(PKEY_AppUserModel_PreventPinning, var);
+				pps->Release();
+			}
 		}
-		break;
-	case WM_PAINT:
-		hdc = BeginPaint(hWnd, &ps);
-		// Add any drawing code here...
-		EndPaint(hWnd, &ps);
-		break;
-	case WM_DESTROY:
-		PostQuitMessage(0);
-		break;
-	default:
-		return DefWindowProc(hWnd, message, wParam, lParam);
+		FreeLibrary(hShell);
 	}
-	return 0;
 }
 
-// Message handler for about box.
+// Message handler for password box.
 INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 {
 	UNREFERENCED_PARAMETER(lParam);
@@ -246,6 +130,7 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_INITDIALOG:
 		{
+			MarkWindowAsUnpinnable(hDlg);
 			RECT rect;
 			::GetWindowRect(hDlg,&rect);
 			DWORD dwWidth = GetSystemMetrics(SM_CXSCREEN);
@@ -257,8 +142,23 @@ INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 
 			::MoveWindow(hDlg,x,y,rect.right-rect.left,rect.bottom-rect.top,TRUE);
 			HWND title=::GetDlgItem(hDlg,IDC_STATIC_TITLE);
-			if(g_Prompt)
-				::SetWindowText(title,g_Prompt);
+			::SetWindowText(title,g_Prompt);
+
+			TCHAR *pass =_T("pass");
+			size_t passlens = _tcslen(pass);
+			TCHAR *p = g_Prompt;
+			bool password = false;
+			while (*p)
+			{
+				if (_tcsncicmp(p, pass, passlens) == 0)
+				{
+					password = true;
+					break;
+				}
+				p++;
+			}
+			if (!password)
+				SendMessage(::GetDlgItem(hDlg, IDC_PASSWORD), EM_SETPASSWORDCHAR, 0, 0);
 		}
 		return (INT_PTR)TRUE;
 

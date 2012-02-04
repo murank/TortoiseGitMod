@@ -157,7 +157,7 @@
 			UseOfMFC="2"
 			UseOfATL="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -220,7 +220,7 @@
 			ConfigurationType="4"
 			UseOfMFC="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -358,6 +358,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommonAppUtils.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CSmtp.cpp"
 				>
 				<FileConfiguration
@@ -486,6 +490,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SmartHandle.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SoundUtils.cpp"
 				>
 			</File>
@@ -546,6 +554,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SysInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SysInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TempFile.cpp"
 				>
 			</File>
@@ -577,10 +593,6 @@
 		<Filter
 			Name="MiscUi"
 			>
-			<File
-				RelativePath=".\MiscUI\Balloon.cpp"
-				>
-			</File>
 			<File
 				RelativePath=".\MiscUI\BaseWindow.cpp"
 				>
@@ -646,15 +658,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MiscUI\ProgressDlg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MiscUI\ScrollTool.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\MiscUI\SplitterControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MiscUI\SysProgressDlg.cpp"
 				>
 			</File>
 			<File

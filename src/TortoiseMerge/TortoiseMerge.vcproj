@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\TortoiseMerge;..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI;../../ext/ResizableLib"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -132,7 +132,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\TortoiseMerge;..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;&quot;..\..\ext\apr-util\include&quot;;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI;../../ext/ResizableLib"
 				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -157,7 +157,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib $(OutDir)\libapr_tsvn.lib $(OutDir)\libaprutil_tsvn.lib ../../ext/libintl/libintl3-win32/lib/intl3_tsvn.lib $(OutDir)\xml.lib libcpmt.lib $(OutDir)/Git_mfc.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib $(OutDir)\libapr_tsvn.lib $(OutDir)\libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib $(OutDir)\xml.lib $(OutDir)/Git_mfc.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -220,7 +220,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\TortoiseMerge;..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;&quot;..\..\ext\apr-util\include&quot;;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI;../../ext/ResizableLib"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -307,7 +307,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\TortoiseMerge;..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;&quot;..\..\ext\apr-util\include&quot;;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI;../../ext/ResizableLib"
 				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -331,7 +331,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../bin/release64/bin/libapr_tsvn.lib ../../bin/release64/bin/libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib ../../bin/release64/bin/xml.lib $(OutDir)/Git_mfc.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib $(OutDir)/Git_mfc.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -392,7 +392,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="0"
@@ -416,7 +416,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib Rpcrt4.lib ../../ext/Subversion\releasestatic_win32\libsvn_diff-nonet.lib ../../ext/Subversion\releasestatic_win32\libsvn_subr-nonet.lib ../../ext/Subversion\releasestatic_win32\libsvn_client-nonet.lib ../../ext/apr\releasestatic_win32\libapr_tsvn.lib ../../ext/apr-util\releasestatic_win32\libaprutil_tsvn.lib ../../ext/Subversion\releasestatic_win32\libsvn_wc-nonet.lib ../../ext/Subversion\releasestatic_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\releasestatic_win32\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -481,7 +481,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -505,7 +505,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib ../../ext/Subversion\release_x64\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -592,7 +592,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib Rpcrt4.lib ../../ext/Subversion\debugstatic_win32\libsvn_diff-nonet.lib ../../ext/Subversion\debugstatic_win32\libsvn_subr-nonet.lib ../../ext/Subversion\debugstatic_win32\libsvn_client-nonet.lib ../../ext/apr\debugstatic_win32\libapr_tsvn.lib ../../ext/apr-util\debugstatic_win32\libaprutil_tsvn.lib ../../ext/Subversion\debugstatic_win32\libsvn_wc-nonet.lib ../../ext/Subversion\debugstatic_win32\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\debugstatic_win32\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -657,7 +657,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="3"
 				FavorSizeOrSpeed="2"
-				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\TortoiseMerge;..\crashrpt;..\;..\Utils\MiscUI"
+				AdditionalIncludeDirectories="..\..\ext\gitdll;..\git;.\svninclude;..\..\ext\apr\include;..\..\ext\apr-util\include;.\libsvn_diff;..\Utils;..\crashrpt;..\;..\Utils\MiscUI"
 				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;APR_DECLARE_STATIC;APU_DECLARE_STATIC"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -681,7 +681,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib ../../ext/Subversion\release_x64\libsvn_diff-nonet.lib ../../ext/Subversion\release_x64\libsvn_subr-nonet.lib ../../ext/Subversion\release_x64\libsvn_client-nonet.lib ../../ext/apr\release_x64\libapr_tsvn.lib ../../ext/apr-util\release_x64\libaprutil_tsvn.lib ../../ext/libintl/libintl3-x64/lib/intl3_tsvn.lib ../../ext/Subversion\release_x64\libsvn_wc-nonet.lib ../../ext/Subversion\release_x64\libsvn_delta-nonet.lib ../../ext/apr-util\xml\expat\lib\release_x64\xml.lib"
+				AdditionalDependencies="Crypt32.lib shlwapi.lib Version.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -783,10 +783,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Utils\MiscUI\ProgressDlg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\RightView.cpp"
 				>
 			</File>
@@ -869,6 +865,10 @@
 						UsePrecompiledHeader="1"
 					/>
 				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="..\Utils\MiscUI\SysProgressDlg.cpp"
+				>
 			</File>
 			<File
 				RelativePath=".\TortoiseMerge.cpp"
@@ -1063,6 +1063,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\tortoisegit_logoflipped.bmp"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\TortoiseMerge.ico"
 				>
 			</File>
@@ -1076,10 +1080,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\TortoiseMergeENG.rc"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\tortoisesvn_logoflipped.bmp"
 				>
 			</File>
 			<File
@@ -1103,6 +1103,10 @@
 				</File>
 				<File
 					RelativePath="..\Utils\CmdLineParser.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\Utils\CommonAppUtils.cpp"
 					>
 				</File>
 				<File
@@ -1210,6 +1214,10 @@
 					>
 				</File>
 				<File
+					RelativePath="..\Utils\MiscUI\StandAloneDlg.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\Utils\StringUtils.cpp"
 					>
 				</File>
@@ -1243,6 +1251,10 @@
 				</File>
 				<File
 					RelativePath="..\Utils\CmdLineParser.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Utils\CommonAppUtils.h"
 					>
 				</File>
 				<File
@@ -1287,6 +1299,14 @@
 				</File>
 				<File
 					RelativePath="..\Utils\MiscUI\ScrollTool.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Utils\SmartHandle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\Utils\MiscUI\StandAloneDlg.h"
 					>
 				</File>
 				<File

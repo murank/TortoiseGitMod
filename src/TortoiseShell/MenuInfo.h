@@ -76,8 +76,13 @@ enum GitCommands
 		ShellMenuSendMail,
 		ShellMenuGitSVNRebase,
 		ShellMenuGitSVNDCommit,
+		ShellMenuGitSVNDFetch,
 		ShellMenuGitSVNIgnore,      //import svn ignore
 		ShellMenuSync,
+		ShellMenuBisectStart,
+		ShellMenuBisectGood,
+		ShellMenuBisectBad,
+		ShellMenuBisectReset,
 		ShellMenuLastEntry			// used to mark the menu array end
 };
 

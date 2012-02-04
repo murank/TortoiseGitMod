@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -24,10 +24,12 @@
 #include "afxwinappex.h"
 #include "TortoiseGitBlame.h"
 #include "MainFrm.h"
+#include "../version.h"
 
 #include "TortoiseGitBlameDoc.h"
 #include "TortoiseGitBlameView.h"
 #include "CmdLineParser.h"
+#include "PathUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -53,19 +55,30 @@ CTortoiseGitBlameApp::CTortoiseGitBlameApp()
 	SetDllDirectory(L"");
 	EnableHtmlHelp();
 
-
 	m_bHiColorIcons = TRUE;
 }
 
 // The one and only CTortoiseGitBlameApp object
-
 CTortoiseGitBlameApp theApp;
-
+CString sOrigCWD;
 
 // CTortoiseGitBlameApp initialization
 
 BOOL CTortoiseGitBlameApp::InitInstance()
 {
+	{
+		DWORD len = GetCurrentDirectory(0, NULL);
+		if (len)
+		{
+			auto_buffer<TCHAR> originalCurrentDirectory(len);
+			if (GetCurrentDirectory(len, originalCurrentDirectory))
+			{
+				sOrigCWD = originalCurrentDirectory;
+				sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
+			}
+		}
+	}
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -150,9 +163,9 @@ public:
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
+	BOOL OnInitDialog();
 
 // Implementation
-protected:
 	DECLARE_MESSAGE_MAP()
 };
 
@@ -167,6 +180,22 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialog)
 END_MESSAGE_MAP()
+
+BOOL CAboutDlg::OnInitDialog()
+{
+	CDialog::OnInitDialog();
+
+	TCHAR verbuf[1024] = {0};
+	TCHAR maskbuf[1024] = {0};
+	if (!::LoadString(GetModuleHandle(NULL), IDS_VERSION, maskbuf, _countof(maskbuf)))
+	{
+		SecureZeroMemory(maskbuf, sizeof(maskbuf));
+	}
+	_stprintf_s(verbuf, maskbuf, TGIT_VERMAJOR, TGIT_VERMINOR, TGIT_VERMICRO, TGIT_VERBUILD);
+	SetDlgItemText(IDC_VERSION, verbuf);
+
+	return FALSE;
+}
 
 // App command to run the dialog
 void CTortoiseGitBlameApp::OnAppAbout()

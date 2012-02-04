@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -123,17 +123,13 @@ bool RemoveCommand::Execute()
 	//if(key == IDCANCEL)
 	int key;
 
-	CString format;
+	CString format, keepLocal;
+	if(parser.HasKey(_T("keep")))
+		keepLocal = _T(" from the index");
 	if (pathList.GetCount() > 1)
-	{
-		format = _T("Do you really want to remove the %d selected files/directories?");
-		format.Format(format, pathList.GetCount());
-	}
+		format.Format(_T("Do you really want to remove the %d selected files/directories%s?"), pathList.GetCount(), keepLocal);
 	else
-	{
-		format = _T("Do you really want to remove \"%s\"?");
-		format.Format(format, pathList[0].GetGitPathString());
-	}
+		format.Format(_T("Do you really want to remove \"%s\"%s?"), pathList[0].GetGitPathString(), keepLocal);
 	if (CMessageBox::Show(hwndExplorer, format, _T("TortoiseGit"), 2, IDI_QUESTION, _T("&Remove"), _T("&Abort")) == 2) {
 		return false;
 	}

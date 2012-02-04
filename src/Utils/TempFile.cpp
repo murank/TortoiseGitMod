@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -20,6 +20,7 @@
 #include "Registry.h"
 #include "TempFile.h"
 #include "TGitPath.h"
+#include "SmartHandle.h"
 
 CTempFiles::CTempFiles(void)
 {
@@ -68,8 +69,7 @@ CTGitPath CTempFiles::GetTempFilePath(bool bRemoveAtEnd, const CTGitPath& path /
 	}
 	//now create the temp file, so that subsequent calls to GetTempFile() return
 	//different filenames.
-	HANDLE hFile = CreateFile(tempfile.GetWinPath(), GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
-	CloseHandle(hFile);
+	CAutoFile hFile = CreateFile(tempfile.GetWinPath(), GENERIC_READ, FILE_SHARE_READ, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_TEMPORARY, NULL);
 	delete [] temppath;
 	delete [] tempF;
 	if (bRemoveAtEnd)

@@ -125,7 +125,7 @@ BOOL CCreateBranchTagDlg::OnInitDialog()
 	CAppUtils::SetWindowTitle(m_hWnd, g_Git.m_CurrentDir, sWindowTitle);
 
 	// show the switch checkbox if we are a create branch dialog
-	this->GetDlgItem(IDC_CHECK_SWITCH)->ShowWindow( !m_bIsTag );
+	this->GetDlgItem(IDC_CHECK_SWITCH)->ShowWindow( !m_bIsTag && !g_GitAdminDir.IsBareRepo(g_Git.m_CurrentDir));
 	CWnd* pHead = GetDlgItem(IDC_RADIO_HEAD);
 	CString HeadText;
 	pHead->GetWindowText( HeadText );
@@ -155,14 +155,14 @@ void CCreateBranchTagDlg::OnBnClickedOk()
 
 	if(this->m_bSign && this->m_Message.IsEmpty())
 	{
-		CMessageBox::Show(NULL, IDS_COMMITDLG_NOMESSAGE, IDS_TORTOISEGIT, MB_OK);
+		CMessageBox::Show(NULL, IDS_COMMITDLG_NOMESSAGE, IDS_APPNAME, MB_OK);
 		return;
 	}
 
 	this->m_BranchTagName.Trim();
 	if(!g_Git.IsBranchNameValid(this->m_BranchTagName))
 	{
-		CMessageBox::Show(NULL, IDS_B_T_NOTEMPTY, IDS_TORTOISEGIT, MB_OK);
+		CMessageBox::Show(NULL, IDS_B_T_NOTEMPTY, IDS_APPNAME, MB_OK);
 		return;
 	}
 	this->UpdateRevsionName();

@@ -32,6 +32,10 @@ bool CloneCommand::Execute()
 {
 	CCloneDlg dlg;
 	dlg.m_Directory=this->orgCmdLinePath.GetWinPathString();
+
+	if (parser.HasKey(_T("url")))
+		dlg.m_URL = parser.GetVal(_T("url"));
+
 	if(dlg.DoModal()==IDOK)
 	{
 		CString recursiveStr;
@@ -57,12 +61,20 @@ bool CloneCommand::Execute()
 		CString dir=dlg.m_Directory;
 		CString url=dlg.m_URL;
 
-		// is this a windows format UNC path, ie starts with \\
+		// is this a windows format UNC path, ie starts with \\?
 		if (url.Find(_T("\\\\")) == 0)
 		{
 			// yes, change all \ to /
 			// this should not be necessary but msysgit does not support the use \ here yet
-			url.Replace( _T('\\'), _T('/'));
+			int atSign = url.Find(_T('@'));
+			if (atSign > 0)
+			{
+				CString path = url.Mid(atSign);
+				path.Replace(_T('\\'), _T('/'));
+				url = url.Mid(0, atSign) + path;
+			}
+			else
+				url.Replace( _T('\\'), _T('/'));
 		}
 
 		CString depth;
@@ -70,6 +82,8 @@ bool CloneCommand::Execute()
 		{
 			depth.Format(_T(" --depth %d"),dlg.m_nDepth);
 		}
+
+		g_Git.m_CurrentDir = this->orgCmdLinePath.GetWinPathString();
 
 		CString cmd;
 		CString progressarg;
@@ -125,6 +139,7 @@ bool CloneCommand::Execute()
 			if(dlg.m_bAutoloadPuttyKeyFile)
 			{
 				g_Git.m_CurrentDir = dlg.m_Directory;
+				SetCurrentDirectory(g_Git.m_CurrentDir);
 
 				if(g_Git.SetConfigValue(_T("remote.origin.puttykeyfile"),dlg.m_strPuttyKeyFile, CONFIG_LOCAL,CP_ACP,&dlg.m_Directory))
 				{

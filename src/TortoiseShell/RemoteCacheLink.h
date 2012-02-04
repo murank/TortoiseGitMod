@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -18,7 +18,7 @@
 //
 #pragma once
 
-struct TSVNCacheResponse;
+struct TGITCacheResponse;
 class CTGitPath;
 
 #include "GitStatus.h"
@@ -34,7 +34,7 @@ public:
 	~CRemoteCacheLink(void);
 
 public:
-	bool GetStatusFromRemoteCache(const CTGitPath& Path, TSVNCacheResponse* pReturnedStatus, bool bRecursive);
+	bool GetStatusFromRemoteCache(const CTGitPath& Path, TGITCacheResponse* pReturnedStatus, bool bRecursive);
 	bool ReleaseLockForPath(const CTGitPath& path);
 
 private:

@@ -1,9 +1,107 @@
+= Release 1.7.7.0 =
+== Features==
+ * Fixed issue #758: Make the log of a bare repository available
+ * Fixed issue #880: Allow sync / fetch / push on bare repository
+ * Fixed issue #818: SafeCRLF = warn should be available
+ * Fixed issue #855: moved up Git page in settings dialog
+ * Fixed issue #999: Added "Diff submodule" dialog
+ * Fixed issue #1019: better indicate errors to user on progress dialog
+ * Added "Show Log before rename/copy" on log dialog file list
+ * Added basic support for separate-git-dir (Overlays are not working yet)
+ * Fixed issue #1042: Allow to delete branch after successful merge
+ * Fixed issue #1040: Commit to new branch
+ * Fixed issue #1043: Add 'Stash' to 'Working dir changes' context menu in log dialog
+ * Added support for Windows 7 libraries
+ * Fixed issue #222: support partially committing a file
+
+== Bug Fix ==
+ * Updated shipped PuTTY binaries to version 0.62
+ * Fixed issue #1000: Git commit doesn't work
+ * Fixed issue #587: Log entries with tag/branch/head marker don't highlight correctly
+ * Fixed issue #1004: git svn fetch/rebase/clone return an error for ssh authorization
+ * Reenabled --topo-order for log. Users who do not want this, can disable it on settings dialog
+ * Fixed issue #1024: commit freezes after click on ok with a lot of files
+ * Fixed issue #1026: Cannot configure (and autoload) putty key for submodules with new mSysGit.
+ * Fixed issue #849: Searching in log breaks graph/branch-line
+ * Fixed issue #1030: Does not close handle after export to zip
+ * Fixed issue #1025: branch is not recognized correctly with separate-git-dir
+ * Fixed issue #1022: Cannot add files to submodules with-separate-git-dir
+ * Fixed issue #1008: Bug Id not displayed in Log Messages (multiline comment)
+ * Fixed issue #1020: Incorrect Overlays on large repos (> 2 GiB), upgraded libgit2
+ * Fixed issue #607, issue #1005: Tortoisegit overlay icons are not correctly shown for new create local repo
+ * Fixed issue #1051: Adding files using the add files dialog doesn't normalize line endings
+ * Fixed issue #582, issue #956, issue #960, issue #973, issue #980, issue #959, issue #1016: 100% CPU and icons blinking bugs in TGitCache
+ * Fixed issue #1044: Add file to index with special character (ei – "dash") or accent fail without any message
+
+== Known Issue ==
+ * separate-git-dir .git-directories do not work for overlays
+
+= Release 1.7.6.0 =
+== Features==
+ * Fixed issue #972: Add "fast forward only" checkbox in pull dialog
+ * Fixed issue #976: Compare Revisions should inherit path filter
+ * Fixed issue #869: TortoiseProc CloneCommand is ignoring "url" command line parameter
+ * Fixed issue #820: Missing menu item for "git svn fetch"
+ * Fixed issue #792: Fetch progress window should have a "Log" button
+ * Fixed issue #451: rebase (maybe be for any conflicts) select multiple files to mark
+ * Fixed issue #894: Make images "open with" TortoiseIDiff
+ * Fixed issue #985: Store status for view patch in commit dialog
+ * Fixed issue #977: Fetch does not have an option to fetch tags
+ * Fixed issue #801: Be able to enter a custom stash message
+ * Fixed issue #933: implement git stash --include-untracked
+ * Fixed issue #987: Add Stash save/pop to "Working Dir Changes" dialog
+ * Fixed issue #988: Stash pop/apply fail should have a button for viewing conflicts
+ * Fixed issue #676: Add remove remote tag ability
+ * Fixed issue #678: TortoiseGitBlame log incomplete (integrated --follow into TortoiseGitBlame)
+
+== Bug Fix ==
+ * Fixed issue #747: TortoiseProc & less process not closing
+ * Fixed issue #808: Less: file viewer stop work when use show-low
+ * Fixed issues #931, #934 ,#948: TortoiseProc crashes when repo contains huge files (on x86)
+   Upgraded gitdll, libgit and tgit.exe to 1.7.7.2
+ * Fixed issue #936: Applying a stash from the list fails
+ * Fixed issue #962: git_init in gitdll.c uses USERPROFILE for creating home
+ * Fixed issue #964: Can't mark conflict as resolved
+ * Fixed issue #867: Add should not run a new Git process for each file
+ * Fixed issue #981: After Aborting a Rebase a different Commit is checked out
+ * Fixed issue #670: Cannot delete/apply individual stash entries
+ * Fixed issue #863: Commit and revert gets stuck on repositories with mixed line-endings
+ * Fixed issue #378: CRLF/LF conversion causes commit dialog to freeze
+ * Fixed issue #858: Tortoise Git Client crash when showing the log dialog
+ * Fixed issue #920: TortoiseGitBlame and UTF-16 LE
+ * updated documentation
+ * Fixed issue #994: Git clone from SVN - Depth field is useless
+ * Fixed issue #996: Compare with Working Copy error on renamed files
+
+= Release 1.7.5.0 =
+== Features==
+ * Fixed issue #260: Added support for bisect
+ * Fixed issue #916: Fixed wrong contextmenu icon display position with installed TSVN 1.7
+ * Add new command to diff two selected files in the CGitStatusListCtrl.
+
+== Bug Fix ==
+ * Fixed issue #931: TGitCache: Missing NULL check
+ * Fixed issue #935: TortoiseMerge removes newlines at file end
+ * Fixed issue #931: libgit2 had problems with big pack files
+ * Fixed issue #486: Resolving conflicts can result in nothing to commit and branch merge not concluded
+ * Fixed issue #938: *Backlash* between user name and domain name is incorrectly replaced by *Slash*
+ * Fixed issue #941: Performing diff on an unchanged file behaves like a diff with an added file
+ * Fixed issue #928: Mark diff-tempfiles as read-only
+ * Fixed issue #951: Alt+S conflict for sign and set date
+ * Fixed issue #949: TortoiseMerge does not allow copying to the clipboard via Ctrl+Insert
+ * Fixed issue #950: avoid possible crash if .git/packed-refs contains annotated tags
+ * Fixed issue #915: TortoiseProc memory corruption on empty repo
+ * Fixed issue #959: Overlay icons are not updated immediately
+
 = Release 1.7.4.0 =
 == Features==
  * Add Show Environment variables at setting dialog to help debug user problem.
  * Allow users to be warned if there is no Signed-Off-By line in a commit message
  * Fixed issue #375: Implement --date/time option gui interface in the commit dialog
- * Remember last selected commit/line on log filtering
+ * Fixed issue #814: Remember last selected commit/line on log filtering
+ * Allow to "Update submodules" after pull or hard reset
+ * Fixed issue #780: "Merge to [branch]..." should pre-select the chosen commit's branch or tag name
+ * Fixed issue #459: Implement more talkative name than just 'Revert fail'
 
 == Bug Fix ==
  * Fixed issue #899: Push via Showlog  use Push with force option
@@ -11,7 +109,8 @@
  * Fixed issue #881: "Create repository here" should warn if target directory is not empty
  * Fix wrong contextmenu icon display position when install TSVN 1.7 on WinXP
  * TGitCache: Fix sometime project root show as unversioned icon
- * TGitCache: Fix sometime show "+" at tracked items.
+ * Fixed issues #862, #870: TGitCache: Fix sometime show "+" at tracked items
+ * Upgraded libgit2 to 0.15.0
  * Fixed issue #716: Aborted clone leaves git process running
  * Fixed issue #787: Problem of setting proxy for work using HTTPS
  * Fixed issue #908: TortoiseGit crashes if .git/config-file is broken
@@ -21,6 +120,7 @@
  * Fixed issue #914: unifiled diff always show wrong changes (base files compare with new files)
  * Fixed issue #673: Applying a patch does not honour CRLF in files
  * Fixed issue #713: apply serial patch window need to improve
+ * Fixed issue #922: Settings / Git / Config / Edit global .gitconfig uses wrong path
 
 = Release 1.7.3.0 =
 == Features ==
@@ -33,10 +133,10 @@
  * Fixed issue #864: Show log crashes when commit with "encoding" in comment exists
  * Fixed issue #851: Windows Explorer Shell Crashed when empty repository
  * Fixed open handles in TGitCache
+   Fixed issues #497, #623, #892: TortoiseGit locks repository folders so that the user can't delete them
  * Fixed issue #870: Wrong overlay icons
  * Fixed issue #793: Context menu for files does not contain "Add to ignore list"
  * Fixed issue #860: Commit file moves does not properly remove the source file 
- * Fixed issue #863: Commit and revert gets stuck on repositories with mixed line-endings
  * Fixed issue #386: Commit dialog does not preserve selection when toggling "Whole project"
 
 = Release 1.7.2.0 =
@@ -131,6 +231,7 @@
  * Fixed issue #791: /CloseOnEnd not working for switch
  * TortoiseGitCache
    Partly rewritten to fix various issues.
+ * Fixed issue #415: Fix the Settings/General/Context menu/Apply operation (missing LF trimming)
 
 = Release 1.6.5.0 =
 == Bug Fix ==
@@ -399,7 +500,7 @@
  * Fixed issue #454: Fix "check Now" can't work at setting dialog
  * Fixed issue #457: Git copy versioned item(s) here adds all unversioned files
  * put pull, push and fetch to external manual.
- * Fixed issue #460: ¡°Show changes as unified diff¡± compares files in reverse order.
+ * Fixed issue #460: "Show changes as unified diff" compares files in reverse order.
  * Fix history combobox show twice item
 
 = Release 1.5.1.0 =
@@ -434,11 +535,11 @@
 
 
 == Bug Fix ==
- * Fixed issue #401: TGitCache.exe keeps open pack-xxx.idx on git repo*
- * Fix issue review patch fail when there are new FilePatchesDlg.cpp*
- * Fix all file show "+" icon after run git gc*
- * Fixed issue #449: Files not in the Commit dialog are committed if in index*
- * Fixed issue #450: Log Messages file list wrong when choose children dir firstly.*
+ * Fixed issue #401: TGitCache.exe keeps open pack-xxx.idx on git repo
+ * Fix issue review patch fail when there are new FilePatchesDlg.cpp
+ * Fix all file show "+" icon after run git gc
+ * Fixed issue #449: Files not in the Commit dialog are committed if in index
+ * Fixed issue #450: Log Messages file list wrong when choose children dir firstly.
  * Fixed issue #387: "Automatically check for newer versions every week" remains disabled
  * Show correct file when Add new file at tortoisemerge
  * Fixed issue #381: About screen of TortoiseMerge shows invalid build information
@@ -1092,4 +1193,3 @@
  * Commit change
  * Show Log
  * Create Repository
-
