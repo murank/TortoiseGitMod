@@ -3,10 +3,10 @@
 #include "LogDlg.h"
 #include "BrowseRefsDlg.h"
 #include "HistoryCombo.h"
-#include "Balloon.h"
 #include "HistoryCombo.h"
-#include "AppUtils.h"
+#include "LoglistUtils.h"
 #include "UnicodeUtils.h"
+#include "Tooltip.h"
 
 class CBranchCombox
 {
@@ -24,7 +24,7 @@ protected:
 	int m_LocalBranchFilter;
 	int m_RemoteBranchFilter;
 
-	CBalloon *m_pTooltip;
+	CToolTips *m_pTooltip;
 
 	CString m_DialogName;
 
@@ -121,7 +121,7 @@ protected:
 	virtual void RemoteBranchChange(){};
 	virtual void SetRemote(CString remote){};
 
-	void AddBranchToolTips(CHistoryCombo *pBranch,CBalloon *tip)
+	void AddBranchToolTips(CHistoryCombo *pBranch, CToolTips *tip)
 	{
 		if(pBranch&&tip)
 		{
@@ -135,10 +135,10 @@ protected:
 				return;
 			}
 
-			tooltip.Format(_T("CommitHash:%s\nCommit by: %s  %s\n <b>%s</b> \n %s"),
+			tooltip.Format(_T("CommitHash: %s\nCommit by: %s\nDate:%s\n%s\n%s"),
 				rev.m_CommitHash.ToString(),
 				rev.GetAuthorName(),
-				CAppUtils::FormatDateAndTime(rev.GetAuthorDate(),DATE_LONGDATE),
+				CLoglistUtils::FormatDateAndTime(rev.GetAuthorDate(), DATE_LONGDATE),
 				rev.GetSubject(),
 				rev.GetBody());
 

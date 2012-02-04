@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -118,12 +118,14 @@ ULONGLONG CLogCache::GetOffset(CGitHash &hash,SLogCacheIndexFile *pData)
 int CLogCache::FetchCacheIndex(CString GitDir)
 {
 	int ret=0;
-	this->m_GitDir = GitDir;
+	if (!g_GitAdminDir.GetAdminDirPath(GitDir, m_GitDir))
+		return -1;
+
 	do
 	{
 		if( m_IndexFile == INVALID_HANDLE_VALUE)
 		{
-			CString file = GitDir+_T("\\.git\\")+INDEX_FILE_NAME;
+			CString file = m_GitDir + INDEX_FILE_NAME;
 			m_IndexFile = CreateFile(file,
 						GENERIC_READ,
 						FILE_SHARE_READ|FILE_SHARE_DELETE|FILE_SHARE_WRITE,
@@ -167,7 +169,7 @@ int CLogCache::FetchCacheIndex(CString GitDir)
 
 		if(	m_DataFile == INVALID_HANDLE_VALUE )
 		{
-			CString file = GitDir+_T("\\.git\\")+DATA_FILE_NAME;
+			CString file = m_GitDir + DATA_FILE_NAME;
 			m_DataFile = CreateFile(file,
 						GENERIC_READ,
 						FILE_SHARE_READ|FILE_SHARE_DELETE|FILE_SHARE_WRITE,
@@ -214,8 +216,8 @@ int CLogCache::FetchCacheIndex(CString GitDir)
 	if(ret)
 	{
 		CloseIndexHandles();
-		::DeleteFile(GitDir+_T("\\.git\\")+INDEX_FILE_NAME);
-		::DeleteFile(GitDir+_T("\\.git\\")+DATA_FILE_NAME);
+		::DeleteFile(m_GitDir + INDEX_FILE_NAME);
+		::DeleteFile(m_GitDir + DATA_FILE_NAME);
 	}
 	return ret;
 
@@ -364,10 +366,13 @@ int CLogCache::SaveCache()
 	int ret =0;
 	BOOL bIsRebuild=false;
 
-	if( this->m_HashMap.size() == 0 )
+	if( this->m_HashMap.size() == 0 ) // is not sufficient, because "working copy changes" are always included
 		return 0;
 
 	if( this->m_GitDir.IsEmpty())
+		return 0;
+
+	if (this->m_pCacheIndex && m_pCacheIndex->m_Header.m_ItemCount == 0) // check for empty log list (issue #915)
 		return 0;
 
 	SLogCacheIndexFile *pIndex =  NULL;
@@ -387,7 +392,7 @@ int CLogCache::SaveCache()
 	this->CloseIndexHandles();
 
 	SLogCacheIndexHeader header;
-	CString file = this->m_GitDir +_T("\\.git\\")+INDEX_FILE_NAME;
+	CString file = this->m_GitDir + INDEX_FILE_NAME;
 	do
 	{
 		m_IndexFile = CreateFile(file,
@@ -404,7 +409,7 @@ int CLogCache::SaveCache()
 			break;
 		}
 
-		file = m_GitDir+_T("\\.git\\")+DATA_FILE_NAME;
+		file = m_GitDir + DATA_FILE_NAME;
 
 		m_DataFile = CreateFile(file,
 						GENERIC_READ|GENERIC_WRITE,

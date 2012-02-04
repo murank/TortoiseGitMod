@@ -41,7 +41,6 @@ END_MESSAGE_MAP()
 
 CTortoiseMergeApp::CTortoiseMergeApp()
 {
-	SetDllDirectory(L"");
 	EnableHtmlHelp();
 	m_bLoadUserToolbars = FALSE;
 	m_bSaveState = FALSE;
@@ -49,13 +48,30 @@ CTortoiseMergeApp::CTortoiseMergeApp()
 
 // The one and only CTortoiseMergeApp object
 CTortoiseMergeApp theApp;
+CString sOrigCWD;
 CCrashReport g_crasher("tortoisesvn@gmail.com", "Crash Report for TortoiseMerge " APP_X64_STRING " : " STRPRODUCTVER, TRUE);
 
 // CTortoiseMergeApp initialization
 BOOL CTortoiseMergeApp::InitInstance()
 {
+	SetDllDirectory(L"");
+
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 	CMFCButton::EnableWindowsTheming();
+
+	{
+		DWORD len = GetCurrentDirectory(0, NULL);
+		if (len)
+		{
+			auto_buffer<TCHAR> originalCurrentDirectory(len);
+			if (GetCurrentDirectory(len, originalCurrentDirectory))
+			{
+				sOrigCWD = originalCurrentDirectory;
+				sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
+			}
+		}
+	}
+
 	//set the resource dll for the required language
 	CRegDWORD loc = CRegDWORD(_T("Software\\TortoiseGit\\LanguageID"), 1033);
 	long langId = loc;
@@ -63,8 +79,8 @@ BOOL CTortoiseMergeApp::InitInstance()
 	HINSTANCE hInst = NULL;
 	do
 	{
-		langDll.Format(_T("..\\Languages\\TortoiseMerge%d.dll"), langId);
-		
+		langDll.Format(_T("%sLanguages\\TortoiseMerge%d.dll"), (LPCTSTR)CPathUtils::GetAppParentDirectory(), langId);
+
 		hInst = LoadLibrary(langDll);
 		CString sVer = _T(STRPRODUCTVER);
 		CString sFileVer = CPathUtils::GetVersionFromFile(langDll);

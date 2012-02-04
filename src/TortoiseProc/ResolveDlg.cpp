@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -20,7 +20,6 @@
 #include "TortoiseProc.h"
 #include "messagebox.h"
 #include "ResolveDlg.h"
-#include "CommonResource.h"
 #include "AppUtils.h"
 
 #define REFRESHTIMER   100
@@ -48,8 +47,8 @@ void CResolveDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CResolveDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SELECTALL, OnBnClickedSelectall)
 	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ADDFILE, OnFileDropped)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ADDFILE, OnFileDropped)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -58,7 +57,7 @@ BOOL CResolveDlg::OnInitDialog()
 	CResizableStandAloneDialog::OnInitDialog();
 	CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
-	m_resolveListCtrl.Init(SVNSLC_COLEXT, _T("ResolveDlg"), SVNSLC_POPALL ^ (SVNSLC_POPIGNORE|SVNSLC_POPADD|SVNSLC_POPCOMMIT));
+	m_resolveListCtrl.Init(GITSLC_COLEXT, _T("ResolveDlg"), GITSLC_POPALL ^ (GITSLC_POPIGNORE|GITSLC_POPADD|GITSLC_POPCOMMIT));
 	m_resolveListCtrl.SetConfirmButton((CButton*)GetDlgItem(IDOK));
 	m_resolveListCtrl.SetSelectButton(&m_SelectAll);
 	m_resolveListCtrl.SetCancelBool(&m_bCancelled);
@@ -67,7 +66,7 @@ BOOL CResolveDlg::OnInitDialog()
 
 	CString sWindowTitle;
 	GetWindowText(sWindowTitle);
-	CAppUtils::SetWindowTitle(m_hWnd, m_pathList.GetCommonRoot().GetUIPathString(), sWindowTitle);
+	CAppUtils::SetWindowTitle(m_hWnd, g_Git.m_CurrentDir, sWindowTitle);
 
 	AdjustControlSize(IDC_SELECTALL);
 
@@ -143,7 +142,7 @@ UINT CResolveDlg::ResolveThread()
 	{
 		m_resolveListCtrl.SetEmptyString(m_resolveListCtrl.GetLastErrorMessage());
 	}
-	m_resolveListCtrl.Show(SVNSLC_SHOWCONFLICTED|SVNSLC_SHOWINEXTERNALS, SVNSLC_SHOWCONFLICTED);
+	m_resolveListCtrl.Show(GITSLC_SHOWCONFLICTED|GITSLC_SHOWINEXTERNALS, GITSLC_SHOWCONFLICTED);
 
 	InterlockedExchange(&m_bThreadRunning, FALSE);
 	return 0;

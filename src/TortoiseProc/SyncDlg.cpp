@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2009 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,12 +23,13 @@
 #include "stdafx.h"
 #include "TortoiseProc.h"
 #include "SyncDlg.h"
+#include "AppUtils.h"
 #include "progressdlg.h"
 #include "MessageBox.h"
 #include "ImportPatchDlg.h"
-#include "PathUtils.h"
 #include "RebaseDlg.h"
 #include "hooks.h"
+#include "SmartHandle.h"
 
 // CSyncDlg dialog
 
@@ -337,14 +338,14 @@ void CSyncDlg::FetchComplete()
 
 		if(response == IDC_REBASE_POST_BUTTON)
 		{
-			CString cmd,out;
+			CString cmd, out, err;
 			cmd.Format(_T("git.exe  format-patch -o \"%s\" %s..%s"),
 					g_Git.m_CurrentDir,
 					g_Git.FixBranchName(dlg.m_Upstream),
 					g_Git.FixBranchName(dlg.m_Branch));
-			if(g_Git.Run(cmd,&out,CP_ACP))
+			if(g_Git.Run(cmd, &out, &err, CP_ACP))
 			{
-				CMessageBox::Show(NULL,out,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
+				CMessageBox::Show(NULL, out + L"\n" + err, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
 				return ;
 			}
 
@@ -505,7 +506,7 @@ void CSyncDlg::OnBnClickedButtonApply()
 
 void CSyncDlg::OnBnClickedButtonEmail()
 {
-	CString cmd,out;
+	CString cmd, out, err;
 
 	this->m_strLocalBranch = this->m_ctrlLocalBranch.GetString();
 	this->m_ctrlRemoteBranch.GetWindowText(this->m_strRemoteBranch);
@@ -517,9 +518,9 @@ void CSyncDlg::OnBnClickedButtonEmail()
 					g_Git.m_CurrentDir,
 					m_strURL+_T('/')+m_strRemoteBranch,g_Git.FixBranchName(m_strLocalBranch));
 
-	if(g_Git.Run(cmd,&out,CP_ACP))
+	if (g_Git.Run(cmd, &out, &err, CP_ACP))
 	{
-		CMessageBox::Show(NULL,out,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
+		CMessageBox::Show(NULL, out + L"\n" + err, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
 		return ;
 	}
 
@@ -563,7 +564,7 @@ BOOL CSyncDlg::OnInitDialog()
 	// not elevated, this is a no-op.
 	CHANGEFILTERSTRUCT cfs = { sizeof(CHANGEFILTERSTRUCT) };
 	typedef BOOL STDAPICALLTYPE ChangeWindowMessageFilterExDFN(HWND hWnd, UINT message, DWORD action, PCHANGEFILTERSTRUCT pChangeFilterStruct);
-	HMODULE hUser = ::LoadLibrary(_T("user32.dll"));
+	CAutoLibrary hUser = ::LoadLibrary(_T("user32.dll"));
 	if (hUser)
 	{
 		ChangeWindowMessageFilterExDFN *pfnChangeWindowMessageFilterEx = (ChangeWindowMessageFilterExDFN*)GetProcAddress(hUser, "ChangeWindowMessageFilterEx");
@@ -571,7 +572,6 @@ BOOL CSyncDlg::OnInitDialog()
 		{
 			pfnChangeWindowMessageFilterEx(m_hWnd, WM_TASKBARBTNCREATED, MSGFLT_ALLOW, &cfs);
 		}
-		FreeLibrary(hUser);
 	}
 	m_pTaskbarList.Release();
 	m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
@@ -642,9 +642,9 @@ BOOL CSyncDlg::OnInitDialog()
 	}
 	m_ctrlTabCtrl.InsertTab(&m_InChangeFileList,_T("In ChangeList"),-1);
 
-	m_InChangeFileList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS |SVNSLC_COLADD|SVNSLC_COLDEL , _T("OutSyncDlg"),
-							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMPARETWO)|
-							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_GNUDIFF2)),false);
+	m_InChangeFileList.Init(GITSLC_COLEXT | GITSLC_COLSTATUS |GITSLC_COLADD|GITSLC_COLDEL , _T("OutSyncDlg"),
+							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPARETWO)|
+							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_GNUDIFF2)),false);
 
 
 	//---------- Create Conflict List Ctrl -----------------
@@ -657,10 +657,10 @@ BOOL CSyncDlg::OnInitDialog()
 	}
 	m_ctrlTabCtrl.InsertTab(&m_ConflictFileList,_T("Conflict"),-1);
 
-	m_ConflictFileList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS |SVNSLC_COLADD|SVNSLC_COLDEL , _T("OutSyncDlg"),
-							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMPARETWO)|
-							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_GNUDIFF2)|
-							SVNSLC_POPCONFLICT|SVNSLC_POPRESOLVE),false);
+	m_ConflictFileList.Init(GITSLC_COLEXT | GITSLC_COLSTATUS |GITSLC_COLADD|GITSLC_COLDEL , _T("OutSyncDlg"),
+							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPARETWO)|
+							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_GNUDIFF2)|
+							GITSLC_POPCONFLICT|GITSLC_POPRESOLVE),false);
 
 
 	//----------  Create Commit Out List Ctrl---------------
@@ -690,9 +690,9 @@ BOOL CSyncDlg::OnInitDialog()
 	}
 	m_ctrlTabCtrl.InsertTab(&m_OutChangeFileList,_T("Out ChangeList"),-1);
 
-	m_OutChangeFileList.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS |SVNSLC_COLADD|SVNSLC_COLDEL , _T("OutSyncDlg"),
-							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_COMPARETWO)|
-							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDSVNLC_GNUDIFF2)),false);
+	m_OutChangeFileList.Init(GITSLC_COLEXT | GITSLC_COLSTATUS |GITSLC_COLADD|GITSLC_COLDEL , _T("OutSyncDlg"),
+							(CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_COMPARETWO)|
+							CGitStatusListCtrl::GetContextMenuBit(CGitStatusListCtrl::IDGITLC_GNUDIFF2)),false);
 
 	this->m_tooltips.Create(this);
 
@@ -747,6 +747,7 @@ BOOL CSyncDlg::OnInitDialog()
 	this->m_regSubmoduleButton = CRegDWORD(regkey+_T("\\Submodule"));
 	this->m_regAutoLoadPutty = CRegDWORD(regkey + _T("\\AutoLoadPutty"), CAppUtils::IsSSHPutty());
 
+	m_tooltips.Create(this);
 	this->UpdateData();
 	this->m_bAutoLoadPuttyKey  = m_regAutoLoadPutty;
 	if(!CAppUtils::IsSSHPutty())
@@ -1043,12 +1044,12 @@ void CSyncDlg::ParserCmdOutput(char ch)
 }
 void CSyncDlg::OnBnClickedButtonCommit()
 {
-	CString proc=CPathUtils::GetAppDirectory();
-	proc += _T("TortoiseProc.exe /command:commit");
-	proc += _T(" /path:\"");
-	proc += g_Git.m_CurrentDir;
+	CString cmd = _T("/command:commit");
+	cmd += _T(" /path:\"");
+	cmd += g_Git.m_CurrentDir;
+	cmd += _T("\"");
 
-	CAppUtils::LaunchApplication(proc,IDS_ERROR_CANNON_FIND_TORTOISEPROC,false);
+	CAppUtils::RunTortoiseProc(cmd);
 }
 
 void CSyncDlg::OnOK()

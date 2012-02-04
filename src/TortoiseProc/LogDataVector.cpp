@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -34,8 +34,7 @@
 // CGitLogList
 #include "cursor.h"
 #include "InputDlg.h"
-#include "PropDlg.h"
-#include "SVNProgressDlg.h"
+#include "GITProgressDlg.h"
 #include "ProgressDlg.h"
 //#include "RepositoryBrowser.h"
 //#include "CopyDlg.h"
@@ -82,6 +81,10 @@ void CLogDataVector::ClearAll()
 //CLogDataVector Class
 int CLogDataVector::ParserFromLog(CTGitPath *path ,int count ,int infomask,CString *from,CString *to)
 {
+	// only enable --follow on files
+	if ((path == NULL || path->IsDirectory()) && (infomask & CGit::LOG_INFO_FOLLOW))
+		infomask = infomask ^ CGit::LOG_INFO_FOLLOW;
+
 	CString hash;
 	CString cmd=g_Git.GetLogCmd(hash,path,count,infomask,from,to,true);
 
@@ -102,8 +105,13 @@ int CLogDataVector::ParserFromLog(CTGitPath *path ,int count ,int infomask,CStri
 
 	GitRev rev;
 
-	while( git_get_log_nextcommit(handle,&commit) == 0)
+	while (git_get_log_nextcommit(handle, &commit, infomask & CGit::LOG_INFO_FOLLOW) == 0)
 	{
+		if (commit.m_ignore == 1)
+		{
+			git_free_commit(&commit);
+			continue;
+		}
 
 		CGitHash hash = (char*)commit.m_hash ;
 		rev.Clear();
@@ -182,10 +190,10 @@ int CLogDataVector::ParserFromRefLog(CString ref)
 	else
 	{
 
-		CString cmd,out;
+		CString cmd, out;
 		GitRev rev;
 		cmd.Format(_T("git.exe reflog show %s"),ref);
-		if(g_Git.Run(cmd,&out,CP_UTF8))
+		if (g_Git.Run(cmd, &out, NULL, CP_UTF8))
 			return -1;
 
 		int pos=0;

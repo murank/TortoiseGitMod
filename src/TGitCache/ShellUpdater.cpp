@@ -21,12 +21,12 @@
 #include "StdAfx.h"
 #include "shlobj.h"
 #include "GitStatusCache.h"
+#include "AutoLocker.h"
 
 CShellUpdater::CShellUpdater(void)
 {
 	m_hWakeEvent = CreateEvent(NULL,FALSE,FALSE,NULL);
 	m_hTerminationEvent = CreateEvent(NULL,TRUE,FALSE,NULL);
-	m_hThread = INVALID_HANDLE_VALUE;
 	m_bRunning = FALSE;
 	m_bItemsAddedSinceLastUpdate = false;
 }
@@ -39,26 +39,23 @@ CShellUpdater::~CShellUpdater(void)
 void CShellUpdater::Stop()
 {
 	InterlockedExchange(&m_bRunning, FALSE);
-	if (m_hTerminationEvent != INVALID_HANDLE_VALUE)
+	if (m_hTerminationEvent)
 	{
 		SetEvent(m_hTerminationEvent);
 		if(WaitForSingleObject(m_hThread, 200) != WAIT_OBJECT_0)
 		{
 			ATLTRACE("Error terminating shell updater thread\n");
 		}
-		CloseHandle(m_hThread);
-		m_hThread = INVALID_HANDLE_VALUE;
-		CloseHandle(m_hTerminationEvent);
-		m_hTerminationEvent = INVALID_HANDLE_VALUE;
-		CloseHandle(m_hWakeEvent);
-		m_hWakeEvent = INVALID_HANDLE_VALUE;
 	}
+	m_hThread.CloseHandle();
+	m_hTerminationEvent.CloseHandle();
+	m_hWakeEvent.CloseHandle();
 }
 
 void CShellUpdater::Initialise()
 {
 	// Don't call Initialize more than once
-	ATLASSERT(m_hThread == INVALID_HANDLE_VALUE);
+	ATLASSERT(!m_hThread);
 
 	// Just start the worker thread.
 	// It will wait for event being signaled.
@@ -167,7 +164,7 @@ void CShellUpdater::WorkerThread()
 				// that message, the folder overlays in the current view don't get updated without hitting F5.
 				// Drawback is, without UPDATEDIR, the left tree view isn't always updated...
 
-				//SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH | SHCNF_FLUSHNOWAIT, workingPath.GetWinPath(), NULL);
+				SHChangeNotify(SHCNE_UPDATEDIR, SHCNF_PATH | SHCNF_FLUSHNOWAIT, workingPath.GetWinPath(), NULL);
 			}
 			else
 				SHChangeNotify(SHCNE_UPDATEITEM, SHCNF_PATH | SHCNF_FLUSHNOWAIT, workingPath.GetWinPath(), NULL);

@@ -55,6 +55,8 @@ public:
 	BOOL		m_bPrune;
 	BOOL		m_bSquash;
 	BOOL		m_bNoFF;
+	BOOL		m_bFFonly;
+	BOOL		m_bFetchTags;
 	BOOL		m_bNoCommit;
 	BOOL		m_bAutoLoadEnable;
 	CString		m_PreSelectRemote;
@@ -73,4 +75,5 @@ protected:
 	void Refresh();
 	afx_msg void OnStnClickedRemoteManage();
 	afx_msg void OnBnClickedButtonBrowseRef();
+	afx_msg void OnBnClickedCheckFetchtags();
 };

@@ -19,21 +19,21 @@
 #include "StdAfx.h"
 #include "Command.h"
 #include "CreateRepositoryCommand.h"
-
+#include "ShellUpdater.h"
 #include "MessageBox.h"
-#include "CommonResource.h"
 #include "git.h"
 
 #include "CreateRepoDlg.h"
 
 bool CreateRepositoryCommand::Execute()
 {
+	CString folder = this->orgCmdLinePath.GetWinPath();
 	CCreateRepoDlg dlg;
+	dlg.m_folder = folder;
 	if(dlg.DoModal() == IDOK)
 	{
-		CString folder, message;
-		folder = this->orgCmdLinePath.GetWinPath();
-		message = _T("The folder\"") + folder + _T("\" is not empty. Proceeding might cause loss of data.");
+		CString message;
+		message = _T("The folder \"") + folder + _T("\" is not empty. Proceeding might cause loss of data.");
 		if (!PathIsDirectoryEmpty(folder) && CMessageBox::Show(hwndExplorer, message, _T("TortoiseGit"), 1, IDI_ERROR, _T("A&bort"), _T("&Proceed")) == 1)
 		{
 			return false;
@@ -58,6 +58,8 @@ bool CreateRepositoryCommand::Execute()
 		}
 		else
 		{
+			if (!dlg.m_bBare)
+				CShellUpdater::Instance().AddPathForUpdate(orgCmdLinePath);
 			CMessageBox::Show(hwndExplorer, output, _T("TortoiseGit"), MB_OK | MB_ICONINFORMATION);
 		}
 		return true;

@@ -5,39 +5,10 @@
 
 #pragma once
 
-#include "..\targetver.h"
+#include "stdafx_common.h"
 
-#include <tchar.h>
-#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS	// some CString constructors will be explicit
-#define CSTRING_AVAILABLE
-
-#include <WinSock2.h>
-#include <Ws2tcpip.h>
-#include <Wspiapi.h>
-
-#include <windows.h>
-
-#include <Shlobj.h>
-#include <Shlwapi.h>
-
-#include <atlbase.h>
-#include <atlstr.h>
-
-#include <conio.h>
-
-using namespace ATL;
-
-#pragma warning(push)
-#pragma warning(disable: 4702)	// Unreachable code warnings in xtree
-#include <string>
-#include <vector>
-#include <map>
-#include <algorithm>
-#include <deque>
-#pragma warning(pop)
-
-
-typedef CComCritSecLock<CComAutoCriticalSection> AutoLocker;
+#include <shellapi.h>
+#include <shlobj.h>
 
 // Temporary fix for people not using the latest SDK
 #ifndef PROCESS_MODE_BACKGROUND_BEGIN

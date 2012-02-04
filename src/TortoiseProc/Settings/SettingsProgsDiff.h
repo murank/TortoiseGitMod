@@ -1,6 +1,7 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2003-2008 - TortoiseSVN
+// Copyright (C) 2011 - TortoiseGit
+// Copyright (C) 2003-2008,2011 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -50,13 +51,13 @@ protected:
 	afx_msg void OnBnClickedExtdiffOff();
 	afx_msg void OnBnClickedExtdiffOn();
 	afx_msg void OnBnClickedExtdiffbrowse();
-	afx_msg void OnBnClickedExtdiffpropsOff();
-	afx_msg void OnBnClickedExtdiffpropsOn();
-	afx_msg void OnBnClickedExtdiffpropsbrowse();
 	afx_msg void OnBnClickedExtdiffadvanced();
-	afx_msg void OnBnClickedDontconvert();
 	afx_msg void OnEnChangeExtdiff();
 	afx_msg void OnEnChangeExtdiffprops();
+	afx_msg void OnBnClickedDiffviewerOff();
+	afx_msg void OnBnClickedDiffviewerOn();
+	afx_msg void OnBnClickedDiffviewerbrowse();
+	afx_msg void OnEnChangeDiffviewer();
 
 	bool IsExternal(const CString& path) const { return !path.IsEmpty() && path.Left(1) != _T("#"); }
 	void CheckProgComment();
@@ -64,16 +65,14 @@ protected:
 
 private:
 	CString			m_sDiffPath;
-	CString			m_sDiffPropsPath;
 	CRegString		m_regDiffPath;
-	CRegString		m_regDiffPropsPath;
-	int             m_iExtDiff;
-	int             m_iExtDiffProps;
+	int				m_iExtDiff;
 	CSetProgsAdvDlg m_dlgAdvDiff;
 	CToolTips		m_tooltips;
-	CRegDWORD		m_regConvertBase;	///< registry value for the "Don't Convert" flag
-	BOOL			m_bConvertBase;		///< don't convert files when diffing against BASE
+	CString			m_sDiffViewerPath;
+	CRegString		m_regDiffViewerPath;
+	int				m_iDiffViewer;
 
 	CFileDropEdit	m_cDiffEdit;
-	CFileDropEdit	m_cDiffPropsEdit;
+	CFileDropEdit	m_cUnifiedDiffEdit;
 };

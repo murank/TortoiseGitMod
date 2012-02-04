@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -42,14 +42,19 @@ bool LogCommand::Execute()
 	CString revend =val;
 	val = parser.GetVal(_T("limit"));
 	int limit = _tstoi(val);
-	val = parser.GetVal(_T("pegrev"));
+	val = parser.GetVal(_T("rev"));
 	if ( val.IsEmpty() )
 	{
 		// support deprecated parameter prior 1.5.0
-		val = parser.GetVal(_T("revpeg"));
+		val = parser.GetVal(_T("rev"));
 	}
 
-	CString pegrev = val;
+	CString rev = val;
+
+	if (revstart == GIT_REV_ZERO)
+		revstart.Empty();
+	if (revend == GIT_REV_ZERO)
+		revend.Empty();
 
 #if 0
 	SVNRev pegrev = val.IsEmpty() ? SVNRev() : SVNRev(val);
@@ -68,7 +73,7 @@ bool LogCommand::Execute()
 	CLogDlg dlg;
 	theApp.m_pMainWnd = &dlg;
 	//dlg.SetParams(cmdLinePath);
-	dlg.SetParams(orgCmdLinePath, cmdLinePath, pegrev, revstart, revend, limit);
+	dlg.SetParams(orgCmdLinePath, cmdLinePath, rev, revstart, revend, limit);
 //	dlg.SetIncludeMerge(!!parser.HasKey(_T("merge")));
 //	val = parser.GetVal(_T("propspath"));
 //	if (!val.IsEmpty())

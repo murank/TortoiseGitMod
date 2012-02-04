@@ -21,7 +21,7 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseShell\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -83,7 +83,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Gdi32.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit32.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -126,8 +126,8 @@
 		</Configuration>
 		<Configuration
 			Name="Debug|x64"
-			OutputDirectory="..\..\bin\Debug64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseShell\Debug64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -188,7 +188,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit.dll"
 				LinkIncremental="0"
 				SuppressStartupBanner="true"
@@ -229,7 +229,7 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\TortoiseShell\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -288,7 +288,7 @@
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib Gdi32.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit32.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -330,8 +330,8 @@
 		</Configuration>
 		<Configuration
 			Name="Release|x64"
-			OutputDirectory="..\..\bin\Release64\bin"
-			IntermediateDirectory="..\..\obj\TortoiseShell\Release64"
+			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="2"
 			UseOfMFC="0"
 			UseOfATL="2"
@@ -389,7 +389,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				IgnoreImportLibrary="true"
-				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib"
+				AdditionalDependencies="Crypt32.lib shfolder.lib shell32.lib comctl32.lib ws2_32.lib rpcrt4.lib shlwapi.lib wininet.lib version.lib $(OutDir)/Git.lib"
 				OutputFile="$(OutDir)/TortoiseGit.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -448,31 +448,27 @@
 				>
 			</File>
 			<File
-				RelativePath="..\Git\Git.cpp"
+				RelativePath=".\GetStatusCommandSender.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitAdminDir.cpp"
+				RelativePath=".\GitFolderStatus.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Git\GitFolderStatus.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitIndex.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitRev.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\GitStatus.cpp"
+				RelativePath=".\GITPropertyPage.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\IconOverlay.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessClient.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandSenderBase.cpp"
 				>
 			</File>
 			<File
@@ -501,10 +497,6 @@
 			</File>
 			<File
 				RelativePath=".\RemoteCacheLink.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\Git\SharedMutex.cpp"
 				>
 			</File>
 			<File
@@ -556,19 +548,11 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\SVNPropertyPage.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\Utils\SysInfo.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\Git\TGitPath.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\TortoiseSVN.cpp"
+				RelativePath=".\TortoiseGIT.cpp"
 				>
 			</File>
 			<File
@@ -581,11 +565,31 @@
 			Filter="h;hpp;hxx;hm;inl;inc"
 			>
 			<File
+				RelativePath=".\GetStatusCommandSender.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GITPropertyPage.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Globals.h"
 				>
 			</File>
 			<File
 				RelativePath=".\Guids.h"
+				>
+			</File>
+			<File
+				RelativePath=".\InterprocessClient.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandSender.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IPCommandSenderBase.h"
 				>
 			</File>
 			<File
@@ -630,10 +634,6 @@
 			</File>
 			<File
 				RelativePath="stdafx.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SVNPropertyPage.h"
 				>
 			</File>
 			<File
@@ -839,6 +839,14 @@
 			</File>
 			<File
 				RelativePath="..\Resources\tag.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\thumb_down.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\thumb_up.ico"
 				>
 			</File>
 			<File

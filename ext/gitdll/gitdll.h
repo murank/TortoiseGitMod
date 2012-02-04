@@ -1,9 +1,29 @@
+// TortoiseGit - a Windows shell extension for easy version control
+
+// Copyright (C) 2008-2011 - TortoiseGit
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
+
 // The following ifdef block is the standard way of creating macros which make exporting
 // from a DLL simpler. All files within this DLL are compiled with the GITDLL_EXPORTS
 // symbol defined on the command line. this symbol should not be defined on any project
 // that uses this DLL. This way any other project whose source files include this file see
 // GITDLL_API functions as being imported from a DLL, whereas this DLL sees symbols
 // defined with this macro as being exported.
+
 #ifndef __GITDLL__
 #define __GITDLL__
 
@@ -61,6 +81,7 @@ typedef struct GIT_COMMIT_DATA
 	void *   m_pGitCommit; /** internal used */
 	char *   m_Encode;
 	int		 m_EncodeSize;
+	int		 m_ignore;
 
 } GIT_COMMIT;
 
@@ -97,7 +118,7 @@ GITDLL_API int git_get_log_estimate_commit_count(GIT_LOG handle);
  *  @return			0	success
  *	@remark			Caller need call git_free_commit to free internal buffer after use it;
  */
-GITDLL_API int git_get_log_nextcommit(GIT_LOG handle, GIT_COMMIT *commit);
+GITDLL_API int git_get_log_nextcommit(GIT_LOG handle, GIT_COMMIT *commit, int follow);
 
 GITDLL_API int git_close_log(GIT_LOG handle);
 
@@ -178,5 +199,7 @@ typedef enum
 }CONFIG_TYPE;
 
 GITDLL_API int get_set_config(const char *key, char *value, CONFIG_TYPE type, char *git_path);
+
+GITDLL_API const char *get_windows_home_directory(void);
 
 #endif

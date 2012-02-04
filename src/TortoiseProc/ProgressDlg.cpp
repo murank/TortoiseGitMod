@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -26,9 +26,11 @@
 #include "atlconv.h"
 #include "UnicodeUtils.h"
 #include "IconMenu.h"
-#include "CommonResource.h"
+#include "LoglistCommonResource.h"
 #include "Tlhelp32.h"
 #include "AppUtils.h"
+#include "SmartHandle.h"
+#include "../TGitCache/CacheInterface.h"
 
 // CProgressDlg dialog
 
@@ -78,7 +80,7 @@ BOOL CProgressDlg::OnInitDialog()
 	// not elevated, this is a no-op.
 	CHANGEFILTERSTRUCT cfs = { sizeof(CHANGEFILTERSTRUCT) };
 	typedef BOOL STDAPICALLTYPE ChangeWindowMessageFilterExDFN(HWND hWnd, UINT message, DWORD action, PCHANGEFILTERSTRUCT pChangeFilterStruct);
-	HMODULE hUser = ::LoadLibrary(_T("user32.dll"));
+	CAutoLibrary hUser = ::LoadLibrary(_T("user32.dll"));
 	if (hUser)
 	{
 		ChangeWindowMessageFilterExDFN *pfnChangeWindowMessageFilterEx = (ChangeWindowMessageFilterExDFN*)GetProcAddress(hUser, "ChangeWindowMessageFilterEx");
@@ -86,7 +88,6 @@ BOOL CProgressDlg::OnInitDialog()
 		{
 			pfnChangeWindowMessageFilterEx(m_hWnd, WM_TASKBARBTNCREATED, MSGFLT_ALLOW, &cfs);
 		}
-		FreeLibrary(hUser);
 	}
 	m_pTaskbarList.Release();
 	m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
@@ -158,6 +159,8 @@ UINT CProgressDlg::RunCmdList(CWnd *pWnd,std::vector<CString> &cmdlist,bool bSho
 
 	memset(&pi,0,sizeof(PROCESS_INFORMATION));
 
+	CBlockCacheForPath cacheBlock(g_Git.m_CurrentDir);
+
 	pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI,MSG_PROGRESSDLG_START,0);
 
 	if(pdata)
@@ -186,7 +189,7 @@ UINT CProgressDlg::RunCmdList(CWnd *pWnd,std::vector<CString> &cmdlist,bool bSho
 				pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI,MSG_PROGRESSDLG_RUN,0);
 		}
 
-		g_Git.RunAsync(cmdlist[i].Trim(),&pi, &hRead,pfilename);
+		g_Git.RunAsync(cmdlist[i].Trim(),&pi, &hRead, NULL, pfilename);
 
 		DWORD readnumber;
 		char byte;
@@ -220,8 +223,8 @@ UINT CProgressDlg::RunCmdList(CWnd *pWnd,std::vector<CString> &cmdlist,bool bSho
 
 			CloseHandle(hRead);
 
-			pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI,MSG_PROGRESSDLG_FAILED,0);
-			return GIT_ERROR_GET_EXIT_CODE;
+			pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI, MSG_PROGRESSDLG_FAILED, status);
+			return TGIT_GIT_ERROR_GET_EXIT_CODE;
 		}
 		ret |= status;
 	}
@@ -230,7 +233,7 @@ UINT CProgressDlg::RunCmdList(CWnd *pWnd,std::vector<CString> &cmdlist,bool bSho
 
 	CloseHandle(hRead);
 
-	pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI,MSG_PROGRESSDLG_END,0);
+	pWnd->PostMessage(MSG_PROGRESSDLG_UPDATE_UI, MSG_PROGRESSDLG_END, ret);
 
 	return ret;
 
@@ -288,8 +291,10 @@ LRESULT CProgressDlg::OnProgressUpdateUI(WPARAM wParam,LPARAM lParam)
 		m_Progress.SetPos(100);
 		this->DialogEnableWindow(IDOK,TRUE);
 
+		m_GitStatus = lParam;
+
 		CString err;
-		err.Format(_T("\r\nFailed 0x%x (git returned a wrong return code at some time)\r\n"),m_GitStatus);
+		err.Format(_T("\r\n\r\ngit did not exit cleanly (exit code %d)\r\n"), m_GitStatus);
 		if(this->m_GitStatus)
 		{
 			if (m_pTaskbarList)
@@ -297,7 +302,7 @@ LRESULT CProgressDlg::OnProgressUpdateUI(WPARAM wParam,LPARAM lParam)
 				m_pTaskbarList->SetProgressState(m_hWnd, TBPF_ERROR);
 				m_pTaskbarList->SetProgressValue(m_hWnd, 100, 100);
 			}
-			//InsertColorText(this->m_Log,err,RGB(255,0,0));
+			InsertColorText(this->m_Log,err,RGB(255,0,0));
 		}
 		else {
 			if (m_pTaskbarList)
@@ -570,11 +575,11 @@ CString CCommitProgressDlg::Convert2UnionCode(char *buff, int size)
 {
 	CString str;
 
-	CString cmd,output;
+	CString cmd, output;
 	int cp=CP_UTF8;
 
 	cmd=_T("git.exe config i18n.logOutputEncoding");
-	if(g_Git.Run(cmd,&output,CP_ACP))
+	if(g_Git.Run(cmd, &output, NULL, CP_ACP))
 		cp=CP_UTF8;
 
 	int start=0;

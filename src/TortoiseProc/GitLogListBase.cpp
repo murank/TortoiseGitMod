@@ -1,8 +1,8 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2005-2007 Marco Costalba
-// Copyright (C) 2011 - Sven Strickroth <email@cs-ware.de>
+// Copyright (C) 2011-2012 - Sven Strickroth <email@cs-ware.de>
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -29,8 +29,7 @@
 // CGitLogListBase
 #include "cursor.h"
 #include "InputDlg.h"
-#include "PropDlg.h"
-#include "SVNProgressDlg.h"
+#include "GITProgressDlg.h"
 #include "ProgressDlg.h"
 //#include "RepositoryBrowser.h"
 //#include "CopyDlg.h"
@@ -38,7 +37,7 @@
 #include "Logdlg.h"
 #include "MessageBox.h"
 #include "Registry.h"
-#include "AppUtils.h"
+#include "LoglistUtils.h"
 #include "PathUtils.h"
 #include "StringUtils.h"
 #include "UnicodeUtils.h"
@@ -59,6 +58,7 @@
 #include "FileDiffDlg.h"
 #include "..\\TortoiseShell\\Resource.h"
 #include "FindDlg.h"
+#include "SysInfo.h"
 
 const UINT CGitLogListBase::m_FindDialogMessage = RegisterWindowMessage(FINDMSGSTRING);
 
@@ -72,13 +72,13 @@ CGitLogListBase::CGitLogListBase():CHintListCtrl()
 	, m_bStrictStopped(false)
 	, m_pStoreSelection(NULL)
 	, m_nSelectedFilter(LOGFILTER_ALL)
-	, m_bVista(false)
 	, m_bShowWC(false)
 	, m_logEntries(&m_LogCache)
 	, m_pFindDialog(NULL)
 	, m_ColumnManager(this)
 	, m_dwDefaultColumns(0)
 	, m_arShownList(&m_critSec)
+	, m_hasWC(true)
 {
 	// use the default GUI font, create a copy of it and
 	// change the copy to BOLD (leave the rest of the font
@@ -149,13 +149,6 @@ CGitLogListBase::CGitLogListBase():CHintListCtrl()
 	m_ContextMenuMask &= ~GetContextMenuBit(ID_REBASE_SKIP);
 	m_ContextMenuMask &= ~GetContextMenuBit(ID_LOG);
 	m_ContextMenuMask &= ~GetContextMenuBit(ID_BLAME);
-
-	OSVERSIONINFOEX inf;
-	SecureZeroMemory(&inf, sizeof(OSVERSIONINFOEX));
-	inf.dwOSVersionInfoSize = sizeof(OSVERSIONINFOEX);
-	GetVersionEx((OSVERSIONINFO *)&inf);
-	WORD fullver = MAKEWORD(inf.dwMinorVersion, inf.dwMajorVersion);
-	m_bVista = (fullver >= 0x0600);
 
 	m_ColumnRegKey=_T("log");
 
@@ -483,7 +476,6 @@ BOOL CGitLogListBase::GetShortName(CString ref, CString &shortname,CString prefi
 
 void CGitLogListBase::FillBackGround(HDC hdc, int Index,CRect &rect)
 {
-//	HBRUSH brush;
 	LVITEM rItem;
 	SecureZeroMemory(&rItem, sizeof(LVITEM));
 	rItem.mask  = LVIF_STATE;
@@ -494,46 +486,14 @@ void CGitLogListBase::FillBackGround(HDC hdc, int Index,CRect &rect)
 	GitRev* pLogEntry = (GitRev*)m_arShownList.SafeGetAt(Index);
 	HBRUSH brush = NULL;
 
-	if (IsAppThemed() && m_bVista)
+	if (!(rItem.state & LVIS_SELECTED))
 	{
-		HTHEME hTheme = OpenThemeData(m_hWnd, L"Explorer::ListView;ListView");
-		int state = LISS_NORMAL;
-		if (rItem.state & LVIS_SELECTED)
-		{
-			if (::GetFocus() == m_hWnd)
-				state |= LISS_SELECTED;
-			else
-				state |= LISS_SELECTEDNOTFOCUS;
-		}
-		else
-		{
-			if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_SQUASH)
-				brush = ::CreateSolidBrush(RGB(156,156,156));
-			else if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_EDIT)
-				brush = ::CreateSolidBrush(RGB(200,200,128));
-		}
-
-		if (brush != NULL)
-		{
-			::FillRect(hdc, &rect, brush);
-			::DeleteObject(brush);
-		}
-		else
-		{
-			if (IsThemeBackgroundPartiallyTransparent(hTheme, LVP_LISTITEM, state))
-				DrawThemeParentBackground(m_hWnd, hdc, &rect);
-
-			CRect rectDraw = rect;
-			if(rItem.state & LVIS_SELECTED)
-				rectDraw.InflateRect(1,0);
-			else
-				rectDraw.InflateRect(1,1);
-
-			DrawThemeBackground(hTheme, hdc, LVP_LISTITEM, state, rectDraw, &rect);
-		}
-		CloseThemeData(hTheme);
+		if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_SQUASH)
+			brush = ::CreateSolidBrush(RGB(156,156,156));
+		else if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_EDIT)
+			brush = ::CreateSolidBrush(RGB(200,200,128));
 	}
-	else
+	else if (!(IsAppThemed() && SysInfo::Instance().IsVistaOrLater()))
 	{
 		if (rItem.state & LVIS_SELECTED)
 		{
@@ -542,21 +502,10 @@ void CGitLogListBase::FillBackGround(HDC hdc, int Index,CRect &rect)
 			else
 				brush = ::CreateSolidBrush(::GetSysColor(COLOR_BTNFACE));
 		}
-		else
-		{
-			//if (pLogEntry->bCopiedSelf)
-			//	brush = ::CreateSolidBrush(::GetSysColor(COLOR_MENU));
-			//else
-			if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_SQUASH)
-				brush = ::CreateSolidBrush(RGB(156,156,156));
-			else if(pLogEntry->GetAction(this)&CTGitPath::LOGACTIONS_REBASE_EDIT)
-				brush = ::CreateSolidBrush(RGB(200,200,128));
-			else
-				brush = ::CreateSolidBrush(::GetSysColor(COLOR_WINDOW));
-		}
-		if (brush == NULL)
-			return;
+	}
 
+	if (brush != NULL)
+	{
 		::FillRect(hdc, &rect, brush);
 		::DeleteObject(brush);
 	}
@@ -577,7 +526,7 @@ void CGitLogListBase::DrawTagBranch(HDC hdc,CRect &rect,INT_PTR index)
 	W_Dc.Attach(hdc);
 
 	HTHEME hTheme = NULL;
-	if (IsAppThemed() && m_bVista)
+	if (IsAppThemed() && SysInfo::Instance().IsVistaOrLater())
 		hTheme = OpenThemeData(m_hWnd, L"Explorer::ListView;ListView");
 
 	for(unsigned int i=0;i<m_HashMap[data->m_CommitHash].size();i++)
@@ -628,7 +577,7 @@ void CGitLogListBase::DrawTagBranch(HDC hdc,CRect &rect,INT_PTR index)
 		}
 
 		//When row selected, ajust label color
-		if (!(IsAppThemed() && m_bVista))
+		if (!(IsAppThemed() && SysInfo::Instance().IsVistaOrLater()))
 			if (rItem.state & LVIS_SELECTED)
 				colRef = CColors::MixColors(colRef, ::GetSysColor(COLOR_HIGHLIGHT), 150);
 
@@ -663,7 +612,7 @@ void CGitLogListBase::DrawTagBranch(HDC hdc,CRect &rect,INT_PTR index)
 			W_Dc.Draw3dRect(rectEdge, m_Colors.Lighten(colRef,50), m_Colors.Darken(colRef,50));
 
 			//Draw text inside label
-			if (IsAppThemed() && m_bVista)
+			if (IsAppThemed() && SysInfo::Instance().IsVistaOrLater())
 			{
 				int txtState = LISS_NORMAL;
 				if (rItem.state & LVIS_SELECTED)
@@ -700,7 +649,7 @@ void CGitLogListBase::DrawTagBranch(HDC hdc,CRect &rect,INT_PTR index)
 	}
 	rt.right=rect.right;
 
-	if (IsAppThemed() && m_bVista)
+	if (IsAppThemed() && SysInfo::Instance().IsVistaOrLater())
 	{
 		int txtState = LISS_NORMAL;
 		if (rItem.state & LVIS_SELECTED)
@@ -1089,8 +1038,6 @@ void CGitLogListBase::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 	if (m_bNoDispUpdates)
 		return;
 
-
-
 	switch (pLVCD->nmcd.dwDrawStage)
 	{
 	case CDDS_PREPAINT:
@@ -1114,17 +1061,6 @@ void CGitLogListBase::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 				GitRev* data = (GitRev*)m_arShownList.SafeGetAt(pLVCD->nmcd.dwItemSpec);
 				if (data)
 				{
-#if 0
-					if (data->bCopiedSelf)
-					{
-						// only change the background color if the item is not 'hot' (on vista with m_Themes enabled)
-						if (!IsAppThemed()) || !m_bVista || ((pLVCD->nmcd.uItemState & CDIS_HOT)==0))
-							pLVCD->clrTextBk = GetSysColor(COLOR_MENU);
-					}
-
-					if (data->bCopies)
-						crText = m_Colors.GetColor(CColors::Modified);
-#endif
 					if (data->GetAction(this)& (CTGitPath::LOGACTIONS_REBASE_DONE| CTGitPath::LOGACTIONS_REBASE_SKIP) )
 						crText = RGB(128,128,128);
 
@@ -1177,7 +1113,7 @@ void CGitLogListBase::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 				pLVCD->nmcd.uItemState &= ~(CDIS_SELECTED|CDIS_FOCUS);
 			}
 
-			if (pLVCD->iSubItem == LOGLIST_GRAPH)
+			if (pLVCD->iSubItem == LOGLIST_GRAPH && m_sFilterText.IsEmpty())
 			{
 				if (m_arShownList.GetCount() > (INT_PTR)pLVCD->nmcd.dwItemSpec && (!this->m_IsRebaseReplaceGraph) )
 				{
@@ -1248,7 +1184,7 @@ void CGitLogListBase::OnNMCustomdrawLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 				// Get the selected state of the
 				// item being drawn.
 
-				// Fill the background
+				// Fill the background if necessary
 				FillBackGround(pLVCD->nmcd.hdc, (INT_PTR)pLVCD->nmcd.dwItemSpec,rect);
 
 				// Draw the icon(s) into the compatible DC
@@ -1356,7 +1292,7 @@ void CGitLogListBase::OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 	case this->LOGLIST_DATE: //Date
 		if ( pLogEntry && (!pLogEntry->m_CommitHash.IsEmpty()) )
 			lstrcpyn(pItem->pszText,
-				CAppUtils::FormatDateAndTime( pLogEntry->GetAuthorDate(), m_DateFormat, true, m_bRelativeTimes ),
+				CLoglistUtils::FormatDateAndTime(pLogEntry->GetAuthorDate(), m_DateFormat, true, m_bRelativeTimes),
 				pItem->cchTextMax);
 		break;
 
@@ -1378,12 +1314,12 @@ void CGitLogListBase::OnLvnGetdispinfoLoglist(NMHDR *pNMHDR, LRESULT *pResult)
 	case this->LOGLIST_COMMIT_DATE: //Commit Date
 		if (pLogEntry)
 			lstrcpyn(pItem->pszText,
-				CAppUtils::FormatDateAndTime( pLogEntry->GetCommitterDate(), m_DateFormat, true, m_bRelativeTimes ),
+				CLoglistUtils::FormatDateAndTime(pLogEntry->GetCommitterDate(), m_DateFormat, true, m_bRelativeTimes),
 				pItem->cchTextMax);
 		break;
 	case this->LOGLIST_BUG: //Bug ID
 		if(pLogEntry)
-			lstrcpyn(pItem->pszText, (LPCTSTR)this->m_ProjectProperties.FindBugID(pLogEntry->GetSubject()), pItem->cchTextMax);
+			lstrcpyn(pItem->pszText, (LPCTSTR)this->m_ProjectProperties.FindBugID(pLogEntry->GetSubject() + _T("\r\n\r\n") + pLogEntry->GetBody()), pItem->cchTextMax);
 		break;
 
 	default:
@@ -1488,6 +1424,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 	if (popup.CreatePopupMenu())
 	{
 		bool isHeadCommit = (pSelLogEntry->m_CommitHash == m_HeadHash);
+		CString currentBranch = _T("refs/heads/") + g_Git.GetCurrentBranch();
 
 		if(m_ContextMenuMask&GetContextMenuBit(ID_REBASE_PICK))
 			popup.AppendMenuIcon(ID_REBASE_PICK, IDS_REBASE_PICK, IDI_PICK);
@@ -1511,7 +1448,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 			{
 				if( !pSelLogEntry->m_CommitHash.IsEmpty())
 				{
-					if(m_ContextMenuMask&GetContextMenuBit(ID_COMPARE))
+					if(m_ContextMenuMask&GetContextMenuBit(ID_COMPARE) && m_hasWC) // compare revision with WC
 						popup.AppendMenuIcon(ID_COMPARE, IDS_LOG_POPUP_COMPARE, IDI_DIFF);
 					// TODO:
 					// TortoiseMerge could be improved to take a /blame switch
@@ -1526,7 +1463,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 					if(m_ContextMenuMask&GetContextMenuBit(ID_COMMIT))
 						popup.AppendMenuIcon(ID_COMMIT, IDS_LOG_POPUP_COMMIT, IDI_COMMIT);
 				}
-				if(m_ContextMenuMask&GetContextMenuBit(ID_GNUDIFF1))
+				if(m_ContextMenuMask&GetContextMenuBit(ID_GNUDIFF1) && m_hasWC) // compare with WC, unified
 				{
 					GitRev *pRev=pSelLogEntry;
 					if(pSelLogEntry->m_ParentHash.size()==0)
@@ -1566,7 +1503,8 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 					if(pRev->m_ParentHash.size()<=1)
 					{
 						popup.AppendMenuIcon(ID_COMPAREWITHPREVIOUS, IDS_LOG_POPUP_COMPAREWITHPREVIOUS, IDI_DIFF);
-
+						if (CRegDWORD(_T("Software\\TortoiseGit\\DiffByDoubleClickInLog"), FALSE))
+							popup.SetDefaultItem(ID_COMPAREWITHPREVIOUS, FALSE);
 					}
 					else
 					{
@@ -1577,6 +1515,11 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 							CString str;
 							str.Format(_T("Parent %d"), i+1);
 							diffmenu.AppendMenuIcon(ID_COMPAREWITHPREVIOUS +((i+1)<<16),str);
+							if (i == 0 && CRegDWORD(_T("Software\\TortoiseGit\\DiffByDoubleClickInLog"), FALSE))
+							{
+								popup.SetDefaultItem(ID_COMPAREWITHPREVIOUS, FALSE);
+								diffmenu.SetDefaultItem(ID_COMPAREWITHPREVIOUS +((i+1)<<16), FALSE);
+							}
 						}
 					}
 				}
@@ -1586,6 +1529,23 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 
 				//popup.AppendMenuIcon(ID_BLAMEWITHPREVIOUS, IDS_LOG_POPUP_BLAMEWITHPREVIOUS, IDI_BLAME);
 				popup.AppendMenu(MF_SEPARATOR, NULL);
+
+				if (pSelLogEntry->m_CommitHash.IsEmpty())
+				{
+					if(m_ContextMenuMask&GetContextMenuBit(ID_STASH_SAVE))
+						popup.AppendMenuIcon(ID_STASH_SAVE, IDS_MENUSTASHSAVE, IDI_COMMIT);
+
+					if (CTGitPath(g_Git.m_CurrentDir).HasStashDir())
+					{
+						if(m_ContextMenuMask&GetContextMenuBit(ID_STASH_POP))
+							popup.AppendMenuIcon(ID_STASH_POP, IDS_MENUSTASHPOP, IDI_RELOCATE);
+
+						if(m_ContextMenuMask&GetContextMenuBit(ID_STASH_LIST))
+							popup.AppendMenuIcon(ID_STASH_LIST, IDS_MENUSTASHLIST, IDI_LOG);
+					}
+
+					popup.AppendMenu(MF_SEPARATOR, NULL);
+				}
 			}
 
 //			if (!m_ProjectProperties.sWebViewerRev.IsEmpty())
@@ -1615,36 +1575,25 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 				format.LoadString(IDS_LOG_POPUP_MERGEREV);
 				str.Format(format,g_Git.GetCurrentBranch());
 
-				bool thisbranch = false;
-				CString currentBranch = _T("refs/heads/")+g_Git.GetCurrentBranch();
-				for(int i=0; i < m_HashMap[pSelLogEntry->m_CommitHash].size(); i++)
-				{
-					if (m_HashMap[pSelLogEntry->m_CommitHash][i] == currentBranch)
-						thisbranch = true;
-						break;
-				}
-
-				if (m_ContextMenuMask&GetContextMenuBit(ID_MERGEREV) && !isHeadCommit)
+				if (m_ContextMenuMask&GetContextMenuBit(ID_MERGEREV) && !isHeadCommit && m_hasWC)
 					popup.AppendMenuIcon(ID_MERGEREV, str, IDI_MERGE);
 
 				format.LoadString(IDS_RESET_TO_THIS_FORMAT);
 				str.Format(format,g_Git.GetCurrentBranch());
 
-				if(m_ContextMenuMask&GetContextMenuBit(ID_RESET))
+				if(m_ContextMenuMask&GetContextMenuBit(ID_RESET) && m_hasWC)
 					popup.AppendMenuIcon(ID_RESET,str,IDI_REVERT);
 
 
 				// Add Switch Branch express Menu
 				if( this->m_HashMap.find(pSelLogEntry->m_CommitHash) != m_HashMap.end()
-					&& (m_ContextMenuMask&GetContextMenuBit(ID_SWITCHBRANCH))
+					&& (m_ContextMenuMask&GetContextMenuBit(ID_SWITCHBRANCH) && m_hasWC)
 					)
 				{
 					std::vector<CString *> branchs;
-					CString ref;
-
 					for(int i=0;i<m_HashMap[pSelLogEntry->m_CommitHash].size();i++)
 					{
-						ref = m_HashMap[pSelLogEntry->m_CommitHash][i];
+						CString ref = m_HashMap[pSelLogEntry->m_CommitHash][i];
 						if(ref.Find(_T("refs/heads/")) == 0 && ref != currentBranch)
 						{
 							branchs.push_back(&m_HashMap[pSelLogEntry->m_CommitHash][i]);
@@ -1679,7 +1628,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 					}
 				}
 
-				if(m_ContextMenuMask&GetContextMenuBit(ID_SWITCHTOREV) && !isHeadCommit)
+				if(m_ContextMenuMask&GetContextMenuBit(ID_SWITCHTOREV) && !isHeadCommit && m_hasWC)
 					popup.AppendMenuIcon(ID_SWITCHTOREV, IDS_SWITCH_TO_THIS , IDI_SWITCH);
 
 				if(m_ContextMenuMask&GetContextMenuBit(ID_CREATE_BRANCH))
@@ -1691,14 +1640,14 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 				format.LoadString(IDS_REBASE_THIS_FORMAT);
 				str.Format(format,g_Git.GetCurrentBranch());
 
-				if(pSelLogEntry->m_CommitHash != m_HeadHash)
+				if(pSelLogEntry->m_CommitHash != m_HeadHash && m_hasWC)
 					if(m_ContextMenuMask&GetContextMenuBit(ID_REBASE_TO_VERSION))
 						popup.AppendMenuIcon(ID_REBASE_TO_VERSION, str , IDI_REBASE);
 
 				if(m_ContextMenuMask&GetContextMenuBit(ID_EXPORT))
 					popup.AppendMenuIcon(ID_EXPORT,IDS_EXPORT_TO_THIS, IDI_EXPORT);
 
-				if (m_ContextMenuMask&GetContextMenuBit(ID_REVERTREV))
+				if (m_ContextMenuMask&GetContextMenuBit(ID_REVERTREV) && m_hasWC)
 					popup.AppendMenuIcon(ID_REVERTREV, IDS_LOG_POPUP_REVERTREV, IDI_REVERT);
 
 				if (m_ContextMenuMask&GetContextMenuBit(ID_EDITNOTE))
@@ -1709,10 +1658,11 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 
 		}
 
-		if(!pSelLogEntry->m_Ref.IsEmpty() && GetSelectedCount() == 1)
+		if(!pSelLogEntry->m_Ref.IsEmpty())
 		{
 			popup.AppendMenuIcon(ID_REFLOG_DEL, IDS_REFLOG_DEL, IDI_DELETE);
-			popup.AppendMenuIcon(ID_STASH_APPLY, IDS_MENUSTASHAPPLY, IDI_RELOCATE);
+			if (GetSelectedCount() == 1 && pSelLogEntry->m_Ref.Find(_T("refs/stash")) == 0)
+				popup.AppendMenuIcon(ID_REFLOG_STASH_APPLY, IDS_MENUSTASHAPPLY, IDI_RELOCATE);
 			popup.AppendMenu(MF_SEPARATOR, NULL);
 		}
 
@@ -1721,14 +1671,14 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 			bool bAddSeparator = false;
 			if (IsSelectionContinuous() || (GetSelectedCount() == 2))
 			{
-				if(m_ContextMenuMask&GetContextMenuBit(ID_COMPARETWO))
+				if(m_ContextMenuMask&GetContextMenuBit(ID_COMPARETWO)) // compare two revisions
 					popup.AppendMenuIcon(ID_COMPARETWO, IDS_LOG_POPUP_COMPARETWO, IDI_DIFF);
 			}
 
 			if (GetSelectedCount() == 2)
 			{
 				//popup.AppendMenuIcon(ID_BLAMETWO, IDS_LOG_POPUP_BLAMEREVS, IDI_BLAME);
-				if(m_ContextMenuMask&GetContextMenuBit(ID_GNUDIFF2))
+				if(m_ContextMenuMask&GetContextMenuBit(ID_GNUDIFF2) && m_hasWC) // compare two revisions, unified
 					popup.AppendMenuIcon(ID_GNUDIFF2, IDS_LOG_POPUP_GNUDIFF, IDI_DIFF);
 				bAddSeparator = true;
 			}
@@ -1741,7 +1691,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 				bAddSeparator = true;
 			}
 
-			if (m_ContextMenuMask&GetContextMenuBit(ID_REVERTREV))
+			if (m_ContextMenuMask&GetContextMenuBit(ID_REVERTREV) && m_hasWC)
 					popup.AppendMenuIcon(ID_REVERTREV, IDS_LOG_POPUP_REVERTREVS, IDI_REVERT);
 
 			if (bAddSeparator)
@@ -1753,7 +1703,7 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 			bool bAddSeparator = false;
 			if ( IsSelectionContinuous() && GetSelectedCount() >= 2 )
 			{
-				if(m_ContextMenuMask&GetContextMenuBit(ID_COMBINE_COMMIT))
+				if(m_ContextMenuMask&GetContextMenuBit(ID_COMBINE_COMMIT) && m_hasWC)
 				{
 					CString head;
 					int headindex;
@@ -1770,8 +1720,11 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 					}
 				}
 			}
-			if(m_ContextMenuMask&GetContextMenuBit(ID_CHERRY_PICK) && !isHeadCommit) {
-				popup.AppendMenuIcon(ID_CHERRY_PICK, IDS_CHERRY_PICK_VERSION, IDI_EXPORT);
+			if(m_ContextMenuMask&GetContextMenuBit(ID_CHERRY_PICK) && !isHeadCommit && m_hasWC) {
+				if (GetSelectedCount() >= 2)
+					popup.AppendMenuIcon(ID_CHERRY_PICK, IDS_CHERRY_PICK_VERSIONS, IDI_EXPORT);
+				else
+					popup.AppendMenuIcon(ID_CHERRY_PICK, IDS_CHERRY_PICK_VERSION, IDI_EXPORT);
 				bAddSeparator = true;
 			}
 
@@ -1821,22 +1774,30 @@ void CGitLogListBase::OnContextMenu(CWnd* pWnd, CPoint point)
 			{
 				if( this->m_HashMap.find(pSelLogEntry->m_CommitHash) != m_HashMap.end() )
 				{
+					std::vector<CString *> branchs;
+					for (int i = 0; i < m_HashMap[pSelLogEntry->m_CommitHash].size(); i++)
+					{
+						if(m_HashMap[pSelLogEntry->m_CommitHash][i] != currentBranch)
+							branchs.push_back(&m_HashMap[pSelLogEntry->m_CommitHash][i]);
+					}
 					CString str;
-					if( m_HashMap[pSelLogEntry->m_CommitHash].size() == 1 )
+					if (branchs.size() == 1)
 					{
 						str.LoadString(IDS_DELETE_BRANCHTAG_SHORT);
 						str+=_T(" ");
-						str+=m_HashMap[pSelLogEntry->m_CommitHash].at(0);
+						str += *branchs[0];
 						popup.AppendMenuIcon(ID_DELETE, str, IDI_DELETE);
+						popup.SetMenuItemData(ID_DELETE, (ULONG_PTR)branchs[0]);
 						bAddSeparator = true;
 					}
-					else if( m_HashMap[pSelLogEntry->m_CommitHash].size() > 1 )
+					else if (branchs.size() > 1)
 					{
 						str.LoadString(IDS_DELETE_BRANCHTAG);
 						submenu.CreatePopupMenu();
-						for(int i=0;i<m_HashMap[pSelLogEntry->m_CommitHash].size();i++)
+						for (int i = 0; i < branchs.size(); i++)
 						{
-							submenu.AppendMenuIcon(ID_DELETE+(i<<16),m_HashMap[pSelLogEntry->m_CommitHash][i]);
+							submenu.AppendMenuIcon(ID_DELETE + (i << 16), *branchs[i]);
+							submenu.SetMenuItemData(ID_DELETE + (i << 16), (ULONG_PTR)branchs[i]);
 						}
 
 						popup.AppendMenuIcon(ID_DELETE,str, IDI_DELETE, submenu.m_hMenu);
@@ -1939,7 +1900,7 @@ void CGitLogListBase::CopySelectionToClipBoard(bool HashOnly)
 					(LPCTSTR)sRev, pLogEntry->m_CommitHash.ToString(),
 					(LPCTSTR)sAuthor, (LPCTSTR)pLogEntry->GetAuthorName(),
 					(LPCTSTR)sDate,
-					(LPCTSTR)CAppUtils::FormatDateAndTime( pLogEntry->GetAuthorDate(), m_DateFormat, true, m_bRelativeTimes ),
+					(LPCTSTR)CLoglistUtils::FormatDateAndTime(pLogEntry->GetAuthorDate(), m_DateFormat, true, m_bRelativeTimes),
 					(LPCTSTR)sMessage, pLogEntry->GetSubject().Trim() + _T("\r\n\r\n") + body.Trim(),
 					(LPCTSTR)sPaths);
 				sClipdata +=  sLogCopyText;
@@ -2359,7 +2320,7 @@ UINT CGitLogListBase::LogThread()
 		while( ret== 0)
 		{
 			g_Git.m_critGitDllSec.Lock();
-			ret=git_get_log_nextcommit(this->m_DllGitLog,&commit);
+			ret = git_get_log_nextcommit(this->m_DllGitLog, &commit, 0);
 			g_Git.m_critGitDllSec.Unlock();
 
 			if(ret)
@@ -2515,7 +2476,7 @@ BOOL CGitLogListBase::IsMatchFilter(bool bRegex, GitRev *pRev, tr1::wregex &pat)
 		{
 			if(this->m_bShowBugtraqColumn)
 			{
-				CString sBugIds = m_ProjectProperties.FindBugID(pRev->GetSubject());
+				CString sBugIds = m_ProjectProperties.FindBugID(pRev->GetSubject() + _T("\r\n\r\n") + pRev->GetBody());
 
 				ATLTRACE(_T("bugID = \"%s\"\n"), sBugIds);
 				if (regex_search(wstring(sBugIds), pat, flags))
@@ -2525,14 +2486,17 @@ BOOL CGitLogListBase::IsMatchFilter(bool bRegex, GitRev *pRev, tr1::wregex &pat)
 			}
 		}
 
-		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_SUBJECT)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 		{
 			ATLTRACE(_T("messge = \"%s\"\n"), pRev->GetSubject());
 			if (regex_search(wstring((LPCTSTR)pRev->GetSubject()), pat, flags))
 			{
 				return TRUE;
 			}
+		}
 
+		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+		{
 			ATLTRACE(_T("messge = \"%s\"\n"),pRev->GetBody());
 			if (regex_search(wstring((LPCTSTR)pRev->GetBody()), pat, flags))
 			{
@@ -2604,7 +2568,7 @@ BOOL CGitLogListBase::IsMatchFilter(bool bRegex, GitRev *pRev, tr1::wregex &pat)
 		{
 			if(this->m_bShowBugtraqColumn)
 			{
-				CString sBugIds = m_ProjectProperties.FindBugID(pRev->GetSubject());
+				CString sBugIds = m_ProjectProperties.FindBugID(pRev->GetSubject() + _T("\r\n\r\n") + pRev->GetBody());
 
 				sBugIds.MakeLower();
 				if ((sBugIds.Find(find) >= 0))
@@ -2614,7 +2578,7 @@ BOOL CGitLogListBase::IsMatchFilter(bool bRegex, GitRev *pRev, tr1::wregex &pat)
 			}
 		}
 
-		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_SUBJECT)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 		{
 			CString msg = pRev->GetSubject();
 
@@ -2623,8 +2587,11 @@ BOOL CGitLogListBase::IsMatchFilter(bool bRegex, GitRev *pRev, tr1::wregex &pat)
 			{
 				return TRUE;
 			}
+		}
 
-			msg = pRev->GetBody();
+		if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+		{
+			CString msg = pRev->GetBody();
 
 			msg = msg.MakeLower();
 			if ((msg.Find(find) >= 0))
@@ -2722,7 +2689,7 @@ void CGitLogListBase::RecalculateShownList(CThreadSafePtrArray * pShownlist)
 				}
 			}
 #endif
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_SUBJECT)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				ATLTRACE(_T("messge = \"%s\"\n"),m_logEntries.GetGitRevAt(i).GetSubject());
 				if (regex_search(wstring((LPCTSTR)m_logEntries.GetGitRevAt(i).GetSubject()), pat, flags)&&IsEntryInDateRange(i))
@@ -2730,7 +2697,9 @@ void CGitLogListBase::RecalculateShownList(CThreadSafePtrArray * pShownlist)
 					pShownlist->SafeAdd(&m_logEntries.GetGitRevAt(i));
 					continue;
 				}
-
+			}
+			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+			{
 				ATLTRACE(_T("messge = \"%s\"\n"),m_logEntries.GetGitRevAt(i).GetBody());
 				if (regex_search(wstring((LPCTSTR)m_logEntries.GetGitRevAt(i).GetBody()), pat, flags)&&IsEntryInDateRange(i))
 				{
@@ -2801,7 +2770,7 @@ void CGitLogListBase::RecalculateShownList(CThreadSafePtrArray * pShownlist)
 				}
 			}
 #endif
-			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_SUBJECT)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
 			{
 				CString msg = m_logEntries.GetGitRevAt(i).GetSubject();
 
@@ -2811,7 +2780,10 @@ void CGitLogListBase::RecalculateShownList(CThreadSafePtrArray * pShownlist)
 					pShownlist->SafeAdd(&m_logEntries.GetGitRevAt(i));
 					continue;
 				}
-				msg = m_logEntries.GetGitRevAt(i).GetBody();
+			}
+			if ((m_nSelectedFilter == LOGFILTER_ALL)||(m_nSelectedFilter == LOGFILTER_MESSAGES))
+			{
+				CString msg = m_logEntries.GetGitRevAt(i).GetBody();
 
 				msg = msg.MakeLower();
 				if ((msg.Find(find) >= 0)&&(IsEntryInDateRange(i)))

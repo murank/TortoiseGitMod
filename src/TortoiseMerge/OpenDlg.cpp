@@ -1,6 +1,7 @@
 // TortoiseMerge - a Diff/Patch program
 
-// Copyright (C) 2006-2008 - TortoiseSVN
+// Copyright (C) 2012 - TortoiseGit
+// Copyright (C) 2006-2010 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -19,14 +20,16 @@
 #include "stdafx.h"
 #include "TortoiseMerge.h"
 #include "BrowseFolder.h"
-#include ".\opendlg.h"
-
+#include "opendlg.h"
+#include "auto_buffer.h"
+#include "CommonAppUtils.h"
+#include "registry.h"
 
 // COpenDlg dialog
 
-IMPLEMENT_DYNAMIC(COpenDlg, CDialog)
+IMPLEMENT_DYNAMIC(COpenDlg, CStandAloneDialog)
 COpenDlg::COpenDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(COpenDlg::IDD, pParent)
+	: CStandAloneDialog(COpenDlg::IDD, pParent)
 	, m_sBaseFile(_T(""))
 	, m_sTheirFile(_T(""))
 	, m_sYourFile(_T(""))
@@ -44,7 +47,7 @@ COpenDlg::~COpenDlg()
 
 void COpenDlg::DoDataExchange(CDataExchange* pDX)
 {
-	CDialog::DoDataExchange(pDX);
+	CStandAloneDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_BASEFILEEDIT, m_sBaseFile);
 	DDX_Text(pDX, IDC_THEIRFILEEDIT, m_sTheirFile);
 	DDX_Text(pDX, IDC_YOURFILEEDIT, m_sYourFile);
@@ -58,11 +61,11 @@ void COpenDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Check(pDX, IDC_PATCHFROMCLIPBOARD, m_bFromClipboard);
 }
 
-BEGIN_MESSAGE_MAP(COpenDlg, CDialog)
+BEGIN_MESSAGE_MAP(COpenDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_BASEFILEBROWSE, OnBnClickedBasefilebrowse)
 	ON_BN_CLICKED(IDC_THEIRFILEBROWSE, OnBnClickedTheirfilebrowse)
 	ON_BN_CLICKED(IDC_YOURFILEBROWSE, OnBnClickedYourfilebrowse)
-	ON_BN_CLICKED(IDC_HELPBUTTON, OnBnClickedHelp)
+	ON_BN_CLICKED(IDHELP, OnBnClickedHelp)
 	ON_BN_CLICKED(IDC_DIFFFILEBROWSE, OnBnClickedDifffilebrowse)
 	ON_BN_CLICKED(IDC_DIRECTORYBROWSE, OnBnClickedDirectorybrowse)
 	ON_BN_CLICKED(IDC_MERGERADIO, OnBnClickedMergeradio)
@@ -75,29 +78,20 @@ END_MESSAGE_MAP()
 
 BOOL COpenDlg::OnInitDialog()
 {
-	CDialog::OnInitDialog();
+	CStandAloneDialog::OnInitDialog();
 
-	GroupRadio(IDC_MERGERADIO);
-
-	CheckRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO, IDC_MERGERADIO);
+	CRegDWORD lastRadioButton(_T("Software\\TortoiseMerge\\OpenRadio"), IDC_MERGERADIO);
+	if (((DWORD)lastRadioButton != IDC_MERGERADIO)&&((DWORD)lastRadioButton != IDC_APPLYRADIO))
+		lastRadioButton = IDC_MERGERADIO;
+	GroupRadio((DWORD)lastRadioButton);
+	CheckRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO, (DWORD)lastRadioButton);
 
 	// turn on auto completion for the edit controls
-	HWND hwndEdit;
-	GetDlgItem(IDC_BASEFILEEDIT, &hwndEdit);
-	if (hwndEdit)
-		SHAutoComplete(hwndEdit, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
-	GetDlgItem(IDC_THEIRFILEEDIT, &hwndEdit);
-	if (hwndEdit)
-		SHAutoComplete(hwndEdit, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
-	GetDlgItem(IDC_YOURFILEEDIT, &hwndEdit);
-	if (hwndEdit)
-		SHAutoComplete(hwndEdit, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
-	GetDlgItem(IDC_DIFFFILEEDIT, &hwndEdit);
-	if (hwndEdit)
-		SHAutoComplete(hwndEdit, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
-	GetDlgItem(IDC_DIRECTORYEDIT, &hwndEdit);
-	if (hwndEdit)
-		SHAutoComplete(hwndEdit, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
+	AutoCompleteOn(IDC_BASEFILEEDIT);
+	AutoCompleteOn(IDC_THEIRFILEEDIT);
+	AutoCompleteOn(IDC_YOURFILEEDIT);
+	AutoCompleteOn(IDC_DIFFFILEEDIT);
+	AutoCompleteOn(IDC_DIRECTORYEDIT);
 
 	m_cFormat = RegisterClipboardFormat(_T("TSVN_UNIFIEDDIFF"));
 	m_nextViewer = SetClipboardViewer();
@@ -110,29 +104,17 @@ BOOL COpenDlg::OnInitDialog()
 
 void COpenDlg::OnBnClickedBasefilebrowse()
 {
-	CString temp;
-	UpdateData();
-	temp.LoadString(IDS_SELECTFILE);
-	BrowseForFile(m_sBaseFile, temp);
-	UpdateData(FALSE);
+	OnBrowseForFile(m_sBaseFile);
 }
 
 void COpenDlg::OnBnClickedTheirfilebrowse()
 {
-	CString temp;
-	UpdateData();
-	temp.LoadString(IDS_SELECTFILE);
-	BrowseForFile(m_sTheirFile, temp);
-	UpdateData(FALSE);
+	OnBrowseForFile(m_sTheirFile);
 }
 
 void COpenDlg::OnBnClickedYourfilebrowse()
 {
-	CString temp;
-	UpdateData();
-	temp.LoadString(IDS_SELECTFILE);
-	BrowseForFile(m_sYourFile, temp);
-	UpdateData(FALSE);
+	OnBrowseForFile(m_sYourFile);
 }
 
 void COpenDlg::OnBnClickedHelp()
@@ -140,58 +122,16 @@ void COpenDlg::OnBnClickedHelp()
 	this->OnHelp();
 }
 
-BOOL COpenDlg::BrowseForFile(CString& filepath, CString title, UINT nFileFilter)
+void COpenDlg::OnBrowseForFile(CString& filepath, UINT nFileFilter)
 {
-	OPENFILENAME ofn = {0};			// common dialog box structure
-	TCHAR szFile[MAX_PATH] = {0};	// buffer for file name
-	if (!filepath.IsEmpty())
-	{
-		_tcscpy_s(szFile, filepath);
-	}
-	// Initialize OPENFILENAME
-	ofn.lStructSize = sizeof(OPENFILENAME);
-	ofn.hwndOwner = this->m_hWnd;
-	ofn.lpstrFile = szFile;
-	ofn.nMaxFile = _countof(szFile);
-	CString sFilter;
-	sFilter.LoadString(nFileFilter);
-	TCHAR * pszFilters = new TCHAR[sFilter.GetLength()+4];
-	_tcscpy_s (pszFilters, sFilter.GetLength()+4, sFilter);
-	// Replace '|' delimiters with '\0's
-	TCHAR *ptr = pszFilters + _tcslen(pszFilters);  //set ptr at the NULL
-	while (ptr != pszFilters)
-	{
-		if (*ptr == '|')
-			*ptr = '\0';
-		ptr--;
-	}
-	ofn.lpstrFilter = pszFilters;
-	ofn.nFilterIndex = 1;
-	ofn.lpstrFileTitle = NULL;
-	ofn.nMaxFileTitle = 0;
-	ofn.lpstrInitialDir = NULL;
-	ofn.lpstrTitle = title;
-	ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-
-	// Display the Open dialog box. 
-
-	if (GetOpenFileName(&ofn)==TRUE)
-	{
-		filepath = CString(ofn.lpstrFile);
-		delete [] pszFilters;
-		return TRUE;
-	}
-	delete [] pszFilters;
-	return FALSE;			//user canceled the dialog
+	UpdateData();
+	CCommonAppUtils::FileOpenSave(filepath, NULL, IDS_SELECTFILE, nFileFilter, true, this->m_hWnd);
+	UpdateData(FALSE);
 }
 
 void COpenDlg::OnBnClickedDifffilebrowse()
 {
-	CString temp;
-	UpdateData();
-	temp.LoadString(IDS_SELECTFILE);
-	BrowseForFile(m_sUnifiedDiffFile, temp, IDS_PATCHFILEFILTER);
-	UpdateData(FALSE);
+	OnBrowseForFile(m_sUnifiedDiffFile, IDS_PATCHFILEFILTER);
 }
 
 void COpenDlg::OnBnClickedDirectorybrowse()
@@ -292,13 +232,11 @@ void COpenDlg::OnOK()
 			LPCSTR lpstr = (LPCSTR)GlobalLock(hglb); 
 
 			DWORD len = GetTempPath(0, NULL);
-			TCHAR * path = new TCHAR[len+1];
-			TCHAR * tempF = new TCHAR[len+100];
+			auto_buffer<TCHAR> path(len+1);
+			auto_buffer<TCHAR> tempF(len+100);
 			GetTempPath (len+1, path);
 			GetTempFileName (path, TEXT("tsm"), 0, tempF);
 			CString sTempFile = CString(tempF);
-			delete [] path;
-			delete [] tempF;
 
 			FILE * outFile;
 			size_t patchlen = strlen(lpstr);
@@ -329,12 +267,14 @@ void COpenDlg::OnOK()
 		MessageBox(sErr, NULL, MB_ICONERROR);
 		return;
 	}
-	CDialog::OnOK();
+	CRegDWORD lastRadioButton(_T("Software\\TortoiseMerge\\OpenRadio"), IDC_MERGERADIO);
+	lastRadioButton = GetCheckedRadioButton(IDC_MERGERADIO, IDC_APPLYRADIO);
+	CStandAloneDialog::OnOK();
 }
 
 void COpenDlg::OnChangeCbChain(HWND hWndRemove, HWND hWndAfter)
 {
-	CDialog::OnChangeCbChain(hWndRemove, hWndAfter);
+	CStandAloneDialog::OnChangeCbChain(hWndRemove, hWndAfter);
 }
 
 bool COpenDlg::CheckAndEnableClipboardChecker()
@@ -364,27 +304,13 @@ bool COpenDlg::CheckAndEnableClipboardChecker()
 void COpenDlg::OnDrawClipboard()
 {
 	CheckAndEnableClipboardChecker();
-	CDialog::OnDrawClipboard();
+	CStandAloneDialog::OnDrawClipboard();
 }
 
 void COpenDlg::OnDestroy()
 {
 	ChangeClipboardChain(m_nextViewer);
-	CDialog::OnDestroy();
-}
-
-BOOL COpenDlg::DialogEnableWindow(UINT nID, BOOL bEnable)
-{
-	CWnd * pwndDlgItem = GetDlgItem(nID);
-	if (pwndDlgItem == NULL)
-		return FALSE;
-	if (bEnable)
-		return pwndDlgItem->EnableWindow(bEnable);
-	if (GetFocus() == pwndDlgItem)
-	{
-		SendMessage(WM_NEXTDLGCTL, 0, FALSE);
-	}
-	return pwndDlgItem->EnableWindow(bEnable);
+	CStandAloneDialog::OnDestroy();
 }
 
 void COpenDlg::OnBnClickedPatchfromclipboard()
@@ -392,4 +318,12 @@ void COpenDlg::OnBnClickedPatchfromclipboard()
 	UpdateData();
 	DialogEnableWindow(IDC_DIFFFILEEDIT, !m_bFromClipboard);
 	DialogEnableWindow(IDC_DIFFFILEBROWSE, !m_bFromClipboard);
+}
+
+void COpenDlg::AutoCompleteOn(int controlId)
+{
+	HWND hwnd;
+	GetDlgItem(controlId, &hwnd);
+	if (hwnd)
+		SHAutoComplete(hwnd, SHACF_AUTOSUGGEST_FORCE_ON | SHACF_AUTOAPPEND_FORCE_ON | SHACF_FILESYSTEM);
 }

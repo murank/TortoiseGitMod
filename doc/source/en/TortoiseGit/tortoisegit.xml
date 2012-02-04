@@ -19,6 +19,10 @@
 				<firstname>Frank</firstname>
 				<surname>Li</surname>
 			</author>
+			<author>
+				<firstname>Sven</firstname>
+				<surname>Strickroth</surname>
+			</author>
 		</authorgroup>
 		<xi:include href="../pubdate.xml"/>
 	</bookinfo>
@@ -28,12 +32,13 @@
 	<xi:include href="./git_book/gitbook.xml"/>	
 
 	<!--
-	<xi:include href="./tsvn_server/server.xml"/>
 	<xi:include href="./tsvn_repository/repository.xml"/>
 	-->
 	<xi:include href="./tsvn_dug/dug.xml"/>
 	<xi:include href="./tsvn_app_faq.xml"/>
+	<!--
 	<xi:include href="./tsvn_app_howto.xml"/>
+	-->
 	<xi:include href="./tsvn_app_admins.xml" />
 	<xi:include href="./tsvn_app_automation.xml"/>	
 	
@@ -41,7 +46,7 @@
 	<xi:include href="./tsvn_app_cli.xml"/>
 	-->
 	<xi:include href="./tsvn_app_internals.xml"/>
-	
+
 	<xi:include href="./tsvn_app_ssh.xml"/>
 
 	<xi:include href="./git_doc/git-doc.xml"/>

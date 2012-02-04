@@ -21,8 +21,7 @@
 #include "TortoiseProc.h"
 #include "cursor.h"
 #include "InputDlg.h"
-#include "PropDlg.h"
-#include "SVNProgressDlg.h"
+#include "GITProgressDlg.h"
 #include "ProgressDlg.h"
 //#include "RepositoryBrowser.h"
 //#include "CopyDlg.h"
@@ -50,7 +49,7 @@
 //#include "EditPropertiesDlg.h"
 #include "FileDiffDlg.h"
 #include "BrowseRefsDlg.h"
-
+#include "SmartHandle.h"
 
 IMPLEMENT_DYNAMIC(CLogDlg, CResizableStandAloneDialog)
 CLogDlg::CLogDlg(CWnd* pParent /*=NULL*/)
@@ -166,11 +165,11 @@ BEGIN_MESSAGE_MAP(CLogDlg, CResizableStandAloneDialog)
 	ON_REGISTERED_MESSAGE(WM_TASKBARBTNCREATED, OnTaskbarBtnCreated)
 END_MESSAGE_MAP()
 
-void CLogDlg::SetParams(const CTGitPath& orgPath, const CTGitPath& path, CString pegrev, CString startrev, CString endrev, int limit /* = FALSE */)
+void CLogDlg::SetParams(const CTGitPath& orgPath, const CTGitPath& path, CString hightlightRevision, CString startrev, CString endrev, int limit /* = FALSE */)
 {
 	m_orgPath = orgPath;
 	m_path = path;
-	m_pegrev = pegrev;
+	m_hightlightRevision = hightlightRevision;
 	this->m_LogList.m_startrev = startrev;
 	m_LogRevision = startrev;
 	this->m_LogList.m_endrev = endrev;
@@ -196,7 +195,7 @@ BOOL CLogDlg::OnInitDialog()
 	// not elevated, this is a no-op.
 	CHANGEFILTERSTRUCT cfs = { sizeof(CHANGEFILTERSTRUCT) };
 	typedef BOOL STDAPICALLTYPE ChangeWindowMessageFilterExDFN(HWND hWnd, UINT message, DWORD action, PCHANGEFILTERSTRUCT pChangeFilterStruct);
-	HMODULE hUser = ::LoadLibrary(_T("user32.dll"));
+	CAutoLibrary hUser = ::LoadLibrary(_T("user32.dll"));
 	if (hUser)
 	{
 		ChangeWindowMessageFilterExDFN *pfnChangeWindowMessageFilterEx = (ChangeWindowMessageFilterExDFN*)GetProcAddress(hUser, "ChangeWindowMessageFilterEx");
@@ -204,7 +203,6 @@ BOOL CLogDlg::OnInitDialog()
 		{
 			pfnChangeWindowMessageFilterEx(m_hWnd, WM_TASKBARBTNCREATED, MSGFLT_ALLOW, &cfs);
 		}
-		FreeLibrary(hUser);
 	}
 	m_pTaskbarList.Release();
 	m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
@@ -234,10 +232,10 @@ BOOL CLogDlg::OnInitDialog()
 	m_LogList.DeleteAllItems();
 
 	m_LogList.m_Path=m_path;
-	m_LogList.m_bShowWC = true;
+	m_LogList.m_hasWC = m_LogList.m_bShowWC = !g_GitAdminDir.IsBareRepo(g_Git.m_CurrentDir);
 	m_LogList.InsertGitColumn();
 
-	m_ChangedFileListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS |SVNSLC_COLADD|SVNSLC_COLDEL , _T("LogDlg"),(SVNSLC_POPALL ^ (SVNSLC_POPCOMMIT|SVNSLC_POPIGNORE)),false);
+	m_ChangedFileListCtrl.Init(GITSLC_COLEXT | GITSLC_COLSTATUS |GITSLC_COLADD|GITSLC_COLDEL, _T("LogDlg"), (GITSLC_POPALL ^ (GITSLC_POPCOMMIT|GITSLC_POPIGNORE|GITSLC_POPRESTORE)), false, m_LogList.m_hasWC);
 
 	GetDlgItem(IDC_LOGLIST)->UpdateData(FALSE);
 
@@ -369,6 +367,13 @@ BOOL CLogDlg::OnInitDialog()
 	//m_tTo = 0;
 	//m_tFrom = (DWORD)-1;
 
+	// scroll to user selected or current revision
+	if (!m_hightlightRevision.IsEmpty() && m_hightlightRevision.GetLength() >= GIT_HASH_SIZE)
+		m_LogList.m_lastSelectedHash = m_hightlightRevision;
+	else if (!m_LogList.m_endrev.IsEmpty() && m_LogList.m_endrev.GetLength() >= GIT_HASH_SIZE)
+		m_LogList.m_lastSelectedHash = m_hightlightRevision;
+	else
+		m_LogList.m_lastSelectedHash = g_Git.GetHash(_T("HEAD"));
 
 	m_LogList.FetchLogAsync(this);
 
@@ -423,7 +428,7 @@ LRESULT CLogDlg::OnLogListLoading(WPARAM wParam, LPARAM /*lParam*/)
 		DialogEnableWindow(IDC_SHOWWHOLEPROJECT, TRUE);
 
 		//DialogEnableWindow(IDC_GETALL, TRUE);
-		DialogEnableWindow(IDC_STATBUTTON, TRUE);
+		DialogEnableWindow(IDC_STATBUTTON, !(m_LogList.m_arShownList.IsEmpty() || m_LogList.m_arShownList.GetCount() == 1 && m_LogList.m_bShowWC));
 		DialogEnableWindow(IDC_REFRESH, TRUE);
 		DialogEnableWindow(IDC_HIDEPATHS,TRUE);
 
@@ -523,7 +528,7 @@ CString CLogDlg::GetTagInfo(GitRev* pLogEntry)
 
 				cmd.Format(_T("git.exe cat-file	tag %s"), tag);
 
-				if(g_Git.Run(cmd, &output, CP_UTF8) == 0 )
+				if(g_Git.Run(cmd, &output, NULL, CP_UTF8) == 0 )
 					output+=_T("\n");
 			}
 		}
@@ -657,7 +662,7 @@ void CLogDlg::FillLogMessageCtrl(bool bShow /* = true*/)
 
 			m_ChangedFileListCtrl.UpdateWithGitPathList(pLogEntry->GetFiles(&m_LogList));
 			m_ChangedFileListCtrl.m_CurrentVersion=pLogEntry->m_CommitHash;
-			m_ChangedFileListCtrl.Show(SVNSLC_SHOWVERSIONED);
+			m_ChangedFileListCtrl.Show(GITSLC_SHOWVERSIONED);
 
 			m_ChangedFileListCtrl.SetBusyString(_T("Fetch Changed File..."));
 
@@ -1631,7 +1636,7 @@ void CLogDlg::EditLogMessage(int /*index*/)
 BOOL CLogDlg::PreTranslateMessage(MSG* pMsg)
 {
 	// Skip Ctrl-C when copying text out of the log message or search filter
-	BOOL bSkipAccelerator = ( pMsg->message == WM_KEYDOWN && pMsg->wParam=='C' && (GetFocus()==GetDlgItem(IDC_MSGVIEW) || GetFocus()==GetDlgItem(IDC_SEARCHEDIT) ) && GetKeyState(VK_CONTROL)&0x8000 );
+	bool bSkipAccelerator = (pMsg->message == WM_KEYDOWN && (pMsg->wParam == 'C' || pMsg->wParam == VK_INSERT) && (GetFocus() == GetDlgItem(IDC_MSGVIEW) || GetFocus() == GetDlgItem(IDC_SEARCHEDIT)) && GetKeyState(VK_CONTROL) & 0x8000);
 	if (pMsg->message == WM_KEYDOWN && pMsg->wParam=='\r')
 	{
 		if (GetFocus()==GetDlgItem(IDC_LOGLIST))
@@ -1872,8 +1877,8 @@ void CLogDlg::OnBnClickedStatbutton()
 {
 	if (this->IsThreadRunning())
 		return;
-	if (m_LogList.m_arShownList.IsEmpty())
-		return;		// nothing is shown, so no statistics.
+	if (m_LogList.m_arShownList.IsEmpty() || m_LogList.m_arShownList.GetCount() == 1 && m_LogList.m_bShowWC)
+		return;		// nothing or just the working copy changes are shown, so no statistics.
 	// the statistics dialog expects the log entries to be sorted by date
 	SortByColumn(3, false);
 	CThreadSafePtrArray shownlist(NULL);
@@ -1897,7 +1902,7 @@ void CLogDlg::OnBnClickedStatbutton()
 			strAuthor.LoadString(IDS_STATGRAPH_EMPTYAUTHOR);
 		}
 		m_arAuthorsFiltered.Add(strAuthor);
-		m_arDatesFiltered.Add(pLogEntry->GetAuthorDate().GetTime());
+		m_arDatesFiltered.Add(pLogEntry->GetCommitterDate().GetTime());
 		m_arFileChangesFiltered.Add(pLogEntry->GetFiles(&m_LogList).GetCount());
 	}
 
@@ -2035,6 +2040,9 @@ LRESULT CLogDlg::OnClickedInfoIcon(WPARAM /*wParam*/, LPARAM lParam)
 
 		popup.AppendMenu(MF_SEPARATOR, NULL);
 
+		temp.LoadString(IDS_LOG_FILTER_SUBJECT);
+		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_SUBJECT), LOGFILTER_SUBJECT, temp);
+
 		temp.LoadString(IDS_LOG_FILTER_MESSAGES);
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_MESSAGES), LOGFILTER_MESSAGES, temp);
 
@@ -2047,7 +2055,7 @@ LRESULT CLogDlg::OnClickedInfoIcon(WPARAM /*wParam*/, LPARAM lParam)
 		temp.LoadString(IDS_LOG_FILTER_REVS);
 		popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_REVS), LOGFILTER_REVS, temp);
 
-		if (m_LogList.m_bShowBugtraqColumn == true) {
+		if (m_LogList.m_bShowBugtraqColumn == TRUE) {
 			temp.LoadString(IDS_LOG_FILTER_BUGIDS);
 			popup.AppendMenu(LOGMENUFLAGS(LOGFILTER_BUGID), LOGFILTER_BUGID, temp);
 		}
@@ -2119,6 +2127,9 @@ void CLogDlg::SetFilterCueText()
 	{
 	case LOGFILTER_ALL:
 		temp.LoadString(IDS_LOG_FILTER_ALL);
+		break;
+	case LOGFILTER_SUBJECT:
+		temp.LoadString(IDS_LOG_FILTER_SUBJECT);
 		break;
 	case LOGFILTER_MESSAGES:
 		temp.LoadString(IDS_LOG_FILTER_MESSAGES);
@@ -2204,7 +2215,7 @@ void CLogDlg::OnTimer(UINT_PTR nIDEvent)
 		UpdateLogInfoLabel();
 #endif
 	} // if (nIDEvent == LOGFILTER_TIMER)
-	DialogEnableWindow(IDC_STATBUTTON, !(((this->IsThreadRunning())||(m_LogList.m_arShownList.IsEmpty()))));
+	DialogEnableWindow(IDC_STATBUTTON, !(((this->IsThreadRunning())||(m_LogList.m_arShownList.IsEmpty() || m_LogList.m_arShownList.GetCount() == 1 && m_LogList.m_bShowWC))));
 	__super::OnTimer(nIDEvent);
 }
 
@@ -3242,7 +3253,7 @@ void CLogDlg::ShowStartRef()
 	if(showStartRef.IsEmpty())
 	{
 		//Ref name is HEAD
-		if( g_Git.Run(L"git symbolic-ref HEAD",&showStartRef,CP_UTF8) )
+		if (g_Git.Run(L"git symbolic-ref HEAD", &showStartRef, NULL, CP_UTF8))
 			showStartRef = _T("<No branch>");
 		showStartRef.Trim(L"\r\n\t ");
 	}
@@ -3261,9 +3272,14 @@ void CLogDlg::SetStartRef(const CString& StartRef)
 {
 	m_LogList.SetStartRef(StartRef);
 
+	if (m_hightlightRevision.IsEmpty())
+	{
+		m_hightlightRevision = g_Git.GetHash(StartRef);
+		m_LogList.m_lastSelectedHash = m_hightlightRevision;
+	}
+
 	ShowStartRef();
 }
-
 
 
 void CLogDlg::OnBnClickedFirstParent()

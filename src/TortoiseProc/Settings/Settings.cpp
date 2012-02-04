@@ -1,5 +1,6 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -21,7 +22,6 @@
 #include "Settings.h"
 #include "MessageBox.h"
 #include "..\..\TGitCache\CacheInterface.h"
-#include "CommonResource.h"
 #include "GitAdminDir.h"
 #include "AppUtils.h"
 
@@ -50,14 +50,12 @@ void CSettings::AddPropPages()
 	m_pProxyPage = new CSetProxyPage();
 	m_pProgsDiffPage = new CSettingsProgsDiff();
 	m_pProgsMergePage = new CSettingsProgsMerge();
-	m_pProgsUniDiffPage = new CSettingsProgsUniDiff();
 	m_pProgsAlternativeEditor = new CSettingsProgsAlternativeEditor();
 	m_pLookAndFeelPage = new CSetLookAndFeelPage();
 
 	m_pExtMenu	= new CSetExtMenu();
 
 	m_pDialogsPage = new CSetDialogs();
-	m_pMiscPage = new CSetMisc();
 	m_pColorsPage = new CSettingsColors();
     m_pColorsPage2 = new CSettingsColors2();
     m_pColorsPage3 = new CSettingsColors3();
@@ -68,7 +66,7 @@ void CSettings::AddPropPages()
 	m_pGitConfig = new CSettingGitConfig();
 	m_pGitRemote = new CSettingGitRemote(m_CmdPath.GetWinPath());
 	m_pBugtraqConfig = new CSettingsBugtraqConfig(m_CmdPath.GetWinPath());
-
+	m_pAdvanced = new CSettingsAdvanced();
 
 	SetPageIcon(m_pExtMenu,m_pExtMenu->GetIconID());
 
@@ -80,10 +78,8 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pProgsDiffPage, m_pProgsDiffPage->GetIconID());
 	SetPageIcon(m_pProgsMergePage, m_pProgsMergePage->GetIconID());
 	SetPageIcon(m_pProgsAlternativeEditor, m_pProgsAlternativeEditor->GetIconID());
-	SetPageIcon(m_pProgsUniDiffPage, m_pProgsUniDiffPage->GetIconID());
 	SetPageIcon(m_pLookAndFeelPage, m_pLookAndFeelPage->GetIconID());
 	SetPageIcon(m_pDialogsPage, m_pDialogsPage->GetIconID());
-	SetPageIcon(m_pMiscPage, m_pMiscPage->GetIconID());
 	SetPageIcon(m_pColorsPage, m_pColorsPage->GetIconID());
     SetPageIcon(m_pColorsPage2, m_pColorsPage2->GetIconID());
     SetPageIcon(m_pColorsPage3, m_pColorsPage3->GetIconID());
@@ -96,6 +92,7 @@ void CSettings::AddPropPages()
 	SetPageIcon(m_pBugTraqPage, m_pBugTraqPage->GetIconID());
 	SetPageIcon(m_pBugtraqConfig, m_pBugtraqConfig->GetIconID());
 	SetPageIcon(m_pTBlamePage, m_pTBlamePage->GetIconID());
+	SetPageIcon(m_pAdvanced, m_pAdvanced->GetIconID());
 
 	AddPage(m_pMainPage);
 	AddPage(m_pOverlayPage);
@@ -104,30 +101,29 @@ void CSettings::AddPropPages()
 	AddPage(m_pProxyPage);
 	AddPage(m_pProgsDiffPage);
 	AddPage(m_pProgsMergePage);
-	AddPage(m_pProgsUniDiffPage);
-	AddPage(m_pProgsAlternativeEditor);
 	AddPage(m_pLookAndFeelPage);
 	AddPage(m_pExtMenu);
 	AddPage(m_pDialogsPage);
-	AddPage(m_pMiscPage);
 	AddPage(m_pColorsPage);
 	AddPage(m_pColorsPage2);
 	AddPage(m_pColorsPage3);
+	AddPage(m_pProgsAlternativeEditor);
 	AddPage(m_pSavedPage);
 
 	AddPage(m_pGitConfig);
 
-	if(	g_GitAdminDir.HasAdminDir(this->m_CmdPath.GetWinPath()) )
+	if (g_GitAdminDir.HasAdminDir(this->m_CmdPath.GetWinPath()) || g_GitAdminDir.IsBareRepo(this->m_CmdPath.GetWinPath()))
 	{
 		AddPage(m_pGitRemote);
 	}
 	AddPage(m_pHooksPage);
 	AddPage(m_pBugTraqPage);
-	if(	g_GitAdminDir.HasAdminDir(this->m_CmdPath.GetWinPath()) )
+	if (g_GitAdminDir.HasAdminDir(this->m_CmdPath.GetWinPath()))
 	{
 		AddPage(m_pBugtraqConfig);
 	}
 	AddPage(m_pTBlamePage);
+	AddPage(m_pAdvanced);
 }
 
 void CSettings::RemovePropPages()
@@ -139,11 +135,9 @@ void CSettings::RemovePropPages()
 	delete m_pProxyPage;
 	delete m_pProgsDiffPage;
 	delete m_pProgsMergePage;
-	delete m_pProgsUniDiffPage;
 	delete m_pProgsAlternativeEditor;
 	delete m_pLookAndFeelPage;
 	delete m_pDialogsPage;
-	delete m_pMiscPage;
 	delete m_pColorsPage;
 	delete m_pColorsPage2;
 	delete m_pColorsPage3;
@@ -156,6 +150,7 @@ void CSettings::RemovePropPages()
 	delete m_pGitRemote;
 	delete m_pBugtraqConfig;
 	delete m_pExtMenu;
+	delete m_pAdvanced;
 
 }
 
@@ -169,11 +164,9 @@ void CSettings::HandleRestart()
 	restart |= m_pProxyPage->GetRestart();
 	restart |= m_pProgsDiffPage->GetRestart();
 	restart |= m_pProgsMergePage->GetRestart();
-	restart |= m_pProgsUniDiffPage->GetRestart();
 	restart |= m_pProgsAlternativeEditor->GetRestart();
 	restart |= m_pLookAndFeelPage->GetRestart();
 	restart |= m_pDialogsPage->GetRestart();
-	restart |= m_pMiscPage->GetRestart();
 	restart |= m_pColorsPage->GetRestart();
 	restart |= m_pColorsPage2->GetRestart();
 	restart |= m_pColorsPage3->GetRestart();
@@ -186,6 +179,7 @@ void CSettings::HandleRestart()
 	restart |= m_pGitRemote->GetRestart();
 	restart |= m_pBugTraqPage->GetRestart();
 	restart |= m_pExtMenu->GetRestart();
+	restart |= m_pAdvanced->GetRestart();
 
 	if (restart & ISettingsPropPage::Restart_System)
 	{
@@ -222,9 +216,9 @@ void CSettings::HandleRestart()
 				NULL))    // don't set maximum time
 			{
 				DWORD cbWritten;
-				TSVNCacheCommand cmd;
-				SecureZeroMemory(&cmd, sizeof(TSVNCacheCommand));
-				cmd.command = TSVNCACHECOMMAND_REFRESHALL;
+				TGITCacheCommand cmd;
+				SecureZeroMemory(&cmd, sizeof(TGITCacheCommand));
+				cmd.command = TGITCACHECOMMAND_REFRESHALL;
 				BOOL fSuccess = WriteFile(
 					hPipe,			// handle to pipe
 					&cmd,			// buffer to write from
@@ -242,9 +236,9 @@ void CSettings::HandleRestart()
 				{
 					// now tell the cache we don't need it's command thread anymore
 					DWORD cbWritten;
-					TSVNCacheCommand cmd;
-					SecureZeroMemory(&cmd, sizeof(TSVNCacheCommand));
-					cmd.command = TSVNCACHECOMMAND_END;
+					TGITCacheCommand cmd;
+					SecureZeroMemory(&cmd, sizeof(TGITCacheCommand));
+					cmd.command = TGITCACHECOMMAND_END;
 					WriteFile(
 						hPipe,			// handle to pipe
 						&cmd,			// buffer to write from
@@ -317,10 +311,6 @@ BOOL CSettings::OnInitDialog()
 	{
 		this->SetActivePage(this->m_pProgsMergePage);
 	}
-	if(this->m_DefaultPage == _T("unidiff"))
-	{
-		this->SetActivePage(this->m_pProgsUniDiffPage);
-	}
 	if(this->m_DefaultPage == _T("alternativeeditor"))
 	{
 		this->SetActivePage(this->m_pProgsAlternativeEditor);
@@ -332,10 +322,6 @@ BOOL CSettings::OnInitDialog()
 	if(this->m_DefaultPage == _T("dialog"))
 	{
 		this->SetActivePage(this->m_pDialogsPage);
-	}
-	if(this->m_DefaultPage == _T("misc"))
-	{
-		this->SetActivePage(this->m_pMiscPage);
 	}
 	if(this->m_DefaultPage == _T("color1"))
 	{
@@ -353,7 +339,10 @@ BOOL CSettings::OnInitDialog()
 	{
 		this->SetActivePage(this->m_pSavedPage);
 	}
-
+	if(this->m_DefaultPage == _T("advanced"))
+	{
+		this->SetActivePage(this->m_pAdvanced);
+	}
 	return bResult;
 }
 

@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -125,9 +125,11 @@ private:
 	LPCTSTR			GetMenuTextFromResource(int id);
 	void			GetColumnStatus(const TCHAR * path, BOOL bIsDir);
 	void			GetColumnInfo(DWORD dwIndex, SHCOLUMNINFO *psci, UINT characterCount, UINT title, UINT description);
+	void			TweakMenu(HMENU menu);
 	HBITMAP			IconToBitmap(UINT uIcon);
 	STDMETHODIMP	QueryDropContext(UINT uFlags, UINT idCmdFirst, HMENU hMenu, UINT &indexMenu);
 	bool			IsIllegalFolder(std::wstring folder, int * cslidarray);
+	static void		RunCommand(const tstring& path, const tstring& command, LPCTSTR errorMessage);
 	HBITMAP			IconToBitmapPARGB32(UINT uIcon);
 	HRESULT			Create32BitHBITMAP(HDC hdc, const SIZE *psize, __deref_opt_out void **ppvBits, __out HBITMAP* phBmp);
 	HRESULT			ConvertBufferToPARGB32(HPAINTBUFFER hPaintBuffer, HDC hdc, HICON hicon, SIZE& sizIcon);

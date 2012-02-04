@@ -22,10 +22,10 @@
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\Utils\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
-			UseOfATL="0"
+			UseOfATL="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -87,7 +87,7 @@
 		<Configuration
 			Name="Debug|x64"
 			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
-			IntermediateDirectory="..\..\obj\Utils\$(ConfigurationName)64\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			UseOfATL="0"
@@ -152,11 +152,12 @@
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory="..\..\bin\$(ConfigurationName)\bin"
-			IntermediateDirectory="..\..\obj\Utils\$(ConfigurationName)\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)"
 			ConfigurationType="4"
 			UseOfMFC="2"
+			UseOfATL="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -215,11 +216,11 @@
 		<Configuration
 			Name="Release|x64"
 			OutputDirectory="..\..\bin\$(ConfigurationName)64\bin"
-			IntermediateDirectory="..\..\obj\Utils\$(ConfigurationName)64\"
+			IntermediateDirectory="..\..\obj\$(ProjectName)\$(ConfigurationName)64"
 			ConfigurationType="4"
 			UseOfMFC="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -357,6 +358,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommonAppUtils.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CSmtp.cpp"
 				>
 				<FileConfiguration
@@ -485,6 +490,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SmartHandle.h"
+				>
+			</File>
+			<File
 				RelativePath=".\SoundUtils.cpp"
 				>
 			</File>
@@ -545,6 +554,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\SysInfo.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\SysInfo.h"
+				>
+			</File>
+			<File
 				RelativePath=".\TempFile.cpp"
 				>
 			</File>
@@ -576,10 +593,6 @@
 		<Filter
 			Name="MiscUi"
 			>
-			<File
-				RelativePath=".\MiscUI\Balloon.cpp"
-				>
-			</File>
 			<File
 				RelativePath=".\MiscUI\BaseWindow.cpp"
 				>
@@ -645,15 +658,15 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MiscUI\ProgressDlg.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MiscUI\ScrollTool.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\MiscUI\SplitterControl.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MiscUI\SysProgressDlg.cpp"
 				>
 			</File>
 			<File

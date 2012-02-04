@@ -55,6 +55,7 @@ void CCleanTypeDlg::DoDataExchange(CDataExchange* pDX)
 
 
 BEGIN_MESSAGE_MAP(CCleanTypeDlg, CStandAloneDialog)
+	ON_BN_CLICKED(IDHELP, &CCleanTypeDlg::OnBnClickedHelp)
 END_MESSAGE_MAP()
 
 
@@ -64,6 +65,10 @@ BOOL CCleanTypeDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
 	CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
+
+	CString sWindowTitle;
+	GetWindowText(sWindowTitle);
+	CAppUtils::SetWindowTitle(m_hWnd, g_Git.m_CurrentDir, sWindowTitle);
 
 	return TRUE;  // return TRUE unless you set the focus to a control
 	// EXCEPTION: OCX Property Pages should return FALSE
@@ -77,4 +82,9 @@ void CCleanTypeDlg::OnOK()
 	this->m_regType = this->m_CleanType ;
 
 	CStandAloneDialog::OnOK();
+}
+
+void CCleanTypeDlg::OnBnClickedHelp()
+{
+	OnHelp();
 }

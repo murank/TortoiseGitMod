@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2006 - Stefan Kueng
 
@@ -31,7 +31,7 @@ public:
 	LPCSHITEMID get(int index) const;
 	virtual ~ItemIDList();
 
-	stdstring toString();
+	stdstring toString(bool resolveLibraries = true);
 
 	LPCITEMIDLIST operator& ();
 private:

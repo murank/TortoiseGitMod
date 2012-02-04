@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2003-2008 - TortoiseSVN
 
@@ -17,8 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 #include "StdAfx.h"
-#include "CommonResource.h"
-//#include "AppUtils.h"
+#include "LoglistCommonResource.h"
 #include "..\PathUtils.h"
 #include "..\UnicodeUtils.h"
 #include <string>

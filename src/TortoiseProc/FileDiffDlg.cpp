@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -23,7 +23,6 @@
 #include "MessageBox.h"
 #include "AppUtils.h"
 #include "TempFile.h"
-#include "ProgressDlg.h"
 #include "SysImageList.h"
 #include "IconMenu.h"
 //#include "GitProperties.h"
@@ -32,11 +31,13 @@
 #include "BrowseFolder.h"
 #include ".\filediffdlg.h"
 #include "gitdiff.h"
-#include "CommonResource.h"
+#include "LoglistCommonResource.h"
+#include "LoglistUtils.h"
 #include "BrowseRefsDlg.h"
 #include "LogDlg.h"
 #include "RefLogDlg.h"
 #include "GitStatusListCtrl.h"
+#include "FormatMessageWrapper.h"
 
 #define ID_COMPARE 1
 #define ID_BLAME 2
@@ -103,6 +104,7 @@ void CFileDiffDlg::SetDiff(CTGitPath * path, GitRev rev1, GitRev rev2)
 	{
 		m_path1 = *path;
 		m_path2 = *path;
+		m_sFilter = path->GetGitPathString();
 	}
 	m_rev1 = rev1;
 	m_rev2 = rev2;
@@ -114,6 +116,7 @@ void CFileDiffDlg::SetDiff(CTGitPath * path, CString &hash1, CString &hash2)
 	{
 		m_path1 = *path;
 		m_path2 = *path;
+		m_sFilter = path->GetGitPathString();
 	}
 
 	BYTE_VECTOR logout;
@@ -147,6 +150,7 @@ void CFileDiffDlg::SetDiff(CTGitPath * path, GitRev rev1)
 	{
 		m_path1 = *path;
 		m_path2 = *path;
+		m_sFilter = path->GetGitPathString();
 	}
 	m_rev1 = rev1;
 	m_rev2.m_CommitHash.Empty();
@@ -186,6 +190,8 @@ BOOL CFileDiffDlg::OnInitDialog()
 	temp.LoadString(IDS_FILEDIFF_FILTERCUE);
 	temp = _T("   ")+temp;
 	m_cFilter.SetCueBanner(temp);
+	if (!m_sFilter.IsEmpty())
+		m_cFilter.SetWindowText(m_sFilter);
 
 	int c = ((CHeaderCtrl*)(m_cFileList.GetDlgItem(0)))->GetItemCount()-1;
 	while (c>=0)
@@ -398,215 +404,9 @@ void CFileDiffDlg::DoDiff(int selIndex, bool blame)
 	CGitDiff diff;
 	CTGitPath* fd = m_arFilteredList[selIndex];
 	diff.Diff(fd, fd,this->m_rev1.m_CommitHash.ToString(), this->m_rev2.m_CommitHash.ToString(), blame, FALSE);
-
-#if 0
-	CFileDiffDlg::CTGitPath* fd = m_arFilteredList[selIndex];
-
-	CTGitPath url1 = CTGitPath(m_path1.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-	CTGitPath url2 = m_bDoPegDiff ? url1 : CTGitPath(m_path2.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-
-	if (fd.kind == svn_client_diff_summarize_kind_deleted)
-	{
-		if (!PathIsURL(url1))
-			url1 = CTGitPath(GetURLFromPath(m_path1) + _T("/") + fd.path.GetGitPathString());
-		if (!PathIsURL(url2))
-			url2 = m_bDoPegDiff ? url1 : CTGitPath(GetURLFromPath(m_path2) + _T("/") + fd.path.GetGitPathString());
-	}
-
-	if (fd.propchanged)
-	{
-		DiffProps(selIndex);
-	}
-	if (fd.node == svn_node_dir)
-		return;
-
-	CTGitPath tempfile = CTempFiles::Instance().GetTempFilePath(false, m_path1, m_rev1);
-	CString sTemp;
-	CProgressDlg progDlg;
-	progDlg.SetTitle(IDS_PROGRESSWAIT);
-	progDlg.SetAnimation(IDR_DOWNLOAD);
-	progDlg.ShowModeless(this);
-	progDlg.FormatPathLine(1, IDS_PROGRESSGETFILE, (LPCTSTR)m_path1.GetUIPathString());
-	progDlg.FormatNonPathLine(2, IDS_PROGRESSREVISIONTEXT, (LPCTSTR)m_rev1.ToString());
-
-	if ((fd.kind != svn_client_diff_summarize_kind_added)&&(!blame)&&(!Cat(url1, m_bDoPegDiff ? m_peg : m_rev1, m_rev1, tempfile)))
-	{
-		if ((!m_bDoPegDiff)||(!Cat(url1, m_rev1, m_rev1, tempfile)))
-		{
-			CMessageBox::Show(NULL, GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-			return;
-		}
-	}
-	else if ((fd.kind != svn_client_diff_summarize_kind_added)&&(blame)&&(!m_blamer.BlameToFile(url1, 1, m_rev1, m_bDoPegDiff ? m_peg : m_rev1, tempfile, _T(""), TRUE, TRUE)))
-	{
-		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url1, 1, m_rev1, m_rev1, tempfile, _T(""), TRUE, TRUE)))
-		{
-			CMessageBox::Show(NULL, m_blamer.GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-			return;
-		}
-	}
-	SetFileAttributes(tempfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-	progDlg.SetProgress(1, 2);
-	progDlg.FormatPathLine(1, IDS_PROGRESSGETFILE, (LPCTSTR)url2.GetUIPathString());
-	progDlg.FormatNonPathLine(2, IDS_PROGRESSREVISIONTEXT, (LPCTSTR)m_rev2.ToString());
-	CTGitPath tempfile2 = CTempFiles::Instance().GetTempFilePath(false, url2, m_rev2);
-	if ((fd.kind != svn_client_diff_summarize_kind_deleted)&&(!blame)&&(!Cat(url2, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, tempfile2)))
-	{
-		if ((!m_bDoPegDiff)||(!Cat(url2, m_rev2, m_rev2, tempfile2)))
-		{
-			CMessageBox::Show(NULL, GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-			return;
-		}
-	}
-	else if ((fd.kind != svn_client_diff_summarize_kind_deleted)&&(blame)&&(!m_blamer.BlameToFile(url2, 1, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, tempfile2, _T(""), TRUE, TRUE)))
-	{
-		if ((!m_bDoPegDiff)||(!m_blamer.BlameToFile(url2, 1, m_rev2, m_rev2, tempfile2, _T(""), TRUE, TRUE)))
-		{
-			CMessageBox::Show(NULL, m_blamer.GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-			return;
-		}
-	}
-	SetFileAttributes(tempfile2.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-	progDlg.SetProgress(2,2);
-	progDlg.Stop();
-
-	CString rev1name, rev2name;
-	if (m_bDoPegDiff)
-	{
-		rev1name.Format(_T("%s Revision %ld"), (LPCTSTR)fd.path.GetGitPathString(), (LONG)m_rev1);
-		rev2name.Format(_T("%s Revision %ld"), (LPCTSTR)fd.path.GetGitPathString(), (LONG)m_rev2);
-	}
-	else
-	{
-		rev1name = m_path1.GetGitPathString() + _T("/") + fd.path.GetGitPathString();
-		rev2name = m_path2.GetGitPathString() + _T("/") + fd.path.GetGitPathString();
-	}
-	CAppUtils::DiffFlags flags;
-	flags.AlternativeTool(!!(GetAsyncKeyState(VK_SHIFT) & 0x8000));
-	flags.Blame(blame);
-	CAppUtils::StartExtDiff(
-		tempfile, tempfile2, rev1name, rev2name, flags);
-#endif
 }
 
-#if 0
-void CFileDiffDlg::DiffProps(int selIndex)
-{
-	CFileDiffDlg::CTGitPath* fd = m_arFilteredList[selIndex];
 
-	CTGitPath url1 = CTGitPath(m_path1.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-	CTGitPath url2 = m_bDoPegDiff ? url1 : CTGitPath(m_path2.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-
-	GitProperties propsurl1(url1, m_rev1, false);
-	GitProperties propsurl2(url2, m_rev2, false);
-
-	// collect the properties of both revisions in a set
-	std::set<stdstring> properties;
-	for (int wcindex = 0; wcindex < propsurl1.GetCount(); ++wcindex)
-	{
-		stdstring urlname = propsurl1.GetItemName(wcindex);
-		if ( properties.find(urlname) == properties.end() )
-		{
-			properties.insert(urlname);
-		}
-	}
-	for (int wcindex = 0; wcindex < propsurl2.GetCount(); ++wcindex)
-	{
-		stdstring urlname = propsurl2.GetItemName(wcindex);
-		if ( properties.find(urlname) == properties.end() )
-		{
-			properties.insert(urlname);
-		}
-	}
-
-	// iterate over all properties and diff the properties
-	for (std::set<stdstring>::iterator iter = properties.begin(), end = properties.end(); iter != end; ++iter)
-	{
-		stdstring url1name = *iter;
-
-		stdstring url1value = _T(""); // CUnicodeUtils::StdGetUnicode((char *)propsurl1.GetItemValue(wcindex).c_str());
-		for (int url1index = 0; url1index < propsurl1.GetCount(); ++url1index)
-		{
-			if (propsurl1.GetItemName(url1index).compare(url1name)==0)
-			{
-				url1value = CString((char *)propsurl1.GetItemValue(url1index).c_str());
-			}
-		}
-
-		stdstring url2value = _T("");
-		for (int url2index = 0; url2index < propsurl2.GetCount(); ++url2index)
-		{
-			if (propsurl2.GetItemName(url2index).compare(url1name)==0)
-			{
-				url2value = CString((char *)propsurl2.GetItemValue(url2index).c_str());
-			}
-		}
-
-		if (url2value.compare(url1value)!=0)
-		{
-			// write both property values to temporary files
-			CTGitPath url1propfile = CTempFiles::Instance().GetTempFilePath(false);
-			CTGitPath url2propfile = CTempFiles::Instance().GetTempFilePath(false);
-			FILE * pFile;
-			_tfopen_s(&pFile, url1propfile.GetWinPath(), _T("wb"));
-			if (pFile)
-			{
-				fputs(CUnicodeUtils::StdGetUTF8(url1value).c_str(), pFile);
-				fclose(pFile);
-				FILE * pFile;
-				_tfopen_s(&pFile, url2propfile.GetWinPath(), _T("wb"));
-				if (pFile)
-				{
-					fputs(CUnicodeUtils::StdGetUTF8(url2value).c_str(), pFile);
-					fclose(pFile);
-				}
-				else
-					return;
-			}
-			else
-				return;
-			SetFileAttributes(url1propfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-			SetFileAttributes(url2propfile.GetWinPath(), FILE_ATTRIBUTE_READONLY);
-			CString n1, n2;
-			if (m_rev1.IsWorking())
-				n1.Format(IDS_DIFF_WCNAME, url1name.c_str());
-			if (m_rev1.IsBase())
-				n1.Format(IDS_DIFF_BASENAME, url1name.c_str());
-			if (m_rev1.IsHead() || m_rev1.IsNumber())
-			{
-				if (m_bDoPegDiff)
-				{
-					n1.Format(_T("%s : %s Revision %ld"), url1name.c_str(), (LPCTSTR)fd.path.GetGitPathString(), (LONG)m_rev1);
-				}
-				else
-				{
-					CString sTemp = url1name.c_str();
-					sTemp += _T(" : ");
-					n1 = sTemp + m_path1.GetGitPathString() + _T("/") + fd.path.GetGitPathString();
-				}
-			}
-			if (m_rev2.IsWorking())
-				n2.Format(IDS_DIFF_WCNAME, url1name.c_str());
-			if (m_rev2.IsBase())
-				n2.Format(IDS_DIFF_BASENAME, url1name.c_str());
-			if (m_rev2.IsHead() || m_rev2.IsNumber())
-			{
-				if (m_bDoPegDiff)
-				{
-					n2.Format(_T("%s : %s Revision %ld"), url1name.c_str(),  (LPCTSTR)fd.path.GetGitPathString(), (LONG)m_rev2);
-				}
-				else
-				{
-					CString sTemp = url1name.c_str();
-					sTemp += _T(" : ");
-					n2 = sTemp + m_path2.GetGitPathString() + _T("/") + fd.path.GetGitPathString();
-				}
-			}
-			CAppUtils::StartExtDiffProps(url1propfile, url2propfile, n1, n2, TRUE);
-		}
-	}
-}
-#endif
 void CFileDiffDlg::OnNMDblclkFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	*pResult = 0;
@@ -752,12 +552,10 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 				while (pos)
 				{
 					int index = m_cFileList.GetNextSelectedItem(pos);
-					CString cmd;
-					cmd = CPathUtils::GetAppDirectory()+_T("TortoiseProc.exe");
-					cmd += _T(" /command:log");
+					CString cmd = _T("/command:log");
 					cmd += _T(" /path:\"")+m_arFilteredList[index]->GetWinPathString()+_T("\" ");
 					cmd += _T(" /endrev:")+m_rev1.m_CommitHash.ToString();
-					CAppUtils::LaunchApplication(cmd,IDS_ERR_PROC,false);
+					CAppUtils::RunTortoiseProc(cmd);
 				}
 			}
 			break;
@@ -815,15 +613,11 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 				browseFolder.m_style = BIF_EDITBOX | BIF_NEWDIALOGSTYLE | BIF_RETURNFSANCESTORS | BIF_RETURNONLYFSDIRS;
 				if (browseFolder.Show(GetSafeHwnd(), m_strExportDir) == CBrowseFolder::OK)
 				{
-					m_arSelectedFileList.RemoveAll();
 					POSITION pos = m_cFileList.GetFirstSelectedItemPosition();
 					while (pos)
 					{
 						int index = m_cFileList.GetNextSelectedItem(pos);
 						CTGitPath* fd = m_arFilteredList[index];
-#if 0
-						m_arSelectedFileList.Add(fd);
-#endif
 						// we cannot export directories or folders
 						if (fd->m_Action == CTGitPath::LOGACTIONS_DELETED || fd->IsDirectory())
 							continue;
@@ -833,13 +627,7 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 						{
 							if(!CopyFile(g_Git.m_CurrentDir + _T("\\") + fd->GetWinPath(), filename, false))
 							{
-								LPVOID lpMsgBuf=NULL;
-								FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER|FORMAT_MESSAGE_FROM_SYSTEM,
-									NULL,GetLastError(),MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-									(LPTSTR)&lpMsgBuf,
-									0, NULL);
-								CMessageBox::Show(NULL,(TCHAR *)lpMsgBuf, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
-								LocalFree(lpMsgBuf);
+								MessageBox(CFormatMessageWrapper(), _T("TortoiseGit"), MB_OK | MB_ICONERROR);
 								return;
 							}
 						}
@@ -854,15 +642,6 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 							}
 						}
 					}
-#if 0
-					m_pProgDlg = new CProgressDlg();
-					InterlockedExchange(&m_bThreadRunning, TRUE);
-					if (AfxBeginThread(ExportThreadEntry, this)==NULL)
-					{
-						InterlockedExchange(&m_bThreadRunning, FALSE);
-						CMessageBox::Show(NULL, IDS_ERR_THREADSTARTFAILED, IDS_APPNAME, MB_OK | MB_ICONERROR);
-					}
-#endif
 				}
 			}
 
@@ -870,87 +649,6 @@ void CFileDiffDlg::OnContextMenu(CWnd* pWnd, CPoint point)
 
 		}
 	}
-}
-
-UINT CFileDiffDlg::ExportThreadEntry(LPVOID pVoid)
-{
-	return ((CFileDiffDlg*)pVoid)->ExportThread();
-}
-
-UINT CFileDiffDlg::ExportThread()
-{
-#if 0
-	RefreshCursor();
-//	if (m_pProgDlg == NULL)
-//		return 1;
-	long count = 0;
-//	SetAndClearProgressInfo(m_pProgDlg, false);
-	m_pProgDlg->SetTitle(IDS_PROGRESSWAIT);
-	m_pProgDlg->SetAnimation(AfxGetResourceHandle(), IDR_DOWNLOAD);
-	m_pProgDlg->ShowModeless(this);
-	for (INT_PTR i=0; (i<m_arSelectedFileList.GetCount())&&(!m_pProgDlg->HasUserCancelled()); ++i)
-	{
-		CTGitPath* fd = m_arSelectedFileList[i];
-//		CTGitPath url1 = CTGitPath(m_path1.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-//		CTGitPath url2 = m_bDoPegDiff ? url1 : CTGitPath(m_path2.GetGitPathString() + _T("/") + fd.path.GetGitPathString());
-//		if ((fd.node == svn_node_dir)&&(fd.kind != svn_client_diff_summarize_kind_added))
-//		{
-			// just create the directory
-//			CreateDirectoryEx(NULL, m_strExportDir+_T("\\")+CPathUtils::PathUnescape(fd.path.GetWinPathString()), NULL);
-//			continue;
-//		}
-
-		CString sTemp;
-		m_pProgDlg->FormatPathLine(1, IDS_PROGRESSGETFILE, (LPCTSTR)url1.GetGitPathString());
-
-		CTGitPath savepath = CTGitPath(m_strExportDir);
-		savepath.AppendPathString(_T("\\") + CPathUtils::PathUnescape(fd.path.GetWinPathString()));
-		CPathUtils::MakeSureDirectoryPathExists(fd.node == svn_node_file ? savepath.GetContainingDirectory().GetWinPath() : savepath.GetDirectory().GetWinPath());
-		if (fd.node == svn_node_dir)
-		{
-			// exporting a folder requires calling Git::Export() so we also export all
-			// children of that added folder.
-			if ((fd.kind == svn_client_diff_summarize_kind_added)&&(!Export(url2, savepath, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, true, true)))
-			{
-				if ((!m_bDoPegDiff)||(!Export(url2, savepath, m_rev2, m_rev2, true, true)))
-				{
-					delete m_pProgDlg;
-					m_pProgDlg = NULL;
-					CMessageBox::Show(NULL, GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-					InterlockedExchange(&m_bThreadRunning, FALSE);
-					RefreshCursor();
-					return 1;
-				}
-			}
-		}
-		else
-		{
-			// exporting a file requires calling Git::Cat(), since Git::Export() only works
-			// with folders.
-			if ((fd.kind != svn_client_diff_summarize_kind_deleted)&&(!Cat(url2, m_bDoPegDiff ? m_peg : m_rev2, m_rev2, savepath)))
-			{
-				if ((!m_bDoPegDiff)||(!Cat(url2, m_rev2, m_rev2, savepath)))
-				{
-					delete m_pProgDlg;
-					m_pProgDlg = NULL;
-					CMessageBox::Show(NULL, GetLastErrorMessage(), _T("TortoiseGit"), MB_ICONERROR);
-					InterlockedExchange(&m_bThreadRunning, FALSE);
-					RefreshCursor();
-					return 1;
-				}
-			}
-		}
-		count++;
-		m_pProgDlg->SetProgress (count, static_cast<DWORD>(m_arSelectedFileList.GetCount()));
-	}
-	m_pProgDlg->Stop();
-	SetAndClearProgressInfo(NULL, false);
-	delete m_pProgDlg;
-	m_pProgDlg = NULL;
-	InterlockedExchange(&m_bThreadRunning, FALSE);
-	RefreshCursor();
-#endif
-	return 0;
 }
 
 BOOL CFileDiffDlg::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
@@ -1033,7 +731,7 @@ void CFileDiffDlg::SetURLLabels(int mask)
 	{
 		SetDlgItemText(IDC_FIRSTURL, m_rev1.m_CommitHash.ToString().Left(8)+_T(": ")+m_rev1.GetSubject());
 		m_tooltips.AddTool(IDC_FIRSTURL,
-			CAppUtils::FormatDateAndTime( m_rev1.GetAuthorDate(), DATE_SHORTDATE, false )+_T("  ")+m_rev1.GetAuthorName());
+			CLoglistUtils::FormatDateAndTime(m_rev1.GetAuthorDate(), DATE_SHORTDATE, false) + _T("  ") + m_rev1.GetAuthorName());
 
 	}
 
@@ -1042,7 +740,7 @@ void CFileDiffDlg::SetURLLabels(int mask)
 		SetDlgItemText(IDC_SECONDURL,m_rev2.m_CommitHash.ToString().Left(8)+_T(": ")+m_rev2.GetSubject());
 
 		m_tooltips.AddTool(IDC_SECONDURL,
-			CAppUtils::FormatDateAndTime( m_rev2.GetAuthorDate(), DATE_SHORTDATE, false )+_T("  ")+m_rev2.GetAuthorName());
+			CLoglistUtils::FormatDateAndTime(m_rev2.GetAuthorDate(), DATE_SHORTDATE, false) + _T("  ") + m_rev2.GetAuthorName());
 	}
 
 	this->GetDlgItem(IDC_REV2GROUP)->SetWindowText(_T("Version 2 (Base)"));
@@ -1141,7 +839,6 @@ void CFileDiffDlg::OnHdnItemclickFilelist(NMHDR *pNMHDR, LRESULT *pResult)
 	else
 		m_bAscending = TRUE;
 	m_nSortedColumn = phdr->iItem;
-	m_arSelectedFileList.RemoveAll();
 	Sort();
 
 	CString temp;

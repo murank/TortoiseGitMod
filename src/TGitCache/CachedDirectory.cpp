@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
 // External Cache Copyright (C) 2005-2008 - TortoiseSVN
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -23,12 +23,12 @@
 #include "GitStatusCache.h"
 #include "GitStatus.h"
 #include <set>
+#include "AutoLocker.h"
 
 CCachedDirectory::CCachedDirectory(void)
 {
 	m_currentFullStatus = m_mostImportantFileStatus = git_wc_status_none;
 	m_bRecursive = true;
-	m_indexFileTime = 0;
 }
 
 CCachedDirectory::~CCachedDirectory(void)
@@ -83,8 +83,6 @@ BOOL CCachedDirectory::SaveToDisk(FILE * pFile)
 			WRITEVALUETOFILE(status);
 		}
 	}
-	WRITEVALUETOFILE(m_indexFileTime);
-	WRITEVALUETOFILE(m_Head.m_hash);
 //	WRITEVALUETOFILE(m_propsFileTime);
 	value = m_directoryPath.GetWinPathString().GetLength();
 	WRITEVALUETOFILE(value);
@@ -152,9 +150,6 @@ BOOL CCachedDirectory::LoadFromDisk(FILE * pFile)
 				m_childDirectories[CTGitPath(sPath)] = status;
 			}
 		}
-		LOADVALUEFROMFILE(m_indexFileTime);
-		LOADVALUEFROMFILE(m_Head.m_hash);
-//		LOADVALUEFROMFILE(m_propsFileTime);
 		LOADVALUEFROMFILE(value);
 		if (value > MAX_PATH)
 			return false;
@@ -381,8 +376,7 @@ CStatusCacheEntry CCachedDirectory::GetStatusForMember(const CTGitPath& path, bo
 
 	if(bFetch)
 	{
-		GetStatusFromGit(path, sProjectRoot);
-		return CStatusCacheEntry();
+		return GetStatusFromGit(path, sProjectRoot);
 	}
 	else
 	{
@@ -427,8 +421,10 @@ int CCachedDirectory::EnumFiles(CTGitPath *path , bool IsFull)
 		pStatus->GetFileStatus(sProjectRoot, sSubPath, &status, IsFull, false,true, GetStatusCallback,this);
 	else
 	{
-		m_mostImportantFileStatus = git_wc_status_unknown;
+		m_mostImportantFileStatus = git_wc_status_normal;
 		pStatus->EnumDirStatus(sProjectRoot, sSubPath, &status, IsFull, false, true, GetStatusCallback,this);
+
+		m_ownStatus = git_wc_status_normal;
 	}
 
 	m_mostImportantFileStatus = GitStatus::GetMoreImportant(m_mostImportantFileStatus, status);
@@ -776,12 +772,7 @@ bool
 CCachedDirectory::IsOwnStatusValid() const
 {
 	return m_ownStatus.HasBeenSet() &&
-		   !m_ownStatus.HasExpired(GetTickCount()) &&
-		   // 'external' isn't a valid status. That just
-		   // means the folder is not part of the current working
-		   // copy but it still has its own 'real' status
-		   m_ownStatus.GetEffectiveStatus()!=git_wc_status_external &&
-		   m_ownStatus.IsKindKnown();
+		   !m_ownStatus.HasExpired(GetTickCount());
 }
 
 void CCachedDirectory::Invalidate()
