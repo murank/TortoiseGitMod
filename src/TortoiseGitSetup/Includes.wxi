@@ -4,7 +4,7 @@
 
 	<!-- General ..................................................................... -->
 	<?define VersionNumberInternal="$(var.MajorVersion).$(var.MinorVersion).$(var.MicroVersion).$(var.BuildVersion)" ?>
-	<?define VersionNumberUserVisible="$(var.MajorVersion).$(var.MinorVersion).$(var.MicroVersion).$(var.BuildVersion)" ?>
+	<?define VersionNumberUserVisible="$(var.MajorVersion).$(var.MinorVersion).$(var.MicroVersion).0 mod $(var.BuildVersion)" ?>
 	<?define ProductName="TortoiseGit" ?>
 
 	<?define PackageKeywords="Sourcecontrol;Git;TortoiseGit;Shell" ?>
