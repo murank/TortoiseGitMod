@@ -18,3 +18,43 @@
 //
 
 #include "StdAfxTest.h"
+
+#include "CommandLineArguments.h"
+
+
+TEST(CommandLineArguments, GetCount)
+{
+	CommandLineArguments parser;
+	EXPECT_EQ(0, parser.GetCount());
+
+	parser.Add(CString("key"), CString("value"));
+	EXPECT_EQ(1, parser.GetCount());
+
+	parser.Add(CString("KEY"), CString("value")); // case-insensitive
+	EXPECT_EQ(1, parser.GetCount());
+}
+
+TEST(CommandLineArguments, HasKey)
+{
+	CommandLineArguments parser;
+	EXPECT_FALSE(parser.HasKey(CString("key")));
+
+	parser.Add(CString("key"), CString("value"));
+	EXPECT_TRUE(parser.HasKey(CString("key")));
+	EXPECT_TRUE(parser.HasKey(CString("KEY")));		// case-insensitive
+}
+
+TEST(CommandLineArguments, GetAsString)
+{
+	CommandLineArguments parser;
+	EXPECT_EQ(CString(), parser.GetAsString(CString("key")));
+
+	parser.Add(CString("key"), CString("value1"));
+	EXPECT_EQ(CString("value1"), parser.GetAsString(CString("key")));
+	EXPECT_EQ(CString("value1"), parser.GetAsString(CString("KEY")));	// case-insensitive
+
+	parser.Add(CString("KEY"), CString("value2"));
+	EXPECT_EQ(CString("value1"), parser.GetAsString(CString("key")));	// can't override value
+
+	EXPECT_EQ(CString(), parser.GetAsString(CString("non_existent_key")));	// can't override value
+}
