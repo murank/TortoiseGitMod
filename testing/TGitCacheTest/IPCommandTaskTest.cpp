@@ -17,9 +17,7 @@
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
 
-#include "stdafx.h"
-#include <gmock/gmock.h>
-#include "TestHelper.h"
+#include "StdAfxTest.h"
 
 #include "IPCommandTask.h"
 
