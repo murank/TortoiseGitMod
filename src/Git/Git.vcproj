@@ -157,7 +157,7 @@
 			UseOfMFC="0"
 			UseOfATL="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -484,7 +484,7 @@
 			UseOfMFC="2"
 			UseOfATL="2"
 			CharacterSet="1"
-			WholeProgramOptimization="1"
+			WholeProgramOptimization="0"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -813,6 +813,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitHash.h"
+				>
+			</File>
+			<File
 				RelativePath=".\gitindex.h"
 				>
 			</File>
@@ -878,6 +882,10 @@
 			</File>
 			<File
 				RelativePath=".\SharedHandle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SharedMutex.h"
 				>
 			</File>
 			<File

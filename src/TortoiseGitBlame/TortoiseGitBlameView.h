@@ -31,7 +31,7 @@
 #include "SciEdit.h"
 
 #include "GitBlameLogList.h"
-#include "Balloon.h"
+#include "Tooltip.h"
 
 const COLORREF black = RGB(0,0,0);
 const COLORREF white = RGB(0xff,0xff,0xff);
@@ -131,6 +131,8 @@ protected:
 	afx_msg void OnViewPrev();
 	afx_msg void OnViewToggleAuthor();
 	afx_msg void OnUpdateViewToggleAuthor(CCmdUI *pCmdUI);
+	afx_msg void OnViewToggleFollowRenames();
+	afx_msg void OnUpdateViewToggleFollowRenames(CCmdUI *pCmdUI);
 	afx_msg void CopyHashToClipboard();
 	afx_msg void OnUpdateBlamePopupBlamePrevious(CCmdUI *pCmdUI);
 	afx_msg void OnUpdateBlamePopupDiffPrevious(CCmdUI *pCmdUI);
@@ -158,7 +160,7 @@ public:
 	void FocusOn(GitRev *pRev);
 
 	CSciEditBlame		m_TextView;
-	CBalloon			m_ToolTip;
+	CToolTips			m_ToolTip;
 
 	HINSTANCE hInstance;
 	HINSTANCE hResource;
@@ -176,7 +178,7 @@ public:
 
 	BOOL m_bShowAuthor;
 	BOOL m_bShowDate;
-
+	BOOL m_bFollowRenames;
 
 	LRESULT SendEditor(UINT Msg, WPARAM wParam=0, LPARAM lParam=0);
 
@@ -283,6 +285,12 @@ protected:
 	char					*m_Buffer;
 
 	DWORD					m_DateFormat;	// DATE_SHORTDATE or DATE_LONGDATE
+	bool					m_bRelativeTimes;	// Show relative times
+
+	CString					m_sRev;
+	CString					m_sAuthor;
+	CString					m_sDate;
+	CString					m_sMessage;
 };
 
 #ifndef _DEBUG  // debug version in TortoiseGitBlameView.cpp

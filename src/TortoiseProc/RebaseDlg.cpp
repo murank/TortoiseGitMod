@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
-// Copyright (C) 2011 - Sven Strickroth <email@cs-ware.de>
+// Copyright (C) 2008-2012 - TortoiseGit
+// Copyright (C) 2011-2012 - Sven Strickroth <email@cs-ware.de>
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -25,10 +25,14 @@
 #include "TortoiseProc.h"
 #include "RebaseDlg.h"
 #include "AppUtils.h"
+#include "LoglistUtils.h"
 #include "MessageBox.h"
 #include "UnicodeUtils.h"
 #include "BrowseRefsDlg.h"
 #include "ProgressDlg.h"
+#include "SmartHandle.h"
+#include "../TGitCache/CacheInterface.h"
+
 // CRebaseDlg dialog
 
 IMPLEMENT_DYNAMIC(CRebaseDlg, CResizableStandAloneDialog)
@@ -124,7 +128,7 @@ BOOL CRebaseDlg::OnInitDialog()
 	// not elevated, this is a no-op.
 	CHANGEFILTERSTRUCT cfs = { sizeof(CHANGEFILTERSTRUCT) };
 	typedef BOOL STDAPICALLTYPE ChangeWindowMessageFilterExDFN(HWND hWnd, UINT message, DWORD action, PCHANGEFILTERSTRUCT pChangeFilterStruct);
-	HMODULE hUser = ::LoadLibrary(_T("user32.dll"));
+	CAutoLibrary hUser = ::LoadLibrary(_T("user32.dll"));
 	if (hUser)
 	{
 		ChangeWindowMessageFilterExDFN *pfnChangeWindowMessageFilterEx = (ChangeWindowMessageFilterExDFN*)GetProcAddress(hUser, "ChangeWindowMessageFilterEx");
@@ -132,7 +136,6 @@ BOOL CRebaseDlg::OnInitDialog()
 		{
 			pfnChangeWindowMessageFilterEx(m_hWnd, WM_TASKBARBTNCREATED, MSGFLT_ALLOW, &cfs);
 		}
-		FreeLibrary(hUser);
 	}
 	m_pTaskbarList.Release();
 	m_pTaskbarList.CoCreateInstance(CLSID_TaskbarList);
@@ -155,7 +158,7 @@ BOOL CRebaseDlg::OnInitDialog()
 	m_ctrlTabCtrl.SetResizeMode(CMFCTabCtrl::RESIZE_NO);
 	// Create output panes:
 	//const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL;
-	DWORD dwStyle =LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP |LVS_SINGLESEL |WS_CHILD | WS_VISIBLE;
+	DWORD dwStyle =LVS_REPORT | LVS_SHOWSELALWAYS | LVS_ALIGNLEFT | WS_BORDER | WS_TABSTOP | WS_CHILD | WS_VISIBLE;
 
 	if (! this->m_FileListCtrl.Create(dwStyle,rectDummy,&this->m_ctrlTabCtrl,0) )
 	{
@@ -188,7 +191,7 @@ BOOL CRebaseDlg::OnInitDialog()
 
 
 
-	m_FileListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS |SVNSLC_COLADD|SVNSLC_COLDEL , _T("RebaseDlg"),(SVNSLC_POPALL ^ SVNSLC_POPCOMMIT),false);
+	m_FileListCtrl.Init(GITSLC_COLEXT | GITSLC_COLSTATUS |GITSLC_COLADD|GITSLC_COLDEL , _T("RebaseDlg"),(GITSLC_POPALL ^ (GITSLC_POPCOMMIT|GITSLC_POPRESTORE)),false);
 
 	m_ctrlTabCtrl.AddTab(&m_FileListCtrl,_T("Revision Files"));
 	m_ctrlTabCtrl.AddTab(&m_LogMessageCtrl,_T("Commit Message"),1);
@@ -252,6 +255,7 @@ BOOL CRebaseDlg::OnInitDialog()
 	{
 		this->m_BranchCtrl.SetCurSel(-1);
 		this->m_BranchCtrl.EnableWindow(FALSE);
+		this->m_UpstreamCtrl.AddString(_T("HEAD"));
 		this->m_UpstreamCtrl.EnableWindow(FALSE);
 		this->SetWindowText(_T("Cherry Pick"));
 		this->m_CommitList.StartFilter();
@@ -477,14 +481,14 @@ void CRebaseDlg::OnCbnSelchangeUpstream()
 void CRebaseDlg::FetchLogList()
 {
 	CGitHash base,hash;
-	CString basestr;
+	CString basestr, err;
 	CString cmd;
 	m_IsFastForward=FALSE;
 	cmd.Format(_T("git.exe merge-base %s %s"), g_Git.FixBranchName(m_UpstreamCtrl.GetString()),
 											   g_Git.FixBranchName(m_BranchCtrl.GetString()));
-	if(g_Git.Run(cmd,&basestr,CP_ACP))
+	if (g_Git.Run(cmd, &basestr, &err, CP_ACP))
 	{
-		CMessageBox::Show(NULL,basestr,_T("TortoiseGit"),MB_OK|MB_ICONERROR);
+		CMessageBox::Show(NULL, basestr + L"\n" + err, _T("TortoiseGit"), MB_OK|MB_ICONERROR);
 		return;
 	}
 	base=basestr;
@@ -595,7 +599,7 @@ void CRebaseDlg::AddBranchToolTips(CHistoryCombo *pBranch)
 		tooltip.Format(_T("CommitHash:%s\nCommit by: %s  %s\n <b>%s</b> \n %s"),
 			rev.m_CommitHash.ToString(),
 			rev.GetAuthorName(),
-			CAppUtils::FormatDateAndTime(rev.GetAuthorDate(),DATE_LONGDATE),
+			CLoglistUtils::FormatDateAndTime(rev.GetAuthorDate(), DATE_LONGDATE),
 			rev.GetSubject(),
 			rev.GetBody());
 
@@ -738,7 +742,10 @@ int CRebaseDlg::StartRebase()
 		this->AddLogString(cmd);
 
 		if(g_Git.Run(cmd,&out,CP_UTF8))
+		{
+			this->AddLogString(out);
 			return -1;
+		}
 
 		this->AddLogString(out);
 	}
@@ -1099,9 +1106,9 @@ void CRebaseDlg::SetContinueButtonText()
 	case CHOOSE_BRANCH:
 	case CHOOSE_COMMIT_PICK_MODE:
 		if(this->m_IsFastForward)
-			Text = _T("Start(FastFwd)");
+			Text = _T("Start (FastFwd)");
 		else
-			Text = _T("Start");
+			Text = _T("Start Rebase");
 		break;
 
 	case REBASE_START:
@@ -1402,6 +1409,8 @@ BOOL CRebaseDlg::IsEnd()
 
 int CRebaseDlg::RebaseThread()
 {
+	CBlockCacheForPath cacheBlock(g_Git.m_CurrentDir);
+
 	int ret=0;
 	while(1)
 	{
@@ -1411,6 +1420,7 @@ int CRebaseDlg::RebaseThread()
 			{
 				InterlockedExchange(&m_bThreadRunning, FALSE);
 				ret = -1;
+				this->m_ctrlTabCtrl.SetActiveTab(REBASE_TAB_LOG);
 				break;
 			}
 			m_RebaseStage = REBASE_CONTINUE;
@@ -1490,20 +1500,20 @@ LRESULT CRebaseDlg::OnRebaseUpdateUI(WPARAM,LPARAM)
 		this->m_ctrlTabCtrl.SetActiveTab(REBASE_TAB_CONFLICT);
 		if (m_pTaskbarList)
 			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_ERROR);
-		this->m_LogMessageCtrl.SetText(curRev->GetSubject()+_T("\n")+curRev->GetBody());
 		this->m_LogMessageCtrl.Call(SCI_SETREADONLY, FALSE);
+		this->m_LogMessageCtrl.SetText(curRev->GetSubject()+_T("\n")+curRev->GetBody());
 		break;
 	case REBASE_EDIT:
 		this->m_ctrlTabCtrl.SetActiveTab(REBASE_TAB_MESSAGE);
 		if (m_pTaskbarList)
 			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_PAUSED);
-		this->m_LogMessageCtrl.SetText(curRev->GetSubject()+_T("\n")+curRev->GetBody());
 		this->m_LogMessageCtrl.Call(SCI_SETREADONLY, FALSE);
+		this->m_LogMessageCtrl.SetText(curRev->GetSubject()+_T("\n")+curRev->GetBody());
 		break;
 	case REBASE_SQUASH_EDIT:
 		this->m_ctrlTabCtrl.SetActiveTab(REBASE_TAB_MESSAGE);
-		this->m_LogMessageCtrl.SetText(this->m_SquashMessage);
 		this->m_LogMessageCtrl.Call(SCI_SETREADONLY, FALSE);
+		this->m_LogMessageCtrl.SetText(this->m_SquashMessage);
 		if (m_pTaskbarList)
 			m_pTaskbarList->SetProgressState(m_hWnd, TBPF_PAUSED);
 		break;
@@ -1522,6 +1532,7 @@ void CRebaseDlg::OnBnClickedAbort()
 		m_pTaskbarList->SetProgressState(m_hWnd, TBPF_NOPROGRESS);
 
 	CString cmd,out;
+	CString pron = m_OrigUpstreamHash.ToString();
 	if(m_OrigUpstreamHash.IsEmpty())
 	{
 		__super::OnCancel();
@@ -1748,7 +1759,7 @@ void CRebaseDlg::FillLogMessageCtrl()
 		GitRev* pLogEntry = reinterpret_cast<GitRev *>(m_CommitList.m_arShownList.SafeGetAt(selIndex));
 		m_FileListCtrl.UpdateWithGitPathList(pLogEntry->GetFiles(&m_CommitList));
 		m_FileListCtrl.m_CurrentVersion = pLogEntry->m_CommitHash;
-		m_FileListCtrl.Show(SVNSLC_SHOWVERSIONED);
+		m_FileListCtrl.Show(GITSLC_SHOWVERSIONED);
 		m_LogMessageCtrl.Call(SCI_SETREADONLY, FALSE);
 		m_LogMessageCtrl.SetText(pLogEntry->GetSubject() + _T("\n") + pLogEntry->GetBody());
 		m_LogMessageCtrl.Call(SCI_SETREADONLY, TRUE);

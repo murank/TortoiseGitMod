@@ -1,4 +1,4 @@
-// TortoiseSVN - a Windows shell extension for easy version control
+// TortoiseGit - a Windows shell extension for easy version control
 
 // Copyright (C) 2007-2008 - TortoiseSVN
 
@@ -62,4 +62,6 @@ private:
 	CString				m_sFontName;
 	DWORD				m_dwTabSize;
 	CRegDWORD			m_regTabSize;
+	BOOL				m_bFollowRenames;
+	CRegDWORD			m_regFollowRenames;
 };

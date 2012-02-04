@@ -29,7 +29,7 @@
 #include "FileDiffDlg.h"
 #include "AppUtils.h"
 #include "LogDlg.h"
-#include "ChangedDlg.h"
+#include "AppUtils.h"
 
 bool PullCommand::Execute()
 {
@@ -52,10 +52,14 @@ bool PullCommand::Execute()
 			cmdRebase = "--rebase ";
 
 		CString noff;
+		CString ffonly;
 		CString squash;
 		CString nocommit;
 		if(dlg.m_bNoFF)
 			noff=_T("--no-ff");
+
+		if (dlg.m_bFFonly)
+			ffonly = _T("--ff-only");
 
 		if(dlg.m_bSquash)
 			squash=_T("--squash");
@@ -68,11 +72,16 @@ bool PullCommand::Execute()
 		if(ver >= 0x01070203) //above 1.7.0.2
 			cmdRebase += _T("--progress ");
 
-		cmd.Format(_T("git.exe pull -v %s %s %s %s \"%s\" %s"), cmdRebase, noff, squash, nocommit, url, dlg.m_RemoteBranchName);
+		cmd.Format(_T("git.exe pull -v %s %s %s %s %s \"%s\" %s"), cmdRebase, noff, ffonly, squash, nocommit, url, dlg.m_RemoteBranchName);
 		CProgressDlg progress;
 		progress.m_GitCmd = cmd;
 		progress.m_PostCmdList.Add(_T("Pulled Diff"));
 		progress.m_PostCmdList.Add(_T("Pulled Log"));
+
+		CTGitPath gitPath = g_Git.m_CurrentDir;
+		if (gitPath.HasSubmodules())
+			progress.m_PostCmdList.Add(_T("Update submodules"));
+
 		//progress.m_PostCmdList.Add(_T("Show Conflict"));
 
 		if (parser.HasVal(_T("closeonend")))
@@ -119,10 +128,12 @@ bool PullCommand::Execute()
 
 
 		}
-		else if ( ret == IDC_PROGRESS_BUTTON1 +2 )
+		else if (ret == IDC_PROGRESS_BUTTON1 + 2 && gitPath.HasSubmodules())
 		{
-			CChangedDlg dlg;
-			dlg.DoModal();
+			CString sCmd;
+			sCmd.Format(_T("/command:subupdate /bkpath:\"%s\""), g_Git.m_CurrentDir);
+
+			CAppUtils::RunTortoiseProc(sCmd);
 		}
 	}
 #if 0

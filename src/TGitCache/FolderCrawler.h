@@ -1,7 +1,7 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// External Cache Copyright (C) 2005 - 2006 - Will Dean, Stefan Kueng
-// Copyright (C) 2008-2011 - TortoiseGit
+// External Cache Copyright (C) 2005-2007, 2009-2011 TortoiseSVN
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -21,6 +21,8 @@
 
 #include "TGitPath.h"
 #include "CacheInterface.h"
+#include "SmartHandle.h"
+#include "UniqueQueue.h"
 #include <set>
 //////////////////////////////////////////////////////////////////////////
 
@@ -52,14 +54,14 @@ private:
 
 private:
 	CComAutoCriticalSection m_critSec;
-	HANDLE m_hThread;
-	std::deque<CTGitPath> m_foldersToUpdate;
-	std::deque<CTGitPath> m_pathsToUpdate;
+	CAutoGeneralHandle m_hThread;
+	UniqueQueue<CTGitPath> m_foldersToUpdate;
+	UniqueQueue<CTGitPath> m_pathsToUpdate;
 
 	void RemoveDuplicate(std::deque<CTGitPath> &list,const CTGitPath &path);
 
-	HANDLE m_hTerminationEvent;
-	HANDLE m_hWakeEvent;
+	CAutoGeneralHandle m_hTerminationEvent;
+	CAutoGeneralHandle m_hWakeEvent;
 
 	// This will be *asynchronously* modified by CCrawlInhibitor.
 	// So, we have to mark it volatile, preparing compiler and

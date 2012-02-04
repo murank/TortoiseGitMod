@@ -48,7 +48,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll"
+				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll;..\..\ext\libgit2\include;..\..\ext\zlib"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;ENABLE_NLS;THESAURUS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -138,7 +138,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll"
+				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll;..\..\ext\libgit2\include;..\..\ext\zlib"
 				PreprocessorDefinitions="WIN64;_WINDOWS;_DEBUG;ENABLE_NLS;THESAURUS"
 				MinimalRebuild="true"
 				ExceptionHandling="2"
@@ -224,7 +224,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll"
+				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll;..\..\ext\libgit2\include;..\..\ext\zlib"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;THESAURUS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -316,7 +316,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll"
+				AdditionalIncludeDirectories="..\TortoiseProc;..\Resources;&quot;$InputDir&quot;;../../ext/ResizableLib;../Git;..\Utils;..\crashrpt;&quot;..\..\ext\libintl\libintl3-win32\inc&quot;;..\..\ext\hunspell;..\..\ext\scintilla\include;..\Utils\TreePropSheet;..\Utils\MiscUI;..\TortoiseShell;..\..\ext\gitdll;..\..\ext\libgit2\include;..\..\ext\zlib"
 				PreprocessorDefinitions="WIN64;_WINDOWS;NDEBUG;THESAURUS"
 				StringPooling="true"
 				MinimalRebuild="false"
@@ -405,11 +405,23 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Utils\Libraries.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LogFile.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\LogFile.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MassiveGitTask.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MassiveGitTask.h"
 				>
 			</File>
 			<File
@@ -698,6 +710,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\Library.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\lineadded.ico"
 				>
 			</File>
@@ -914,6 +930,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\Resources\restore.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\restoreovl.ico"
+				>
+			</File>
+			<File
 				RelativePath="..\Resources\RevertBackground.ico"
 				>
 			</File>
@@ -1002,7 +1026,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\TortoiseBlame\TortoiseBlame.ico"
+				RelativePath="..\Resources\TortoiseBlame.ico"
+				>
+			</File>
+			<File
+				RelativePath="..\Resources\tortoisegit_logoflipped.bmp"
 				>
 			</File>
 			<File
@@ -1015,10 +1043,6 @@
 			</File>
 			<File
 				RelativePath="..\Resources\TortoiseSmall.ico"
-				>
-			</File>
-			<File
-				RelativePath="..\Resources\tortoisesvn_logoflipped.bmp"
 				>
 			</File>
 			<File
@@ -1124,14 +1148,6 @@
 					RelativePath=".\Commands\BlameCommand.h"
 					>
 				</File>
-				<File
-					RelativePath=".\BlameDlg.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\BlameDlg.h"
-					>
-				</File>
 			</Filter>
 			<Filter
 				Name="Log"
@@ -1194,6 +1210,14 @@
 				</File>
 				<File
 					RelativePath=".\LogDlgHelper.h"
+					>
+				</File>
+				<File
+					RelativePath=".\LoglistUtils.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\LoglistUtils.h"
 					>
 				</File>
 				<File
@@ -1597,14 +1621,6 @@
 					>
 				</File>
 				<File
-					RelativePath=".\Settings\SetMisc.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Settings\SetMisc.h"
-					>
-				</File>
-				<File
 					RelativePath=".\Settings\SetOverlayHandlers.cpp"
 					>
 				</File>
@@ -1677,6 +1693,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\Settings\SettingsAdvanced.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Settings\SettingsAdvanced.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Settings\SettingsBugtraqConfig.cpp"
 					>
 				</File>
@@ -1738,10 +1762,6 @@
 				</File>
 				<File
 					RelativePath=".\Settings\SettingsProgsMerge.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\Settings\SettingsProgsUniDiff.cpp"
 					>
 				</File>
 				<File
@@ -1956,6 +1976,14 @@
 					RelativePath=".\Commands\StashCommand.h"
 					>
 				</File>
+				<File
+					RelativePath=".\StashSave.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\StashSave.h"
+					>
+				</File>
 			</Filter>
 			<Filter
 				Name="RefBrowse"
@@ -1990,6 +2018,14 @@
 				</File>
 				<File
 					RelativePath=".\SVNDCommitDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\Commands\SVNFetchCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Commands\SVNFetchCommand.h"
 					>
 				</File>
 				<File
@@ -2109,6 +2145,26 @@
 					>
 				</File>
 			</Filter>
+			<Filter
+				Name="bisect"
+				>
+				<File
+					RelativePath=".\Commands\BisectCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\Commands\BisectCommand.h"
+					>
+				</File>
+				<File
+					RelativePath=".\BisectStartDlg.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\BisectStartDlg.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Utility Dialogs"
@@ -2138,6 +2194,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GitProgressDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GitProgressDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\InputDlg.cpp"
 				>
 			</File>
@@ -2162,11 +2226,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\SVNProgressDlg.cpp"
+				RelativePath=".\SubmoduleDiffDlg.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\SVNProgressDlg.h"
+				RelativePath=".\SubmoduleDiffDlg.h"
 				>
 			</File>
 		</Filter>
@@ -2199,14 +2263,6 @@
 			</File>
 			<File
 				RelativePath=".\PatchListCtrl.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SwitchDlg.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SwitchDlg.h"
 				>
 			</File>
 		</Filter>

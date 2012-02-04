@@ -64,12 +64,14 @@
 #include "RefBrowseCommand.h"
 #include "SVNDCommitCommand.h"
 #include "SVNRebaseCommand.h"
+#include "SVNFetchCommand.h"
 #include "SyncCommand.h"
 #include "RequestPullCommand.h"
 #include "UpdateCheckCommand.h"
 #include "PasteCopyCommand.h"
 #include "PasteMoveCommand.h"
 #include "SVNIgnoreCommand.h"
+#include "BisectCommand.h"
 
 #if 0
 
@@ -154,9 +156,11 @@ typedef enum
 	cmdRefBrowse,
 	cmdSVNDCommit,
 	cmdSVNRebase,
+	cmdSVNFetch,
 	cmdSVNIgnore,
 	cmdSync,
 	cmdRequestPull,
+	cmdBisect
 } TGitCommand;
 
 static const struct CommandInfo
@@ -221,9 +225,11 @@ static const struct CommandInfo
 	{	cmdRefBrowse,		_T("refbrowse")			},
 	{	cmdSVNDCommit,		_T("svndcommit")		},
 	{	cmdSVNRebase,		_T("svnrebase")			},
+	{	cmdSVNFetch,		_T("svnfetch")			},
 	{	cmdSVNIgnore,		_T("svnignore")			},
 	{	cmdSync,			_T("sync")				},
 	{	cmdRequestPull,		_T("requestpull")		},
+	{	cmdBisect,			_T("bisect")			},
 };
 
 
@@ -336,6 +342,8 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 		return new SVNDCommitCommand;
 	case cmdSVNRebase:
 		return new SVNRebaseCommand;
+	case cmdSVNFetch:
+		return new SVNFetchCommand;
 	case cmdSync:
 		return new SyncCommand;
 	case cmdRequestPull:
@@ -348,6 +356,8 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 		return new PasteMoveCommand;
 	case cmdSVNIgnore:
 		return new SVNIgnoreCommand;
+	case cmdBisect:
+		return new BisectCommand;
 
 #if 0
 

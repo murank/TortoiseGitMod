@@ -1,17 +1,35 @@
+// TortoiseGit - a Windows shell extension for easy version control
+
+// Copyright (C) 2009-2011 - TortoiseGit
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 // DeleteConflictDlg.cpp : implementation file
 //
 
 #include "stdafx.h"
 #include "resource.h"
 #include "DeleteConflictDlg.h"
-
+#include "AppUtils.h"
 
 // CDeleteConflictDlg dialog
 
-IMPLEMENT_DYNAMIC(CDeleteConflictDlg, CResizableStandAloneDialog)
+IMPLEMENT_DYNAMIC(CDeleteConflictDlg, CStandAloneDialog)
 
 CDeleteConflictDlg::CDeleteConflictDlg(CWnd* pParent /*=NULL*/)
-	: CResizableStandAloneDialog(CDeleteConflictDlg::IDD, pParent)
+	: CStandAloneDialog(CDeleteConflictDlg::IDD, pParent)
 
 	, m_LocalStatus(_T(""))
 	, m_RemoteStatus(_T(""))
@@ -32,7 +50,7 @@ void CDeleteConflictDlg::DoDataExchange(CDataExchange* pDX)
 }
 
 
-BEGIN_MESSAGE_MAP(CDeleteConflictDlg, CResizableStandAloneDialog)
+BEGIN_MESSAGE_MAP(CDeleteConflictDlg, CStandAloneDialog)
 	ON_BN_CLICKED(IDC_DELETE, &CDeleteConflictDlg::OnBnClickedDelete)
 	ON_BN_CLICKED(IDC_MODIFY, &CDeleteConflictDlg::OnBnClickedModify)
 END_MESSAGE_MAP()
@@ -40,21 +58,17 @@ END_MESSAGE_MAP()
 
 BOOL CDeleteConflictDlg::OnInitDialog()
 {
-	CResizableStandAloneDialog::OnInitDialog();
-	AddAnchor(IDC_DEL_GROUP, TOP_LEFT, BOTTOM_RIGHT);
-	AddAnchor(IDC_DELETE, BOTTOM_RIGHT);
-	AddAnchor(IDC_MODIFY, BOTTOM_RIGHT);
-	AddAnchor(IDCANCEL, BOTTOM_RIGHT);
+	CStandAloneDialog::OnInitDialog();
 
 	if(this->m_bShowModifiedButton )
 		this->GetDlgItem(IDC_MODIFY)->SetWindowText(_T("Modified"));
 	else
 		this->GetDlgItem(IDC_MODIFY)->SetWindowText(_T("Created"));
 
-	CString title;
-	this->GetWindowText(title);
-	title +=_T(" - ") +this->m_File;
-	this->SetWindowText(title);
+	CString sWindowTitle;
+	GetWindowText(sWindowTitle);
+	CAppUtils::SetWindowTitle(m_hWnd, this->m_File, sWindowTitle);
+
 	return TRUE;
 }
 // CDeleteConflictDlg message handlers

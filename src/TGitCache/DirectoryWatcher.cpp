@@ -20,7 +20,7 @@
 #include "StdAfx.h"
 #include "Dbt.h"
 #include "GitStatusCache.h"
-#include ".\directorywatcher.h"
+#include "directorywatcher.h"
 #include "AutoLocker.h"
 
 extern HWND hWnd;
@@ -399,18 +399,31 @@ void CDirectoryWatcher::WorkerThread()
 									break;
 								continue;
 							}
+							bool isIndex = false;
 							if ((pFound = wcsstr(buf, L".git"))!=NULL)
 							{
-								// omit repository data change except .git/index
+								// omit repository data change except .git/index.lock- or .git/HEAD.lock-files
 								if ((ULONG_PTR)pnotify - (ULONG_PTR)pdi->m_Buffer > READ_DIR_CHANGE_BUFFER_SIZE)
 									break;
 
-								if( wcsstr(pFound, L".git\\index") == NULL)
+								if ((wcsstr(pFound, L"index.lock") != NULL && wcsstr(pFound, L"HEAD.lock") != NULL) && pnotify->Action == FILE_ACTION_ADDED)
+								{
+									m_FolderCrawler->BlockPath(CTGitPath(buf).GetContainingDirectory().GetContainingDirectory()); // optimize here, and use general BlockPath with priorities
 									continue;
+								}
+								else if ((wcsstr(pFound, L"index.lock") != NULL && wcsstr(pFound, L"HEAD.lock") != NULL) && pnotify->Action == FILE_ACTION_REMOVED)
+								{
+									isIndex = true;
+									m_FolderCrawler->BlockPath(CTGitPath(buf).GetContainingDirectory().GetContainingDirectory(), 1);
+								}
+								else
+								{
+									continue;
+								}
 							}
 
 							path.SetFromWin(buf);
-							if(!path.HasAdminDir())
+							if(!path.HasAdminDir() && !isIndex)
 								continue;
 
 							ATLTRACE(_T("change notification: %s\n"), buf);

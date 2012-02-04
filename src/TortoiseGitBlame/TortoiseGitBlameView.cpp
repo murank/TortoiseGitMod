@@ -25,18 +25,16 @@
 
 #include "stdafx.h"
 #include "TortoiseGitBlame.h"
-
+#include "CommonAppUtils.h"
 #include "TortoiseGitBlameDoc.h"
 #include "TortoiseGitBlameView.h"
 #include "MainFrm.h"
-#include "Balloon.h"
 #include "EditGotoDlg.h"
-#include "TortoiseGitBlameAppUtils.h"
+#include "LoglistUtils.h"
 #include "FileTextLines.h"
 #include "UniCodeUtils.h"
 #include "MenuEncode.h"
 #include "gitdll.h"
-#include "PathUtils.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -61,10 +59,13 @@ BEGIN_MESSAGE_MAP(CTortoiseGitBlameView, CView)
 	ON_COMMAND(ID_VIEW_PREV,OnViewPrev)
 	ON_COMMAND(ID_VIEW_SHOWAUTHOR, OnViewToggleAuthor)
 	ON_UPDATE_COMMAND_UI(ID_VIEW_SHOWAUTHOR, OnUpdateViewToggleAuthor)
+	ON_COMMAND(ID_VIEW_FOLLOWRENAMES, OnViewToggleFollowRenames)
+	ON_UPDATE_COMMAND_UI(ID_VIEW_FOLLOWRENAMES, OnUpdateViewToggleFollowRenames)
 	ON_COMMAND(ID_BLAMEPOPUP_COPYHASHTOCLIPBOARD, CopyHashToClipboard)
 	ON_COMMAND(ID_BLAMEPOPUP_COPYLOGTOCLIPBOARD, CopySelectedLogToClipboard)
 	ON_COMMAND(ID_BLAMEPOPUP_BLAMEPREVIOUSREVISION, BlamePreviousRevision)
 	ON_COMMAND(ID_BLAMEPOPUP_DIFFPREVIOUS, DiffPreviousRevision)
+	ON_COMMAND(ID_BLAMEPOPUP_SHOWLOG, ShowLog)
 	ON_UPDATE_COMMAND_UI(ID_BLAMEPOPUP_BLAMEPREVIOUSREVISION, OnUpdateBlamePopupBlamePrevious)
 	ON_UPDATE_COMMAND_UI(ID_BLAMEPOPUP_DIFFPREVIOUS, OnUpdateBlamePopupDiffPrevious)
 	ON_COMMAND_RANGE(IDM_FORMAT_ENCODE, IDM_FORMAT_ENCODE_END, OnChangeEncode)
@@ -125,6 +126,7 @@ CTortoiseGitBlameView::CTortoiseGitBlameView()
 
 	m_bShowAuthor = (theApp.GetInt(_T("ShowAuthor"), 1) == 1);
 	m_bShowDate=false;
+	m_bFollowRenames = (theApp.GetInt(_T("FollowRenames"), 0) == 1);
 
 	m_FindDialogMessage = ::RegisterWindowMessage(FINDMSGSTRING);
 	m_pFindDialog = NULL;
@@ -138,6 +140,14 @@ CTortoiseGitBlameView::CTortoiseGitBlameView()
 	{
 		m_DateFormat = DATE_LONGDATE;
 	}
+	// get relative time display setting from registry
+	DWORD regRelativeTimes = CRegDWORD(_T("Software\\TortoiseGit\\RelativeTimes"), FALSE);
+	m_bRelativeTimes = (regRelativeTimes != 0);
+
+	m_sRev.LoadString(IDS_LOG_REVISION);
+	m_sAuthor.LoadString(IDS_LOG_AUTHOR);
+	m_sDate.LoadString(IDS_LOG_DATE);
+	m_sMessage.LoadString(IDS_LOG_MESSAGE);
 
 	m_Buffer = NULL;
 }
@@ -235,7 +245,6 @@ int CTortoiseGitBlameView::OnCreate(LPCREATESTRUCT lpcs)
 	CreateFont();
 	InitialiseEditor();
 	m_ToolTip.Create(this->GetParent());
-	m_ToolTip.AddTool(this,_T("Test"));
 
 	::AfxGetApp()->GetMainWnd();
 	return CView::OnCreate(lpcs);
@@ -870,77 +879,36 @@ void CTortoiseGitBlameView::CopySelectedLogToClipboard()
 
 void CTortoiseGitBlameView::BlamePreviousRevision()
 {
-	CString  procCmd;
-	procCmd += _T(" /path:\"");
+	CString procCmd = _T("/path:\"");
 	procCmd += ((CMainFrame*)::AfxGetApp()->GetMainWnd())->GetActiveView()->GetDocument()->GetPathName();
 	procCmd += _T("\" ");
 	procCmd += _T(" /command:blame");
 	procCmd += _T(" /endrev:") + this->GetLogData()->GetGitRevAt(this->GetLogData()->size()-m_ID[m_MouseLine]+1).m_CommitHash.ToString();
 
-	STARTUPINFO startup;
-	PROCESS_INFORMATION process;
-	memset(&startup, 0, sizeof(startup));
-	startup.cb = sizeof(startup);
-	memset(&process, 0, sizeof(process));
-	CString tortoiseProcPath = CPathUtils::GetAppDirectory() + _T("TortoiseProc.exe");
-
-	if (CreateProcess(tortoiseProcPath, procCmd.GetBuffer(), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
-	{
-		CloseHandle(process.hThread);
-		CloseHandle(process.hProcess);
-	}
+	CCommonAppUtils::RunTortoiseProc(procCmd);
 }
 
 void CTortoiseGitBlameView::DiffPreviousRevision()
 {
-	CString  procCmd;
-	procCmd += _T(" /path:\"");
+	CString procCmd = _T("/path:\"");
 	procCmd += ((CMainFrame*)::AfxGetApp()->GetMainWnd())->GetActiveView()->GetDocument()->GetPathName();
 	procCmd += _T("\" ");
 	procCmd += _T(" /command:diff");
 	procCmd += _T(" /startrev:") + this->GetLogData()->GetGitRevAt(this->GetLogData()->size() - m_ID[m_MouseLine]).m_CommitHash.ToString();
 	procCmd += _T(" /endrev:") + this->GetLogData()->GetGitRevAt(this->GetLogData()->size() - m_ID[m_MouseLine] + 1).m_CommitHash.ToString();
 
-	STARTUPINFO startup;
-	PROCESS_INFORMATION process;
-	memset(&startup, 0, sizeof(startup));
-	startup.cb = sizeof(startup);
-	memset(&process, 0, sizeof(process));
-	CString tortoiseProcPath = CPathUtils::GetAppDirectory() + _T("TortoiseProc.exe");
-
-	if (CreateProcess(tortoiseProcPath, procCmd.GetBuffer(), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
-	{
-		CloseHandle(process.hThread);
-		CloseHandle(process.hProcess);
-	}
+	CCommonAppUtils::RunTortoiseProc(procCmd);
 }
 
 void CTortoiseGitBlameView::ShowLog()
 {
-#if 0
-	char bufRev[20];
-	_stprintf_s(bufRev, 20, _T("%d"), m_selectedorigrev);
+	CString procCmd = _T("/path:\"");
+	procCmd += ((CMainFrame*)::AfxGetApp()->GetMainWnd())->GetActiveView()->GetDocument()->GetPathName();
+	procCmd += _T("\" ");
+	procCmd += _T(" /command:log");
+	procCmd += _T(" /rev:") + this->GetLogData()->GetGitRevAt(this->GetLogData()->size() - m_ID[m_MouseLine]).m_CommitHash.ToString();
 
-	STARTUPINFO startup;
-	PROCESS_INFORMATION process;
-	memset(&startup, 0, sizeof(startup));
-	startup.cb = sizeof(startup);
-	memset(&process, 0, sizeof(process));
-	stdstring tortoiseProcPath = GetAppDirectory() + _T("TortoiseProc.exe");
-	stdstring svnCmd = _T(" /command:log ");
-	svnCmd += _T(" /path:\"");
-	svnCmd += szOrigPath;
-	svnCmd += _T("\"");
-	svnCmd += _T(" /startrev:");
-	svnCmd += bufRev;
-	svnCmd += _T(" /pegrev:");
-	svnCmd += bufRev;
-	if (CreateProcess(tortoiseProcPath.c_str(), const_cast<TCHAR*>(svnCmd.c_str()), NULL, NULL, FALSE, 0, 0, 0, &startup, &process))
-	{
-		CloseHandle(process.hThread);
-		CloseHandle(process.hProcess);
-	}
-#endif
+	CCommonAppUtils::RunTortoiseProc(procCmd);
 }
 
 void CTortoiseGitBlameView::Notify(SCNotification *notification)
@@ -2559,13 +2527,15 @@ void CTortoiseGitBlameView::UpdateInfo(int Encode)
 				if(encoding == 1200)
 				{
 					CString strw;
+					// the first bomoffset is 2, after that it's 1 (see issue #920)
+					if (bomoffset == 0)
+						bomoffset = 1;
 					int size = ((current - start -2 - bomoffset)/2);
 					TCHAR *buffer = strw.GetBuffer(size);
 					memcpy(buffer, &data[start + 2 + bomoffset],sizeof(TCHAR)*size);
 					strw.ReleaseBuffer();
 
 					stra = CUnicodeUtils::GetUTF8(strw);
-
 				}
 				else if(encoding == CP_UTF8)
 				{
@@ -2696,6 +2666,7 @@ void CTortoiseGitBlameView::OnLButtonDown(UINT nFlags,CPoint point)
 				this->GetLogList()->SetItemState(this->GetLogList()->GetItemCount()-m_ID[line],
 															LVIS_SELECTED,
 															LVIS_SELECTED);
+				this->GetLogList()->EnsureVisible(this->GetLogList()->GetItemCount()-m_ID[line], FALSE);
 			}
 			else
 			{
@@ -2755,7 +2726,6 @@ void CTortoiseGitBlameView::FocusOn(GitRev *pRev)
 
 void CTortoiseGitBlameView::OnMouseHover(UINT nFlags, CPoint point)
 {
-
 	LONG_PTR line = SendEditor(SCI_GETFIRSTVISIBLELINE);
 	LONG_PTR height = SendEditor(SCI_TEXTHEIGHT);
 	line = line + (point.y/height);
@@ -2776,29 +2746,22 @@ void CTortoiseGitBlameView::OnMouseHover(UINT nFlags, CPoint point)
 				pRev=&this->GetLogData()->GetGitRevAt(this->GetLogList()->GetItemCount()-m_ID[line]);
 			}
 
-			this->ClientToScreen(&point);
-
 			CString str;
-			str.Format(_T("%s\n<b>%s</b>\n%s %s\n%s"),pRev->m_CommitHash.ToString(),
-														pRev->GetSubject(),
-														pRev->GetAuthorName(),
-														CAppUtils::FormatDateAndTime( pRev->GetAuthorDate(), m_DateFormat ),
-														pRev->GetBody());
-			m_ToolTip.AddTool(this,str);
-			m_ToolTip.DisplayToolTip(&point);
+			str.Format(_T("%s: %s\n%s: %s\n%s: %s\n%s:\n%s\n%s"),	m_sRev, pRev->m_CommitHash.ToString(),
+																	m_sAuthor, pRev->GetAuthorName(),
+																	m_sDate, CLoglistUtils::FormatDateAndTime(pRev->GetAuthorDate(), m_DateFormat, true, m_bRelativeTimes),
+																	m_sMessage, pRev->GetSubject(),
+																	pRev->GetBody());
+
+			m_ToolTip.Pop();
+			m_ToolTip.AddTool(this, str);
 
 			CRect rect;
-			this->ScreenToClient(&point);
 			rect.left=LOCATOR_WIDTH;
 			rect.right=this->m_blamewidth+rect.left;
 			rect.top=point.y-height;
 			rect.bottom=point.y+height;
 			this->InvalidateRect(rect);
-
-		}
-		else
-		{
-			m_MouseLine=-1;
 		}
 	}
 }
@@ -2892,6 +2855,29 @@ void CTortoiseGitBlameView::OnViewToggleAuthor()
 void CTortoiseGitBlameView::OnUpdateViewToggleAuthor(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(m_bShowAuthor);
+}
+
+void CTortoiseGitBlameView::OnViewToggleFollowRenames()
+{
+	m_bFollowRenames = ! m_bFollowRenames;
+
+	theApp.WriteInt(_T("FollowRenames"), m_bFollowRenames);
+
+	UINT uCheck = MF_BYCOMMAND;
+	uCheck |= m_bFollowRenames ? MF_CHECKED : MF_UNCHECKED;
+	CheckMenuItem(GetMenu()->m_hMenu, ID_VIEW_FOLLOWRENAMES, uCheck);
+
+	CTortoiseGitBlameDoc *document = (CTortoiseGitBlameDoc *) m_pDocument;
+	if (!document->m_CurrentFileName.IsEmpty())
+	{
+		theApp.m_pDocManager->OnFileNew();
+		document->OnOpenDocument(document->m_CurrentFileName, document->m_Rev);
+	}
+}
+
+void CTortoiseGitBlameView::OnUpdateViewToggleFollowRenames(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_bFollowRenames);
 }
 
 int CTortoiseGitBlameView::FindNextLine(CGitHash CommitHash,bool bUpOrDown)

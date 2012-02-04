@@ -1,3 +1,21 @@
+// TortoiseGit - a Windows shell extension for easy version control
+
+// Copyright (C) 2008-2012 - TortoiseGit
+
+// This program is free software; you can redistribute it and/or
+// modify it under the terms of the GNU General Public License
+// as published by the Free Software Foundation; either version 2
+// of the License, or (at your option) any later version.
+
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+
+// You should have received a copy of the GNU General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 // gitdll.cpp : Defines the exported functions for the DLL application.
 //
 
@@ -72,11 +90,11 @@ static int convert_slash(char * path)
 
 int git_init()
 {
-	char *home;
+	const char *home;
 	char path[MAX_PATH+1];
 	char *prefix;
 	int ret;
-	size_t homesize,size;
+	size_t homesize;
 
 	_fmode = _O_BINARY;
 	_setmode(_fileno(stdin), _O_BINARY);
@@ -87,9 +105,8 @@ int git_init()
 	getenv_s(&homesize, NULL, 0, "HOME");
 	if (!homesize)
 	{
-		_dupenv_s(&home,&size,"USERPROFILE");
+		home = get_windows_home_directory();
 		_putenv_s("HOME",home);
-		free(home);
 	}
 	GetModuleFileName(NULL, path, MAX_PATH);
 	convert_slash(path);
@@ -389,7 +406,7 @@ int git_get_log_estimate_commit_count(GIT_LOG handle)
 	return estimate_commit_count(p_Rev, p_Rev->commits);
 }
 
-int git_get_log_nextcommit(GIT_LOG handle, GIT_COMMIT *commit)
+int git_get_log_nextcommit(GIT_LOG handle, GIT_COMMIT *commit, int follow)
 {
 	int ret =0;
 
@@ -401,6 +418,13 @@ int git_get_log_nextcommit(GIT_LOG handle, GIT_COMMIT *commit)
 	commit->m_pGitCommit = get_revision(handle);
 	if( commit->m_pGitCommit == NULL)
 		return -2;
+
+	if (follow && !log_tree_commit(handle, commit->m_pGitCommit))
+	{
+		commit->m_ignore = 1;
+		return 0;
+	}
+	commit->m_ignore = 0;
 
 	ret=git_parse_commit(commit);
 	if(ret)
@@ -420,6 +444,7 @@ int git_close_log(GIT_LOG handle)
 			free(p_Rev->pPrivate);
 		free(handle);
 	}
+	free_all_pack();
 
 	free_notes(*display_notes_trees);
 	display_notes_trees = 0;
@@ -483,7 +508,7 @@ int git_diff_flush(GIT_DIFF diff)
 	}
 
 	if (p_Rev->diffopt.close_file)
-		fclose(p_Rev->diffopt.close_file);
+		fclose(p_Rev->diffopt.file);
 
 	free_diffstat_info(&p_Rev->diffstat);
 	return 0;
@@ -533,7 +558,10 @@ int git_diff(GIT_DIFF diff, GIT_HASH hash1, GIT_HASH hash2, GIT_FILE * file, int
 
 	ret = diff_tree_sha1(hash1,hash2,"",&p_Rev->diffopt);
 	if( ret )
+	{
+		free_all_pack();
 		return ret;
+	}
 
 	if(isstat)
 	{
@@ -545,6 +573,7 @@ int git_diff(GIT_DIFF diff, GIT_HASH hash1, GIT_HASH hash2, GIT_FILE * file, int
 			diff_flush_stat(p, &p_Rev->diffopt, &p_Rev->diffstat);
 		}
 	}
+	free_all_pack();
 	if(file)
 		*file = q;
 	if(count)
@@ -831,6 +860,8 @@ static struct cmd_struct commands[] = {
 			if(argv)
 				free(argv);
 
+			free_all_pack();
+
 			return ret;
 
 
@@ -841,8 +872,11 @@ static struct cmd_struct commands[] = {
 
 int git_for_each_ref_in(const char * refname, each_ref_fn fn, void * data)
 {
+	int ret;
 	invalidate_cached_refs();
-	return for_each_ref_in(refname, fn, data);
+	ret = for_each_ref_in(refname, fn, data);
+	free_all_pack();
+	return ret;
 }
 
 const char *git_resolve_ref(const char *ref, unsigned char *sha1, int reading, int *flag)
@@ -855,7 +889,7 @@ int git_for_each_reflog_ent(const char *ref, each_reflog_ent_fn fn, void *cb_dat
 	return for_each_reflog_ent(ref,fn,cb_data);
 }
 
-int git_deref_tag(unsigned char *tagsha1, GIT_HASH refhash)
+int git_deref_tag(const unsigned char *tagsha1, GIT_HASH refhash)
 {
 	struct object *obj = NULL;
 	obj = parse_object(tagsha1);
@@ -901,7 +935,8 @@ int git_checkout_file(const char *ref, const char *path, const char *outputpath)
 	GIT_HASH sha1;
 	struct tree * root;
 	struct checkout state;
-	char *match[2];
+	struct pathspec pathspec;
+	const char *match[2];
 	ret = get_sha1(ref, sha1);
 	if(ret)
 		return ret;
@@ -910,16 +945,24 @@ int git_checkout_file(const char *ref, const char *path, const char *outputpath)
 	root = parse_tree_indirect(sha1);
 
 	if(!root)
+	{
+		free_all_pack();
 		return -1;
+	}
 
 	ce = xcalloc(1, cache_entry_size(strlen(path)));
 
 	match[0] = path;
 	match[1] = NULL;
-	ret = read_tree_recursive(root,"",0,0,match,update_some,ce);
+
+	init_pathspec(&pathspec, match);
+	pathspec.items[0].use_wildcard = 0;
+	ret = read_tree_recursive(root, "", 0, 0, &pathspec, update_some, ce);
+	free_pathspec(&pathspec);
 
 	if(ret)
 	{
+		free_all_pack();
 		free(ce);
 		return ret;
 	}
@@ -928,6 +971,7 @@ int git_checkout_file(const char *ref, const char *path, const char *outputpath)
 	state.refresh_cache = 0;
 
 	ret = write_entry(ce, outputpath, &state, 0);
+	free_all_pack();
 	free(ce);
 	return ret;
 }
@@ -946,92 +990,85 @@ static int get_config(const char *key_, const char *value_, void *cb)
 	if(strcmp(key_, buf->key))
 		return 0;
 
-	strncpy(buf->buf,value_,buf->size);
+	if (value_)
+		strncpy(buf->buf,value_,buf->size);
+	else
+	{
+		buf->buf[0] = 't';
+		buf->buf[1] = 'r';
+		buf->buf[2] = 'u';
+		buf->buf[3] = 'e';
+		buf->buf[4] = 0;
+	}
 	buf->seen = 1;
 	return 0;
 
 }
 int git_get_config(const char *key, char *buffer, int size, char *git_path)
 {
-	char *local,*global,*system_wide,*p;
+	char *local, *global;
+	const char *home;
 	struct config_buf buf;
 	buf.buf=buffer;
 	buf.size=size;
 	buf.seen = 0;
 	buf.key = key;
 
-	local=global=system_wide=NULL;
+	local=global=NULL;
 
-	//local = config_exclusive_filename;
-	if (!local) {
-		const char *home = getenv("HOME");
-		if(!home)
-			home=getenv("USERPROFILE");
+	home = get_windows_home_directory();
+	if (home)
+		global = xstrdup(mkpath("%s/.gitconfig", home));
 
-		local=p= git_pathdup("config");
-		if(git_path&&strlen(git_path))
-		{
-			local=xstrdup(mkpath("%s/%s", git_path, p));
-			free(p);
-		}
-		if (git_config_global() && home)
-			global = xstrdup(mkpath("%s/.gitconfig", home));
-		if (git_config_system())
-			system_wide = git_etc_gitconfig();
-	}
+	local = git_pathdup("config");
 
 	if ( !buf.seen)
 		git_config_from_file(get_config, local, &buf);
 	if (!buf.seen && global)
 		git_config_from_file(get_config, global, &buf);
-	if (!buf.seen && system_wide)
-		git_config_from_file(get_config, system_wide, &buf);
 
 	if(local)
 		free(local);
 	if(global)
 		free(global);
-	//if(system_wide)
-	//	free(system_wide);
 
 	return !buf.seen;
 }
 
+// taken from msysgit: compat/mingw.c
+const char *get_windows_home_directory(void)
+{
+	static const char *home_directory = NULL;
+	struct strbuf buf = STRBUF_INIT;
+
+	if (home_directory)
+		return home_directory;
+
+	home_directory = getenv("HOME");
+	if (home_directory && *home_directory)
+		return home_directory;
+
+	strbuf_addf(&buf, "%s/%s", getenv("HOMEDRIVE"), getenv("HOMEPATH"));
+	home_directory = strbuf_detach(&buf, NULL);
+
+	return home_directory;
+}
+
 int get_set_config(const char *key, char *value, CONFIG_TYPE type,char *git_path)
 {
-	char *local,*global,*system_wide,*p;
-	int ret;
-	local=global=system_wide=NULL;
-
-	//local = config_exclusive_filename;
-	if (!local) {
-		char *home = getenv("HOME");
-
-		if(!home)
-			home=getenv("USERPROFILE");
-
-		local=p= git_pathdup("config");
-		if(git_path&&strlen(git_path))
-		{
-			local=xstrdup(mkpath("%s/%s", git_path, p));
-			free(p);
-		}
-		if (git_config_global() && home)
-			global = xstrdup(mkpath("%s/.gitconfig", home));
-		if (git_config_system())
-			system_wide = git_etc_gitconfig();
-	}
-
 	switch(type)
 	{
 	case CONFIG_LOCAL:
-		config_exclusive_filename  = local;
+		config_exclusive_filename  = git_pathdup("config");
 		break;
 	case CONFIG_GLOBAL:
-		config_exclusive_filename = global;
-		break;
-	case CONFIG_SYSTEM:
-		config_exclusive_filename = system_wide;
+		{
+			const char *home = get_windows_home_directory();
+			if (home)
+			{
+				config_exclusive_filename = xstrdup(mkpath("%s/.gitconfig", home));
+			}
+		}
 		break;
 	default:
 		config_exclusive_filename = NULL;
@@ -1041,14 +1078,5 @@ int get_set_config(const char *key, char *value, CONFIG_TYPE type,char *git_path
 	if(!config_exclusive_filename)
 		return -1;
 
-	ret = git_config_set(key, value);
-
-	if(local)
-		free(local);
-	if(global)
-		free(global);
-	//if(system_wide)
-	//	free(system_wide);
-
-	return ret;
+	return git_config_set(key, value);
 }

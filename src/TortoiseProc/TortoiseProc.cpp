@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -39,13 +39,13 @@
 //#include "svn_dso.h"
 //#include <openssl/ssl.h>
 //#include <openssl/err.h>
-
+#include "SmartHandle.h"
 #include "Commands\Command.h"
-#include "CommonResource.h"
 #include "..\version.h"
 #include "JumpListHelpers.h"
 #include "..\Settings\Settings.h"
 #include "gitindex.h"
+#include "Libraries.h"
 
 #define STRUCT_IOVEC_DEFINED
 //#include "sasl.h"
@@ -56,7 +56,7 @@
 
 #pragma comment(linker, "\"/manifestdependency:type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")
 
-#define APPID (_T("TGIT.TGIT.1") _T(TSVN_PLATFORM))
+#define APPID (_T("TGIT.TGIT.1") _T(TGIT_PLATFORM))
 
 BEGIN_MESSAGE_MAP(CTortoiseProcApp, CWinAppEx)
 	ON_COMMAND(ID_HELP, CWinAppEx::OnHelp)
@@ -103,6 +103,7 @@ CTortoiseProcApp::~CTortoiseProcApp()
 
 // The one and only CTortoiseProcApp object
 CTortoiseProcApp theApp;
+CString sOrigCWD;
 HWND hWndExplorer;
 
 BOOL CTortoiseProcApp::CheckMsysGitDir()
@@ -121,7 +122,6 @@ CCrashReport crasher("tortoisegit-bug@googlegroups.com", "Crash Report for Torto
 BOOL CTortoiseProcApp::InitInstance()
 {
 	EnableCrashHandler();
-	InitializeJumpList();
 	CheckUpgrade();
 	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerWindows));
 	CMFCButton::EnableWindowsTheming();
@@ -161,7 +161,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	HINSTANCE hInst = NULL;
 	do
 	{
-		langDll.Format(_T("..\\Languages\\TortoiseProc%d.dll"), langId);
+		langDll.Format(_T("%sLanguages\\TortoiseProc%d.dll"), (LPCTSTR)CPathUtils::GetAppParentDirectory(), langId);
 
 		hInst = LoadLibrary(langDll);
 
@@ -261,6 +261,18 @@ BOOL CTortoiseProcApp::InitInstance()
 
 	CCmdLineParser parser(AfxGetApp()->m_lpCmdLine);
 
+	hWndExplorer = NULL;
+	CString sVal = parser.GetVal(_T("hwnd"));
+	if (!sVal.IsEmpty())
+		hWndExplorer = (HWND)_ttoi64(sVal);
+
+	while (GetParent(hWndExplorer)!=NULL)
+		hWndExplorer = GetParent(hWndExplorer);
+	if (!IsWindow(hWndExplorer))
+	{
+		hWndExplorer = NULL;
+	}
+
 	// if HKCU\Software\TortoiseGit\Debug is not 0, show our command line
 	// in a message box
 	if (CRegDWORD(_T("Software\\TortoiseGit\\Debug"), FALSE)==TRUE)
@@ -296,6 +308,47 @@ BOOL CTortoiseProcApp::InitInstance()
 	{
 
 		CString sPathArgument = CPathUtils::GetLongPathname(parser.GetVal(_T("path")));
+		if (parser.HasKey(_T("expaths")))
+		{
+			// an /expaths param means we're started via the buttons in our Win7 library
+			// and that means the value of /expaths is the current directory, and
+			// the selected paths are then added as additional parameters but without a key, only a value
+
+			// because of the "strange treatment of quotation marks and backslashes by CommandLineToArgvW"
+			// we have to escape the backslashes first. Since we're only dealing with paths here, that's
+			// a save bet.
+			// Without this, a command line like:
+			// /command:commit /expaths:"D:\" "D:\Utils"
+			// would fail because the "D:\" is treated as the backslash being the escape char for the quotation
+			// mark and we'd end up with:
+			// argv[1] = /command:commit
+			// argv[2] = /expaths:D:" D:\Utils
+			// See here for more details: http://blogs.msdn.com/b/oldnewthing/archive/2010/09/17/10063629.aspx
+			CString cmdLine = GetCommandLineW();
+			cmdLine.Replace(L"\\", L"\\\\");
+			int nArgs = 0;
+			LPWSTR *szArglist = CommandLineToArgvW(cmdLine, &nArgs);
+			if (szArglist)
+			{
+				// argument 0 is the process path, so start with 1
+				for (int i=1; i<nArgs; i++)
+				{
+					if (szArglist[i][0] != '/')
+					{
+						if (!sPathArgument.IsEmpty())
+							sPathArgument += '*';
+						sPathArgument += szArglist[i];
+					}
+				}
+				sPathArgument.Replace(L"\\\\", L"\\");
+			}
+			LocalFree(szArglist);
+		}
+		if (sPathArgument.IsEmpty() && parser.HasKey(L"path"))
+		{
+			CMessageBox::Show(hWndExplorer, IDS_ERR_INVALIDPATH, IDS_APPNAME, MB_ICONERROR);
+			return FALSE;
+		}
 		int asterisk = sPathArgument.Find('*');
 		cmdLinePath.SetFromUnknown(asterisk >= 0 ? sPathArgument.Left(asterisk) : sPathArgument);
 		pathList.LoadFromAsteriskSeparatedString(sPathArgument);
@@ -305,17 +358,8 @@ BOOL CTortoiseProcApp::InitInstance()
 		pathList.AddPath(CTGitPath::CTGitPath(g_Git.m_CurrentDir));
 	}
 
-	hWndExplorer = NULL;
-	CString sVal = parser.GetVal(_T("hwnd"));
-	if (!sVal.IsEmpty())
-		hWndExplorer = (HWND)_ttoi64(sVal);
-
-	while (GetParent(hWndExplorer)!=NULL)
-		hWndExplorer = GetParent(hWndExplorer);
-	if (!IsWindow(hWndExplorer))
-	{
-		hWndExplorer = NULL;
-	}
+	InitializeJumpList();
+	EnsureGitLibrary(false);
 
 	// Subversion sometimes writes temp files to the current directory!
 	// Since TSVN doesn't need a specific CWD anyway, we just set it
@@ -325,52 +369,19 @@ BOOL CTortoiseProcApp::InitInstance()
 		DWORD len = GetCurrentDirectory(0, NULL);
 		if (len)
 		{
-			TCHAR * originalCurrentDirectory = new TCHAR[len];
+			auto_buffer<TCHAR> originalCurrentDirectory(len);
 			if (GetCurrentDirectory(len, originalCurrentDirectory))
 			{
-				//sOrigCWD = originalCurrentDirectory;
-				//sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
+				sOrigCWD = originalCurrentDirectory;
+				sOrigCWD = CPathUtils::GetLongPathname(sOrigCWD);
 			}
-			delete [] originalCurrentDirectory;
 		}
 		TCHAR pathbuf[MAX_PATH];
 		GetTempPath(MAX_PATH, pathbuf);
 		SetCurrentDirectory(pathbuf);
 	}
 
-	// check for newer versions
-	if (CRegDWORD(_T("Software\\TortoiseGit\\CheckNewer"), TRUE) != FALSE)
-	{
-		time_t now;
-		struct tm ptm;
-
-		time(&now);
-		if ((now != 0) && (localtime_s(&ptm, &now)==0))
-		{
-			int week = 0;
-			// we don't calculate the real 'week of the year' here
-			// because just to decide if we should check for an update
-			// that's not needed.
-			week = ptm.tm_yday / 7;
-
-			CRegDWORD oldweek = CRegDWORD(_T("Software\\TortoiseGit\\CheckNewerWeek"), (DWORD)-1);
-			if (((DWORD)oldweek) == -1)
-				oldweek = week;		// first start of TortoiseProc, no update check needed
-			else
-			{
-				if ((DWORD)week != oldweek)
-				{
-					oldweek = week;
-
-					TCHAR com[MAX_PATH+100];
-					GetModuleFileName(NULL, com, MAX_PATH);
-					_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck"));
-
-					CAppUtils::LaunchApplication(com, 0, false);
-				}
-			}
-		}
-	}
+	CheckForNewerVersion();
 
 	if (parser.HasVal(_T("configdir")))
 	{
@@ -383,7 +394,7 @@ BOOL CTortoiseProcApp::InitInstance()
 	// Note that SASL doesn't have to be initialized yet for this to work
 //	sasl_set_path(SASL_PATH_TYPE_PLUGIN, (LPSTR)(LPCSTR)CUnicodeUtils::GetUTF8(CPathUtils::GetAppDirectory().TrimRight('\\')));
 
-	HANDLE TSVNMutex = ::CreateMutex(NULL, FALSE, _T("TortoiseGitProc.exe"));
+	CAutoGeneralHandle TGitMutex = ::CreateMutex(NULL, FALSE, _T("TortoiseGitProc.exe"));
 	if(!g_Git.SetCurrentDir(cmdLinePath.GetWinPathString()))
 	{
 		int i=0;
@@ -393,7 +404,10 @@ BOOL CTortoiseProcApp::InitInstance()
 	}
 
 	if(!g_Git.m_CurrentDir.IsEmpty())
+	{
+		sOrigCWD = g_Git.m_CurrentDir;
 		SetCurrentDirectory(g_Git.m_CurrentDir);
+	}
 
 	{
 		CString err;
@@ -413,18 +427,20 @@ BOOL CTortoiseProcApp::InitInstance()
 			if (choice == 1)
 			{
 				// open the config file with alternative editor
-				CString path = g_Git.m_CurrentDir;
-				path += _T("\\.git\\config");
+				CString path;
+				g_GitAdminDir.GetAdminDirPath(g_Git.m_CurrentDir, path);
+				path += _T("config");
 				CAppUtils::LaunchAlternativeEditor(path);
 			}
 			else if (choice == 2)
 			{
 				// open the global config file with alternative editor
+				char charBuf[MAX_PATH];
 				TCHAR buf[MAX_PATH];
-				SHGetFolderPath(NULL, CSIDL_PROFILE, NULL, SHGFP_TYPE_CURRENT, buf);
-				CString path = buf;
-				path += _T("\\.gitconfig");
-				CAppUtils::LaunchAlternativeEditor(path);
+				strcpy_s(charBuf, MAX_PATH, get_windows_home_directory());
+				_tcscpy_s(buf, MAX_PATH, CA2CT(charBuf));
+				_tcscat_s(buf, MAX_PATH, _T("\\.gitconfig"));
+				CAppUtils::LaunchAlternativeEditor(buf);
 			}
 			return FALSE;
 		}
@@ -443,9 +459,6 @@ BOOL CTortoiseProcApp::InitInstance()
 		retSuccess = cmd->Execute();
 		delete cmd;
 	}
-
-	if (TSVNMutex)
-		::CloseHandle(TSVNMutex);
 
 	// Look for temporary files left around by TortoiseSVN and
 	// remove them. But only delete 'old' files because some
@@ -508,23 +521,21 @@ void CTortoiseProcApp::CheckUpgrade()
 		lVersion |= (_ttol(sVersion.Mid(pos+1))<<8);
 	}
 
-	CRegDWORD regval = CRegDWORD(_T("Software\\TortoiseGit\\DontConvertBase"), 999);
-	if ((DWORD)regval != 999)
+	if (lVersion <= 0x01070600)
 	{
-		// there's a leftover registry setting we have to convert and then delete it
-		CRegDWORD newregval = CRegDWORD(_T("Software\\TortoiseGit\\ConvertBase"));
-		newregval = !regval;
-		regval.removeValue();
+		CoInitialize(NULL);
+		EnsureGitLibrary();
+		CoUninitialize();
+		CRegStdDWORD(_T("Software\\TortoiseGit\\ConvertBase")).removeValue();
+		CRegStdDWORD(_T("Software\\TortoiseGit\\DiffProps")).removeValue();
+		if (CRegStdDWORD(_T("Software\\TortoiseGit\\CheckNewer"), TRUE) == FALSE)
+			CRegStdDWORD(_T("Software\\TortoiseGit\\VersionCheck")) = FALSE;
+		CRegStdDWORD(_T("Software\\TortoiseGit\\CheckNewer")).removeValue();
 	}
 #if 0
 	if (lVersion <= 0x01010300)
 	{
 		CSoundUtils::RegisterTSVNSounds();
-		// remove all saved dialog positions
-		CRegString(_T("Software\\TortoiseGit\\TortoiseProc\\ResizableState\\")).removeKey();
-		CRegDWORD(_T("Software\\TortoiseGit\\RecursiveOverlay")).removeValue();
-		// remove the external cache key
-		CRegDWORD(_T("Software\\TortoiseGit\\ExternalCache")).removeValue();
 	}
 #endif
 	if (lVersion <= 0x01020200)
@@ -581,15 +592,6 @@ void CTortoiseProcApp::CheckUpgrade()
 			if ((diffregstring.IsEmpty()) || (diffregstring.Find(filename)>=0))
 				diffreg = _T("wscript.exe \"") + file + _T("\" %merged %theirs %mine %base") + kind;
 		}
-	}
-
-	// Initialize "Software\\TortoiseGit\\DiffProps" once with the same value as "Software\\TortoiseGit\\Diff"
-	CRegString regDiffPropsPath = CRegString(_T("Software\\TortoiseGit\\DiffProps"),_T("non-existant"));
-	CString strDiffPropsPath = regDiffPropsPath;
-	if ( strDiffPropsPath==_T("non-existant") )
-	{
-		CString strDiffPath = CRegString(_T("Software\\TortoiseGit\\Diff"));
-		regDiffPropsPath = strDiffPath;
 	}
 
 	// set the current version so we don't come here again until the next update!
@@ -693,4 +695,41 @@ int CTortoiseProcApp::ExitInstance()
 	if (retSuccess)
 		return 0;
 	return -1;
+}
+
+void CTortoiseProcApp::CheckForNewerVersion()
+{
+	// check for newer versions
+	if (CRegDWORD(_T("Software\\TortoiseGit\\VersionCheck"), TRUE) != FALSE)
+	{
+		time_t now;
+		struct tm ptm;
+
+		time(&now);
+		if ((now != 0) && (localtime_s(&ptm, &now)==0))
+		{
+			int week = 0;
+			// we don't calculate the real 'week of the year' here
+			// because just to decide if we should check for an update
+			// that's not needed.
+			week = ptm.tm_yday / 7;
+
+			CRegDWORD oldweek = CRegDWORD(_T("Software\\TortoiseGit\\CheckNewerWeek"), (DWORD)-1);
+			if (((DWORD)oldweek) == -1)
+				oldweek = week;		// first start of TortoiseProc, no update check needed
+			else
+			{
+				if ((DWORD)week != oldweek)
+				{
+					oldweek = week;
+
+					TCHAR com[MAX_PATH+100];
+					GetModuleFileName(NULL, com, MAX_PATH);
+					_tcscat_s(com, MAX_PATH+100, _T(" /command:updatecheck"));
+
+					CAppUtils::LaunchApplication(com, 0, false);
+				}
+			}
+		}
+	}
 }

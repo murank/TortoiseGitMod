@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2008-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 // Copyright (C) 2003-2008 - TortoiseSVN
 
 // This program is free software; you can redistribute it and/or
@@ -25,11 +25,10 @@
 #include "AppUtils.h"
 #include "PathUtils.h"
 #include ".\changeddlg.h"
+#include "IconMenu.h"
+#include "RefLogDlg.h"
 
 #include "GitStatusListCtrl.h"
-
-#include "CommonResource.h"
-#include "AppUtils.h"
 
 IMPLEMENT_DYNAMIC(CChangedDlg, CResizableStandAloneDialog)
 CChangedDlg::CChangedDlg(CWnd* pParent /*=NULL*/)
@@ -53,6 +52,7 @@ void CChangedDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CResizableStandAloneDialog::DoDataExchange(pDX);
 	DDX_Control(pDX, IDC_CHANGEDLIST, m_FileListCtrl);
+	DDX_Control(pDX, IDC_BUTTON_STASH, m_ctrlStash);
 	DDX_Check(pDX, IDC_SHOWUNVERSIONED, m_bShowUnversioned);
 	DDX_Check(pDX, IDC_SHOWUNMODIFIED, m_iShowUnmodified);
 	DDX_Check(pDX, IDC_SHOWIGNORED, m_bShowIgnored);
@@ -65,12 +65,13 @@ BEGIN_MESSAGE_MAP(CChangedDlg, CResizableStandAloneDialog)
 	ON_BN_CLICKED(IDC_SHOWUNVERSIONED, OnBnClickedShowunversioned)
 	ON_BN_CLICKED(IDC_SHOWUNMODIFIED, OnBnClickedShowUnmodified)
 //	ON_BN_CLICKED(IDC_SHOWUSERPROPS, OnBnClickedShowUserProps)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
-	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::SVNSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_NEEDSREFRESH, OnSVNStatusListCtrlNeedsRefresh)
+	ON_REGISTERED_MESSAGE(CGitStatusListCtrl::GITSLNM_ITEMCOUNTCHANGED, OnSVNStatusListCtrlItemCountChanged)
 	ON_BN_CLICKED(IDC_SHOWIGNORED, &CChangedDlg::OnBnClickedShowignored)
 	ON_BN_CLICKED(IDC_REFRESH, &CChangedDlg::OnBnClickedRefresh)
 //	ON_BN_CLICKED(IDC_SHOWEXTERNALS, &CChangedDlg::OnBnClickedShowexternals)
 	ON_BN_CLICKED(IDC_COMMIT, &CChangedDlg::OnBnClickedCommit)
+	ON_BN_CLICKED(IDC_BUTTON_STASH, &CChangedDlg::OnBnClickedStash)
 END_MESSAGE_MAP()
 
 BOOL CChangedDlg::OnInitDialog()
@@ -85,8 +86,8 @@ BOOL CChangedDlg::OnInitDialog()
 	m_bShowUnversioned = m_regAddBeforeCommit;
 	UpdateData(FALSE);
 
-	m_FileListCtrl.Init(SVNSLC_COLEXT | SVNSLC_COLSTATUS, _T("ChangedDlg"),
-						(SVNSLC_POPALL ^ SVNSLC_POPSAVEAS), false);
+	m_FileListCtrl.Init(GITSLC_COLEXT | GITSLC_COLSTATUS, _T("ChangedDlg"),
+						(GITSLC_POPALL ^ (GITSLC_POPSAVEAS|GITSLC_POPRESTORE)), false);
 	m_FileListCtrl.SetCancelBool(&m_bCanceled);
 	m_FileListCtrl.SetBackgroundImage(IDI_CFM_BKG);
 	m_FileListCtrl.SetEmptyString(IDS_REPOSTATUS_EMPTYFILELIST);
@@ -105,6 +106,7 @@ BOOL CChangedDlg::OnInitDialog()
 //	AddAnchor(IDC_SHOWEXTERNALS, BOTTOM_LEFT);
 //	AddAnchor(IDC_SHOWUSERPROPS, BOTTOM_LEFT);
 	AddAnchor(IDC_INFOLABEL, BOTTOM_RIGHT);
+	AddAnchor(IDC_BUTTON_STASH, BOTTOM_RIGHT);
 	AddAnchor(IDC_COMMIT, BOTTOM_RIGHT);
 	AddAnchor(IDC_REFRESH, BOTTOM_RIGHT);
 	AddAnchor(IDOK, BOTTOM_RIGHT);
@@ -150,11 +152,11 @@ UINT CChangedDlg::ChangedStatusThread()
 		if (!m_FileListCtrl.GetLastErrorMessage().IsEmpty())
 			m_FileListCtrl.SetEmptyString(m_FileListCtrl.GetLastErrorMessage());
 	}
-	unsigned int dwShow = SVNSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | SVNSLC_SHOWLOCKS | SVNSLC_SHOWSWITCHED | SVNSLC_SHOWINCHANGELIST;
-	dwShow |= m_bShowUnversioned ? SVNSLC_SHOWUNVERSIONED : 0;
-	dwShow |= m_iShowUnmodified ? SVNSLC_SHOWNORMAL : 0;
-	dwShow |= m_bShowIgnored ? SVNSLC_SHOWIGNORED : 0;
-	dwShow |= m_bShowExternals ? SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO : 0;
+	unsigned int dwShow = GITSLC_SHOWVERSIONEDBUTNORMALANDEXTERNALS | GITSLC_SHOWLOCKS | GITSLC_SHOWSWITCHED | GITSLC_SHOWINCHANGELIST;
+	dwShow |= m_bShowUnversioned ? GITSLC_SHOWUNVERSIONED : 0;
+	dwShow |= m_iShowUnmodified ? GITSLC_SHOWNORMAL : 0;
+	dwShow |= m_bShowIgnored ? GITSLC_SHOWIGNORED : 0;
+	dwShow |= m_bShowExternals ? GITSLC_SHOWEXTERNAL | GITSLC_SHOWINEXTERNALS | GITSLC_SHOWEXTERNALFROMDIFFERENTREPO : 0;
 	m_FileListCtrl.Show(dwShow);
 	UpdateStatistics();
 
@@ -209,21 +211,21 @@ DWORD CChangedDlg::UpdateShowFlags()
 {
 	DWORD dwShow = m_FileListCtrl.GetShowFlags();
 	if (m_bShowUnversioned)
-		dwShow |= SVNSLC_SHOWUNVERSIONED;
+		dwShow |= GITSLC_SHOWUNVERSIONED;
 	else
-		dwShow &= ~SVNSLC_SHOWUNVERSIONED;
+		dwShow &= ~GITSLC_SHOWUNVERSIONED;
 	if (m_iShowUnmodified)
-		dwShow |= SVNSLC_SHOWNORMAL;
+		dwShow |= GITSLC_SHOWNORMAL;
 	else
-		dwShow &= ~SVNSLC_SHOWNORMAL;
+		dwShow &= ~GITSLC_SHOWNORMAL;
 	if (m_bShowIgnored)
-		dwShow |= SVNSLC_SHOWIGNORED;
+		dwShow |= GITSLC_SHOWIGNORED;
 	else
-		dwShow &= ~SVNSLC_SHOWIGNORED;
+		dwShow &= ~GITSLC_SHOWIGNORED;
 	if (m_bShowExternals)
-		dwShow |= SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO;
+		dwShow |= GITSLC_SHOWEXTERNAL | GITSLC_SHOWINEXTERNALS | GITSLC_SHOWEXTERNALFROMDIFFERENTREPO;
 	else
-		dwShow &= ~(SVNSLC_SHOWEXTERNAL | SVNSLC_SHOWINEXTERNALS | SVNSLC_SHOWEXTERNALFROMDIFFERENTREPO);
+		dwShow &= ~(GITSLC_SHOWEXTERNAL | GITSLC_SHOWINEXTERNALS | GITSLC_SHOWEXTERNALFROMDIFFERENTREPO);
 
 	return dwShow;
 }
@@ -358,14 +360,57 @@ void CChangedDlg::UpdateStatistics()
 
 void CChangedDlg::OnBnClickedCommit()
 {
-	CString proc = CPathUtils::GetAppDirectory();
-	proc += _T("TortoiseProc.exe /command:commit");
-	proc += _T(" /path:\"");
+	CString cmd = _T("/command:commit /path:\"");
 	bool bSingleFile = ((m_pathList.GetCount()==1)&&(!m_pathList[0].IsEmpty())&&(!m_pathList[0].IsDirectory()));
 	if (bSingleFile)
-		proc += m_pathList[0].GetWinPathString();
+		cmd += m_pathList[0].GetWinPathString();
 	else
-		proc += m_FileListCtrl.GetCommonDirectory(false);
+		cmd += m_FileListCtrl.GetCommonDirectory(false);
 
-	CAppUtils::LaunchApplication(proc, IDS_ERROR_CANNON_FIND_TORTOISEPROC, false);
+	CAppUtils::RunTortoiseProc(cmd);
+}
+
+void CChangedDlg::OnBnClickedStash()
+{
+	CIconMenu popup;
+
+	if (popup.CreatePopupMenu())
+	{
+		popup.AppendMenuIcon(ID_STASH_SAVE, IDS_MENUSTASHSAVE, IDI_COMMIT);
+
+		CTGitPath root = g_Git.m_CurrentDir;
+		if (root.HasStashDir())
+		{
+			popup.AppendMenuIcon(ID_STASH_POP, IDS_MENUSTASHPOP, IDI_RELOCATE);
+			popup.AppendMenuIcon(ID_STASH_APPLY, IDS_MENUSTASHAPPLY, IDI_RELOCATE);
+			popup.AppendMenuIcon(ID_STASH_LIST, IDS_MENUSTASHLIST, IDI_LOG);
+		}
+
+		POINT cursorPos;
+		GetCursorPos(&cursorPos);
+		int cmd = popup.TrackPopupMenu(TPM_RETURNCMD | TPM_LEFTALIGN | TPM_NONOTIFY, cursorPos.x, cursorPos.y, this, 0);
+
+		switch (cmd & 0xFFFF)
+		{
+		case ID_STASH_SAVE:
+			CAppUtils::StashSave();
+			break;
+		case ID_STASH_POP:
+			CAppUtils::StashPop(false);
+			return;
+		case ID_STASH_APPLY:
+			CAppUtils::StashApply(_T(""), false);
+			break;
+		case ID_STASH_LIST:
+			{
+				CRefLogDlg dlg;
+				dlg.m_CurrentBranch = _T("refs/stash");
+				dlg.DoModal();
+			}
+			break;
+		default:
+			return;
+		}
+		OnBnClickedRefresh();
+	}
 }
