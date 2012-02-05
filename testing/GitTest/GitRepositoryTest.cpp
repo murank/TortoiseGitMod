@@ -33,6 +33,10 @@ public:
 	{
 		return git_status_type_none;
 	}
+	virtual bool InitRepository(bool bBare, CString& output)
+	{
+		return false;
+	}
 };
 
 } // namespace
