@@ -22,6 +22,7 @@
 #include "ProcCommandFactory.h"
 
 #include "FakeCommand.h"
+#include "CreateRepositoryCommand.h"
 
 using namespace ::testing;
 
@@ -29,4 +30,27 @@ TEST(ProcCommandFactory, GetFakeCommand)
 {
 	shared_ptr<ProcCommand> command = ProcCommandFactory::GetCommand(CString("non-existent-command"));
 	EXPECT_THAT(DynamicCast<FakeCommand>(command), NotNull());
+}
+
+namespace {
+
+template <typename T>
+class ProcCommandFactoryTest : public ::testing::Test {
+public:
+
+};
+
+typedef ::testing::Types<CreateRepositoryCommand> CommandTypes;
+TYPED_TEST_CASE(ProcCommandFactoryTest, CommandTypes);
+
+} // namespace
+
+TYPED_TEST(ProcCommandFactoryTest, HasCommand)
+{
+	EXPECT_TRUE(ProcCommandFactory::HasCommand(TypeParam::GetName()));
+}
+
+TYPED_TEST(ProcCommandFactoryTest, GetCommand)
+{
+	EXPECT_THAT(DynamicCast<TypeParam>(ProcCommandFactory::GetCommand(TypeParam::GetName())), NotNull());
 }
