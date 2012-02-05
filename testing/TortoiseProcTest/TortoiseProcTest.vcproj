@@ -225,10 +225,44 @@
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\ProcCommandFactoryTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
 			</Filter>
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TortoiseProc\FakeCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcCommand.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\stdafx.cpp"
 					>
@@ -263,6 +297,18 @@
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TortoiseProc\FakeCommand.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcCommand.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
