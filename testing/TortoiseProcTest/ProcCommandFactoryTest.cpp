@@ -18,3 +18,15 @@
 //
 
 #include "StdAfxTest.h"
+
+#include "ProcCommandFactory.h"
+
+#include "FakeCommand.h"
+
+using namespace ::testing;
+
+TEST(ProcCommandFactory, GetFakeCommand)
+{
+	shared_ptr<ProcCommand> command = ProcCommandFactory::GetCommand(CString("non-existent-command"));
+	EXPECT_THAT(DynamicCast<FakeCommand>(command), NotNull());
+}
