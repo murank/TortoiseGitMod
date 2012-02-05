@@ -1105,6 +1105,14 @@
 				RelativePath=".\ProcCommand.h"
 				>
 			</File>
+			<File
+				RelativePath=".\ProcCommandFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcCommandFactory.h"
+				>
+			</File>
 			<Filter
 				Name="Commit"
 				>
