@@ -18,3 +18,167 @@
 //
 
 #include "StdAfxTest.h"
+
+#include "CreateRepositoryCommand.h"
+
+#include "CommandLineArguments.h"
+
+namespace {
+
+class MockCreateRepositoryCommand : public CreateRepositoryCommand {
+public:
+
+	MOCK_METHOD3(DoCreateRepository, bool(const CString& dir, bool bBare, CString& output));
+	MOCK_CONST_METHOD1(PathIsDirectoryEmpty, bool(const CString& path));
+	MOCK_CONST_METHOD2(IsCreateRepository, bool(const CString& dir, bool& bBare));
+	MOCK_CONST_METHOD1(IsForceCreateRepository, bool(const CString& dir));
+	MOCK_CONST_METHOD1(ShowSucceededMessage, void(const CString& output));
+	MOCK_CONST_METHOD1(ShowErrorMessage, void(const CString& output));
+
+};
+
+const CString THE_PATH("C:\\somedir");
+
+class CraeteRepositoryCommandTest : public ::testing::TestWithParam<bool> {
+protected:
+	virtual void SetUp() {
+		m_args.Add(CString("path"), "C:\\somedir");
+	}
+
+	CommandLineArguments m_args;
+};
+
+} // namespace
+
+using namespace ::testing;
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteWithCancelation)
+{
+	MockCreateRepositoryCommand crc;
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(Return(false));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(_))
+		.Times(0);
+	EXPECT_CALL(crc, IsForceCreateRepository(_))
+		.Times(0);
+	EXPECT_CALL(crc, DoCreateRepository(_, _, _))
+		.Times(0);
+	EXPECT_CALL(crc, ShowSucceededMessage(_))
+		.Times(0);
+	EXPECT_CALL(crc, ShowErrorMessage(_))
+		.Times(0);
+
+	EXPECT_FALSE(crc.Execute(m_args));
+}
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteThatCreatesRepository)
+{
+	MockCreateRepositoryCommand crc;
+	bool bBare = GetParam();
+	CString output("output");
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(DoAll(SetArgReferee<1>(bBare), Return(true)));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(THE_PATH))
+		.WillOnce(Return(true));
+	EXPECT_CALL(crc, IsForceCreateRepository(_))
+		.Times(0);
+	EXPECT_CALL(crc, DoCreateRepository(THE_PATH, bBare, _))
+		.WillOnce(DoAll(SetArgReferee<2>(output), Return(true)));
+	EXPECT_CALL(crc, ShowSucceededMessage(output))
+		.Times(1);
+	EXPECT_CALL(crc, ShowErrorMessage(_))
+		.Times(0);
+
+	EXPECT_TRUE(crc.Execute(m_args));
+}
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteThatCreateRepositoryWithFailure)
+{
+	MockCreateRepositoryCommand crc;
+	bool bBare = GetParam();
+	CString output("output");
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(DoAll(SetArgReferee<1>(bBare), Return(true)));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(THE_PATH))
+		.WillOnce(Return(true));
+	EXPECT_CALL(crc, IsForceCreateRepository(_))
+		.Times(0);
+	EXPECT_CALL(crc, DoCreateRepository(THE_PATH, bBare, _))
+		.WillOnce(DoAll(SetArgReferee<2>(output), Return(false)));
+	EXPECT_CALL(crc, ShowSucceededMessage(_))
+		.Times(0);
+	EXPECT_CALL(crc, ShowErrorMessage(output))
+		.Times(1);
+
+	EXPECT_FALSE(crc.Execute(m_args));
+}
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteThatCreateRepositoryToNonEmptyDirAndProceeds)
+{
+	MockCreateRepositoryCommand crc;
+	bool bBare = GetParam();
+	CString output("output");
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(DoAll(SetArgReferee<1>(bBare), Return(true)));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(THE_PATH))
+		.WillOnce(Return(false));
+	EXPECT_CALL(crc, IsForceCreateRepository(THE_PATH))
+		.WillOnce(Return(true));
+	EXPECT_CALL(crc, DoCreateRepository(THE_PATH, bBare, _))
+		.WillOnce(DoAll(SetArgReferee<2>(output), Return(true)));
+	EXPECT_CALL(crc, ShowSucceededMessage(output))
+		.Times(1);
+	EXPECT_CALL(crc, ShowErrorMessage(_))
+		.Times(0);
+
+	EXPECT_TRUE(crc.Execute(m_args));
+}
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteThatCreateRepositoryToNonEmptyDirAndProceedsAndFails)
+{
+	MockCreateRepositoryCommand crc;
+	bool bBare = GetParam();
+	CString output("output");
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(DoAll(SetArgReferee<1>(bBare), Return(true)));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(THE_PATH))
+		.WillOnce(Return(false));
+	EXPECT_CALL(crc, IsForceCreateRepository(THE_PATH))
+		.WillOnce(Return(true));
+	EXPECT_CALL(crc, DoCreateRepository(THE_PATH, bBare, _))
+		.WillOnce(DoAll(SetArgReferee<2>(output), Return(false)));
+	EXPECT_CALL(crc, ShowSucceededMessage(_))
+		.Times(0);
+	EXPECT_CALL(crc, ShowErrorMessage(output))
+		.Times(1);
+
+	EXPECT_FALSE(crc.Execute(m_args));
+}
+
+TEST_P(CraeteRepositoryCommandTest, ExecuteThatCreateRepositoryToNonEmptyDirAndAborts)
+{
+	MockCreateRepositoryCommand crc;
+	bool bBare = GetParam();
+
+	EXPECT_CALL(crc, IsCreateRepository(THE_PATH, _))
+		.WillOnce(DoAll(SetArgReferee<1>(bBare), Return(true)));
+	EXPECT_CALL(crc, PathIsDirectoryEmpty(THE_PATH))
+		.WillOnce(Return(false));
+	EXPECT_CALL(crc, IsForceCreateRepository(THE_PATH))
+		.WillOnce(Return(false));
+	EXPECT_CALL(crc, DoCreateRepository(THE_PATH, bBare, _))
+		.Times(0);
+	EXPECT_CALL(crc, ShowSucceededMessage(_))
+		.Times(0);
+	EXPECT_CALL(crc, ShowErrorMessage(_))
+		.Times(0);
+
+	EXPECT_FALSE(crc.Execute(m_args));
+}
+
+INSTANTIATE_TEST_CASE_P(Inst, CraeteRepositoryCommandTest, Bool());
