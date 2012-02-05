@@ -49,8 +49,12 @@
 
 #include "CommandLineArguments.h"
 #include "CommandLineParser.h"
+#include "Environment.h"
+#include "MsysGitDir.h"
 #include "ProcCommand.h"
 #include "ProcCommandFactory.h"
+#include "RegUtils.h"
+
 
 #define STRUCT_IOVEC_DEFINED
 //#include "sasl.h"
@@ -123,6 +127,22 @@ BOOL CTortoiseProcApp::CheckMsysGitDir()
 CCrashReport crasher("tortoisegit-bug@googlegroups.com", "Crash Report for TortoiseGit " APP_X64_STRING " : " STRPRODUCTVER, TRUE);// crash
 
 // CTortoiseProcApp initialization
+
+static bool InitializeEnvironment()
+{
+	shared_ptr<Environment> env(new Environment);
+	env->CopyProcessEnvironment();
+
+	SetGlobalEnvironment(env);
+	return true;
+}
+
+static bool InitializeMsysGitDir()
+{
+	CString msysGitDir = ReadRegistry(HKEY_CURRENT_USER, CString(_T("Software\\TortoiseGit\\MSysGit")), CString());
+	SetGlobalMsysGitDir(msysGitDir);
+	return true;
+}
 
 static bool launchCommand(const CString& cmdLine, bool& result)
 {
@@ -465,6 +485,13 @@ BOOL CTortoiseProcApp::InitInstance()
 			}
 			return FALSE;
 		}
+	}
+
+	if(!InitializeEnvironment()) {
+		return FALSE;
+	}
+	if(!InitializeMsysGitDir()) {
+		return FALSE;
 	}
 
 	if(!launchCommand(AfxGetApp()->m_lpCmdLine, retSuccess)) {
