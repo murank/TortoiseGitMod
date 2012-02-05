@@ -1090,6 +1090,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FakeCommand.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FakeCommand.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProcCommand.cpp"
 				>
 			</File>
