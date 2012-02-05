@@ -47,6 +47,11 @@
 #include "gitindex.h"
 #include "Libraries.h"
 
+#include "CommandLineArguments.h"
+#include "CommandLineParser.h"
+#include "ProcCommand.h"
+#include "ProcCommandFactory.h"
+
 #define STRUCT_IOVEC_DEFINED
 //#include "sasl.h"
 
@@ -118,6 +123,22 @@ BOOL CTortoiseProcApp::CheckMsysGitDir()
 CCrashReport crasher("tortoisegit-bug@googlegroups.com", "Crash Report for TortoiseGit " APP_X64_STRING " : " STRPRODUCTVER, TRUE);// crash
 
 // CTortoiseProcApp initialization
+
+static bool launchCommand(const CString& cmdLine, bool& result)
+{
+	CommandLineArguments args = ParseCommandLine(cmdLine);
+
+	CString commandName = args.GetAsString(_T("command"));
+
+	if(!ProcCommandFactory::HasCommand(commandName)) {
+		return false;
+	}
+	
+	shared_ptr<ProcCommand> command = ProcCommandFactory::GetCommand(commandName);
+	result = command->Execute(args);
+
+	return true;
+}
 
 BOOL CTortoiseProcApp::InitInstance()
 {
@@ -446,18 +467,21 @@ BOOL CTortoiseProcApp::InitInstance()
 		}
 	}
 
-	// execute the requested command
-	CommandServer server;
-	Command * cmd = server.GetCommand(parser.GetVal(_T("command")));
-	if (cmd)
-	{
-		cmd->SetExplorerHwnd(hWndExplorer);
+	if(!launchCommand(AfxGetApp()->m_lpCmdLine, retSuccess)) {
 
-		cmd->SetParser(parser);
-		cmd->SetPaths(pathList, cmdLinePath);
+		// execute the requested command
+		CommandServer server;
+		Command * cmd = server.GetCommand(parser.GetVal(_T("command")));
+		if (cmd)
+		{
+			cmd->SetExplorerHwnd(hWndExplorer);
 
-		retSuccess = cmd->Execute();
-		delete cmd;
+			cmd->SetParser(parser);
+			cmd->SetPaths(pathList, cmdLinePath);
+
+			retSuccess = cmd->Execute();
+			delete cmd;
+		}
 	}
 
 	// Look for temporary files left around by TortoiseSVN and
