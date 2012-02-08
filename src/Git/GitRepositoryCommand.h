@@ -29,6 +29,7 @@ public:
 	virtual ~GitRepositoryCommand();
 
 	virtual git_status_type GetStatus(const CString& path) const;
+	virtual bool InitRepository(bool bBare, CString& output);
 
 protected:
 
@@ -36,9 +37,13 @@ protected:
 
 private:
 
+	virtual int Run(const CString& command, CString& out) const;
 	virtual int Run(const CString& command, std::vector<CString>& out) const;
-	virtual bool IsEmptyDir(const CString& path) const;
 
+	template <typename T>
+	int DoRun(const CString& command, T& out) const;
+
+	virtual bool IsEmptyDir(const CString& path) const;
 };
 
 #endif

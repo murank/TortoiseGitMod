@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -16,80 +16,112 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-// CreateRepoDlg.cpp : implementation file
-//
 
 #include "stdafx.h"
-#include "TortoiseProc.h"
+
 #include "CreateRepoDlg.h"
-#include "BrowseFolder.h"
-#include "MessageBox.h"
-#include "AppUtils.h"
 
-// CCreateRepoDlg dialog
+#include "Resource.h"
+#include "SmartHandle.h"
 
-IMPLEMENT_DYNCREATE(CCreateRepoDlg, CStandAloneDialog)
-
-CCreateRepoDlg::CCreateRepoDlg(CWnd* pParent /*=NULL*/)
-	: CStandAloneDialog(CCreateRepoDlg::IDD, pParent)
+static void MarkWindowAsUnpinnable(HWND hWnd)
 {
-	m_bBare = FALSE;
+	typedef HRESULT (WINAPI *SHGPSFW) (HWND hwnd,REFIID riid,void** ppv);
+
+	CAutoLibrary hShell = LoadLibrary(_T("Shell32.dll"));
+
+	if (!hShell.IsValid()) {
+		return;
+	}
+
+	SHGPSFW pfnSHGPSFW = (SHGPSFW)::GetProcAddress(hShell, "SHGetPropertyStoreForWindow");
+	if (!pfnSHGPSFW) {
+		return;
+	}
+
+	IPropertyStore *pps;
+	HRESULT hr = pfnSHGPSFW(hWnd, IID_PPV_ARGS(&pps));
+	if (FAILED(hr)) {
+		return;
+	}
+
+	PROPVARIANT var;
+	var.vt = VT_BOOL;
+	var.boolVal = VARIANT_TRUE;
+	hr = pps->SetValue(PKEY_AppUserModel_PreventPinning, var);
+	pps->Release();
 }
 
-CCreateRepoDlg::~CCreateRepoDlg()
+static CString GetAppName()
+{
+	return MAKEINTRESOURCE(IDS_APPNAME);
+}
+
+static CString GetTweakedWindowTitle(const CString& oldWindowTitle, const CString& dir)
+{
+	const int MAX_WINDOW_TITLE_LEN = 70;
+	assert(oldWindowTitle.GetLength() < MAX_WINDOW_TITLE_LEN);
+	assert(dir.GetLength() < MAX_PATH);
+
+	TCHAR pathbuf[MAX_PATH] = {0};
+	PathCompactPathEx(pathbuf, dir, MAX_WINDOW_TITLE_LEN - oldWindowTitle.GetLength(), 0);
+
+	CString newWindowTitle;
+	newWindowTitle.Format(_T("%s - %s - %s"), pathbuf, oldWindowTitle, GetAppName());
+	return newWindowTitle;
+}
+
+CreateRepoDlg::CreateRepoDlg(const CString& dir)
+	: CStandAloneDialog(IDD_CREATEREPO, NULL), // no parent
+	  m_bBare(FALSE), m_dir(dir)
 {
 }
 
-void CCreateRepoDlg::DoDataExchange(CDataExchange* pDX)
+CreateRepoDlg::~CreateRepoDlg()
 {
-	CStandAloneDialog::DoDataExchange(pDX);
-
-	DDX_Check(pDX,IDC_CHECK_BARE, m_bBare);
 }
 
-BOOL CCreateRepoDlg::OnInitDialog()
+bool CreateRepoDlg::IsBare() const
+{
+	return (m_bBare != FALSE);
+}
+
+BOOL CreateRepoDlg::OnInitDialog()
 {
 	CStandAloneDialog::OnInitDialog();
-	CAppUtils::MarkWindowAsUnpinnable(m_hWnd);
 
-	CString sWindowTitle;
-	GetWindowText(sWindowTitle);
-	CAppUtils::SetWindowTitle(m_hWnd, m_folder, sWindowTitle);
+	MarkWindowAsUnpinnable(m_hWnd);
 
-	m_tooltips.Create(this);
-	CString tt;
-	tt.LoadString(IDS_CLONE_DEPTH_TT);
-	m_tooltips.AddTool(IDC_EDIT_DEPTH,tt);
-	m_tooltips.AddTool(IDC_CHECK_DEPTH,tt);
+	TweakWindowTitle();
 
 	return TRUE;  // return TRUE  unless you set the focus to a control
 }
 
-BEGIN_MESSAGE_MAP(CCreateRepoDlg, CStandAloneDialog)
-	ON_BN_CLICKED(IDC_CHECK_BARE, &CCreateRepoDlg::OnBnClickedCheckBare)
-END_MESSAGE_MAP()
-
-// CCloneDlg message handlers
-
-void CCreateRepoDlg::OnOK()
+void CreateRepoDlg::OnOK()
 {
 	UpdateData(TRUE);
 
 	CStandAloneDialog::OnOK();
 }
 
-void CCreateRepoDlg::OnCancel()
+void CreateRepoDlg::OnCancel()
 {
 	CStandAloneDialog::OnCancel();
 }
 
-void CCreateRepoDlg::OnBnClickedCheckBare()
+void CreateRepoDlg::DoDataExchange(CDataExchange* pDX)
 {
-	this->UpdateData();
-}
-BOOL CCreateRepoDlg::PreTranslateMessage(MSG* pMsg)
-{
-	m_tooltips.RelayEvent(pMsg);
+	CStandAloneDialog::DoDataExchange(pDX);
 
-	return CStandAloneDialog::PreTranslateMessage(pMsg);
+	DDX_Check(pDX, IDC_CHECK_BARE, m_bBare);
+}
+
+void CreateRepoDlg::TweakWindowTitle()
+{
+	CString windowTitle;
+	GetWindowText(windowTitle);
+
+	CString newWindowTitle = GetTweakedWindowTitle(windowTitle, m_dir);
+
+	SetWindowText(newWindowTitle);
 }

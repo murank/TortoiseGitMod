@@ -35,6 +35,7 @@ public:
 	static shared_ptr<GitRepository> Create(const CString& root);
 
 	virtual git_status_type GetStatus(const CString& path) const = 0;
+	virtual bool InitRepository(bool bBare, CString& output) = 0;
 
 protected:
 

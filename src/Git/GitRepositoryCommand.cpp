@@ -148,6 +148,21 @@ git_status_type GitRepositoryCommand::GetStatus(const CString& path) const
 	return MergeGitStatuses(statuses);
 }
 
+static CString BuildGitInitCommand(bool bBare)
+{
+	CString command;
+	command.Format(_T("git.exe init%s"), (bBare ? _T(" --bare") : _T("")));
+
+	return command;
+}
+
+bool GitRepositoryCommand::InitRepository(bool bBare, CString& output)
+{
+	CString command = BuildGitInitCommand(bBare);
+
+	return (Run(command, output) == 0);
+}
+
 static CString EscapeCommand(CString str)
 {
 	str.Replace(_T("\\"), _T("/"));
@@ -179,7 +194,18 @@ std::vector<CString> GitRepositoryCommand::GetStatusStrings(const CString& path)
 	return ret;
 }
 
+int GitRepositoryCommand::Run(const CString& command, CString& out) const
+{
+	return DoRun(command, out);
+}
+
 int GitRepositoryCommand::Run(const CString& command, std::vector<CString>& out) const
+{
+	return DoRun(command, out);
+}
+
+template <typename T>
+int GitRepositoryCommand::DoRun(const CString& command, T& out) const
 {
 	CommandRunner runner;
 	return runner.Run(command, GetProjectRoot(), GetEncoding(), out);

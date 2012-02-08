@@ -16,53 +16,105 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#include "StdAfx.h"
-#include "Command.h"
+
+#include "stdafx.h"
+
 #include "CreateRepositoryCommand.h"
-#include "ShellUpdater.h"
-#include "MessageBox.h"
-#include "git.h"
 
+#include "CommandLineArguments.h"
 #include "CreateRepoDlg.h"
+#include "GitRepository.h"
+#include "MessageBox.h"
+#include "ProcCommandFactory.h"
+#include "StaticInit.h"
 
-bool CreateRepositoryCommand::Execute()
+static shared_ptr<ProcCommand> CreateCreateRepositoryCommand()
 {
-	CString folder = this->orgCmdLinePath.GetWinPath();
-	CCreateRepoDlg dlg;
-	dlg.m_folder = folder;
-	if(dlg.DoModal() == IDOK)
-	{
-		CString message;
-		message = _T("The folder \"") + folder + _T("\" is not empty. Proceeding might cause loss of data.");
-		if (!PathIsDirectoryEmpty(folder) && CMessageBox::Show(hwndExplorer, message, _T("TortoiseGit"), 1, IDI_ERROR, _T("A&bort"), _T("&Proceed")) == 1)
-		{
-			return false;
-		}
+	return shared_ptr<ProcCommand>(new CreateRepositoryCommand);
+}
 
-		CGit git;
-		git.m_CurrentDir = this->orgCmdLinePath.GetWinPath();
-		CString output;
-		int ret;
+STATIC_INIT()
+{
+	ProcCommandFactory::Register(CreateRepositoryCommand::GetName(), CreateCreateRepositoryCommand);
+}
 
-		if (dlg.m_bBare)
-			ret = git.Run(_T("git.exe init-db --bare"), &output, CP_UTF8);
-		else
-			ret = git.Run(_T("git.exe init-db"), &output, CP_UTF8);
+CreateRepositoryCommand::~CreateRepositoryCommand()
+{
+}
 
-		if (output.IsEmpty()) output = _T("git.Run() had no output");
+CString CreateRepositoryCommand::GetName()
+{
+	return CString(_T("repocreate"));
+}
 
-		if (ret)
-		{
-			CMessageBox::Show(hwndExplorer, output, _T("TortoiseGit"), MB_ICONERROR);
-			return false;
-		}
-		else
-		{
-			if (!dlg.m_bBare)
-				CShellUpdater::Instance().AddPathForUpdate(orgCmdLinePath);
-			CMessageBox::Show(hwndExplorer, output, _T("TortoiseGit"), MB_OK | MB_ICONINFORMATION);
-		}
-		return true;
+bool CreateRepositoryCommand::Execute(const CommandLineArguments& args)
+{
+	CString dir = args.GetAsString(CString(_T("path")));
+	return DoExecute(dir);
+}
+
+bool CreateRepositoryCommand::DoExecute(const CString& dir)
+{
+	bool bBare = false;
+	if(!IsCreateRepository(dir, bBare)) {
+		return false;
 	}
-	return false;
+
+	if(!PathIsDirectoryEmpty(dir) && !IsForceCreateRepository(dir)) {
+		return false;
+	}
+
+	CString output;
+	if(!DoCreateRepository(dir, bBare, output)) {
+		ShowErrorMessage(output);
+		return false;
+	}
+
+	ShowSucceededMessage(output);
+
+	return true;
+}
+
+bool CreateRepositoryCommand::DoCreateRepository(const CString& dir, bool bBare, CString& output)
+{
+	shared_ptr<GitRepository> repository = GitRepository::Create(dir);
+
+	return repository->InitRepository(bBare, output);
+}
+
+bool CreateRepositoryCommand::PathIsDirectoryEmpty(const CString& path) const
+{
+	return (::PathIsDirectoryEmpty(path) != FALSE);
+}
+
+bool CreateRepositoryCommand::IsCreateRepository(const CString& dir, bool &bBare) const
+{
+	CreateRepoDlg dlg(dir);
+
+	INT_PTR ret = dlg.DoModal();
+	if(ret != IDOK) {
+		return false;
+	}
+
+	bBare = dlg.IsBare();
+	return true;
+}
+
+bool CreateRepositoryCommand::IsForceCreateRepository(const CString& dir) const
+{
+	CString message;
+	message.Format(_T("The folder \"%s\" is not empty. Proceeding might cause loss of data."), dir);
+
+	const UINT ABORT = 1;
+	return (CMessageBox::Show(NULL, message, _T("TortoiseGit"), 1, IDI_ERROR, _T("A&bort"), _T("&Proceed")) != ABORT);
+}
+
+void CreateRepositoryCommand::ShowSucceededMessage(const CString& output) const
+{
+	CMessageBox::Show(NULL, output, _T("TortoiseGit"), MB_OK | MB_ICONINFORMATION);
+}
+
+void CreateRepositoryCommand::ShowErrorMessage(const CString& output) const
+{
+	CMessageBox::Show(NULL, output, _T("TortoiseGit"), MB_ICONERROR);
 }

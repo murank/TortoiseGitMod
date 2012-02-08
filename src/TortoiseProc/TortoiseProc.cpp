@@ -47,6 +47,15 @@
 #include "gitindex.h"
 #include "Libraries.h"
 
+#include "CommandLineArguments.h"
+#include "CommandLineParser.h"
+#include "Environment.h"
+#include "MsysGitDir.h"
+#include "ProcCommand.h"
+#include "ProcCommandFactory.h"
+#include "RegUtils.h"
+
+
 #define STRUCT_IOVEC_DEFINED
 //#include "sasl.h"
 
@@ -118,6 +127,38 @@ BOOL CTortoiseProcApp::CheckMsysGitDir()
 CCrashReport crasher("tortoisegit-bug@googlegroups.com", "Crash Report for TortoiseGit " APP_X64_STRING " : " STRPRODUCTVER, TRUE);// crash
 
 // CTortoiseProcApp initialization
+
+static bool InitializeEnvironment()
+{
+	shared_ptr<Environment> env(new Environment);
+	env->CopyProcessEnvironment();
+
+	SetGlobalEnvironment(env);
+	return true;
+}
+
+static bool InitializeMsysGitDir()
+{
+	CString msysGitDir = ReadRegistry(HKEY_CURRENT_USER, CString(_T("Software\\TortoiseGit\\MSysGit")), CString());
+	SetGlobalMsysGitDir(msysGitDir);
+	return true;
+}
+
+static bool launchCommand(const CString& cmdLine, bool& result)
+{
+	CommandLineArguments args = ParseCommandLine(cmdLine);
+
+	CString commandName = args.GetAsString(_T("command"));
+
+	if(!ProcCommandFactory::HasCommand(commandName)) {
+		return false;
+	}
+	
+	shared_ptr<ProcCommand> command = ProcCommandFactory::GetCommand(commandName);
+	result = command->Execute(args);
+
+	return true;
+}
 
 BOOL CTortoiseProcApp::InitInstance()
 {
@@ -446,18 +487,28 @@ BOOL CTortoiseProcApp::InitInstance()
 		}
 	}
 
-	// execute the requested command
-	CommandServer server;
-	Command * cmd = server.GetCommand(parser.GetVal(_T("command")));
-	if (cmd)
-	{
-		cmd->SetExplorerHwnd(hWndExplorer);
+	if(!InitializeEnvironment()) {
+		return FALSE;
+	}
+	if(!InitializeMsysGitDir()) {
+		return FALSE;
+	}
 
-		cmd->SetParser(parser);
-		cmd->SetPaths(pathList, cmdLinePath);
+	if(!launchCommand(AfxGetApp()->m_lpCmdLine, retSuccess)) {
 
-		retSuccess = cmd->Execute();
-		delete cmd;
+		// execute the requested command
+		CommandServer server;
+		Command * cmd = server.GetCommand(parser.GetVal(_T("command")));
+		if (cmd)
+		{
+			cmd->SetExplorerHwnd(hWndExplorer);
+
+			cmd->SetParser(parser);
+			cmd->SetPaths(pathList, cmdLinePath);
+
+			retSuccess = cmd->Execute();
+			delete cmd;
+		}
 	}
 
 	// Look for temporary files left around by TortoiseSVN and
