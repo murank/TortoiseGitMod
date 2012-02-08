@@ -24,7 +24,6 @@
 #include "CommitCommand.h"
 #include "LogCommand.h"
 
-#include "CreateRepositoryCommand.h"
 #include "CloneCommand.h"
 #include "PrevDiffCommand.h"
 #include "DiffCommand.h"
@@ -134,7 +133,6 @@ typedef enum
 	cmdRemove,
 	cmdRebase,
 	cmdRename,
-	cmdRepoCreate,
 	cmdRepoStatus,
 	cmdResolve,
 	cmdRevert,
@@ -203,7 +201,6 @@ static const struct CommandInfo
 	{	cmdRemove,			_T("remove")			},
 	{	cmdRebase,			_T("rebase")			},
 	{	cmdRename,			_T("rename")			},
-	{	cmdRepoCreate,		_T("repocreate")		},
 	{	cmdRepoStatus,		_T("repostatus")		},
 	{	cmdResolve,			_T("resolve")			},
 	{	cmdRevert,			_T("revert")			},
@@ -258,8 +255,6 @@ Command * CommandServer::GetCommand(const CString& sCmd)
 		return new CommitCommand;
 	case cmdLog:
 		return new LogCommand;
-	case cmdRepoCreate:
-		return new CreateRepositoryCommand;
 	case cmdClone:
 		return new CloneCommand;
 	case cmdPrevDiff:

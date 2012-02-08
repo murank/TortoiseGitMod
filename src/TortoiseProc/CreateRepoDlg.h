@@ -1,6 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2010-2011 - TortoiseGit
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -15,44 +15,35 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+//
 
-#pragma once
+#ifndef CREATE_REPO_DLG_H
+#define CREATE_REPO_DLG_H
 
 #include "StandAloneDlg.h"
-#include "registry.h"
-#include "tooltip.h"
 
-// CCreateRepoDlg dialog
-
-class CCreateRepoDlg : public CStandAloneDialog
-{
-	DECLARE_DYNCREATE(CCreateRepoDlg)
-
+class CreateRepoDlg : public CStandAloneDialog {
 public:
-	CCreateRepoDlg(CWnd* pParent = NULL);   // standard constructor
-	virtual ~CCreateRepoDlg();
 
-// Dialog Data
-	enum { IDD = IDD_CREATEREPO};
+	CreateRepoDlg(const CString& dir);
+	virtual ~CreateRepoDlg();
+
+	bool IsBare() const;
 
 protected:
-	// Overrides
+
+	virtual BOOL OnInitDialog();
 	virtual void OnOK();
 	virtual void OnCancel();
 
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
-	virtual BOOL OnInitDialog();
-	CString m_ModuleName;
 
-	DECLARE_MESSAGE_MAP()
+private:
 
-public:
-	BOOL	m_bBare;
-	CString	m_folder;
+	void TweakWindowTitle();
 
-protected:
-	afx_msg void OnBnClickedCheckBare();
-
-	CToolTips	m_tooltips;
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	BOOL m_bBare;
+	CString m_dir;
 };
+
+#endif

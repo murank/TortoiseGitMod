@@ -19,6 +19,7 @@
 #pragma once
 
 #include "ResizableDialog.h"
+#include "Resource.h"
 
 #pragma comment(lib, "htmlhelp.lib")
 

@@ -559,6 +559,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CommandLineArguments.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandLineParser.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CommandResultACP.cpp"
 				>
 			</File>
@@ -758,6 +766,14 @@
 			</File>
 			<File
 				RelativePath=".\CancelableIo.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandLineArguments.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CommandLineParser.h"
 				>
 			</File>
 			<File
