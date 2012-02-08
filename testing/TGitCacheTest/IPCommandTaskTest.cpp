@@ -40,11 +40,6 @@ public:
 
 using namespace ::testing;
 
-template <typename T>
-static const T* ReceiverCast(const shared_ptr<IPCommandReceiverBase>& receiver)
-{
-	return dynamic_cast<const T*>(receiver.get());
-}
 
 TEST(IPCommandTask, FakeCommand)
 {
@@ -52,7 +47,7 @@ TEST(IPCommandTask, FakeCommand)
 
 	EXPECT_CALL(mict, ReadCommandId())
 		.WillOnce(Return(0));
-	EXPECT_CALL(mict, DoRunReceiver(ResultOf(ReceiverCast<FakeIPCommandReceiver>, NotNull())))
+	EXPECT_CALL(mict, DoRunReceiver(ResultOf(DynamicCast<FakeIPCommandReceiver, IPCommandReceiverBase>, NotNull())))
 		.Times(1);
 
 	mict.Run();
@@ -64,7 +59,7 @@ TEST(IPCommandTask, GetStatusCommand)
 
 	EXPECT_CALL(mict, ReadCommandId())
 		.WillOnce(Return(GetStatusCommandReceiver::COMMAND_ID));
-	EXPECT_CALL(mict, DoRunReceiver(ResultOf(ReceiverCast<GetStatusCommandReceiver>, NotNull())))
+	EXPECT_CALL(mict, DoRunReceiver(ResultOf(DynamicCast<GetStatusCommandReceiver, IPCommandReceiverBase>, NotNull())))
 		.Times(1);
 
 	mict.Run();

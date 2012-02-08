@@ -21,6 +21,7 @@
 #define TESTHELPER_H
 
 #include <iostream>
+#include "SharedPtr.h"
 
 inline ::std::ostream& operator<<(::std::ostream& os, const CString& str) {
 	CStringA tmp(str, str.GetLength());
@@ -40,5 +41,12 @@ inline ::testing::AssertionResult StrictlyCompareCString(const CString& lhs, con
 
 	return ::testing::AssertionSuccess();
 }
+
+template <typename To, typename From>
+static const To* DynamicCast(const shared_ptr<From>& ptr)
+{
+	return dynamic_cast<const To*>(ptr.get());
+}
+
 
 #endif

@@ -1,7 +1,6 @@
 // TortoiseGit - a Windows shell extension for easy version control
 
-// Copyright (C) 2011 - TortoiseGit
-// Copyright (C) 2007 - TortoiseSVN
+// Copyright (C) 2008-2012 - TortoiseGit
 
 // This program is free software; you can redistribute it and/or
 // modify it under the terms of the GNU General Public License
@@ -17,19 +16,33 @@
 // along with this program; if not, write to the Free Software Foundation,
 // 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 //
-#pragma once
-#include "Command.h"
 
-/**
- * \ingroup TortoiseProc
- * Shows the create repository dialog.
- */
-class CreateRepositoryCommand : public Command
-{
+#ifndef CREATE_REPOSITORY_COMMAND_H
+#define CREATE_REPOSITORY_COMMAND_H
+
+#include "ProcCommand.h"
+
+class CreateRepositoryCommand : public ProcCommand {
 public:
-	/**
-	 * Executes the command.
-	 */
-	virtual bool			Execute();
+
+	virtual ~CreateRepositoryCommand();
+	static CString GetName();
+
+	virtual bool Execute(const CommandLineArguments& args);
+
+
+private:
+
+	bool DoExecute(const CString& dir);
+	virtual bool DoCreateRepository(const CString& dir, bool bBare, CString& output);
+
+	virtual bool PathIsDirectoryEmpty(const CString& path) const;
+	virtual bool IsCreateRepository(const CString& dir, bool& bBare) const;
+	virtual bool IsForceCreateRepository(const CString& dir) const;
+
+	virtual void ShowSucceededMessage(const CString& output) const;
+	virtual void ShowErrorMessage(const CString& output) const;
+
 };
 
+#endif

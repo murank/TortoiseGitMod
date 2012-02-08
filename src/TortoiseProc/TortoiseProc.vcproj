@@ -1089,6 +1089,30 @@
 				RelativePath=".\Commands\Command.h"
 				>
 			</File>
+			<File
+				RelativePath=".\FakeCommand.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\FakeCommand.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcCommand.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcCommand.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcCommandFactory.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcCommandFactory.h"
+				>
+			</File>
 			<Filter
 				Name="Commit"
 				>

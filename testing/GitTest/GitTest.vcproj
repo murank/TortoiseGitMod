@@ -236,6 +236,14 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\Git\CommandLineArguments.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandLineParser.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\CommandResultACP.cpp"
 					>
 				</File>
@@ -327,6 +335,50 @@
 			<Filter
 				Name="test"
 				>
+				<File
+					RelativePath=".\CommandLineArgumentsTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\CommandLineParserTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
 				<File
 					RelativePath=".\CommandResultUTF8Test.cpp"
 					>
@@ -607,6 +659,14 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\CancelableIo.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandLineArguments.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\CommandLineParser.h"
 					>
 				</File>
 				<File

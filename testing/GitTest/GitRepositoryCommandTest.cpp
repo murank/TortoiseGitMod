@@ -30,6 +30,7 @@ public:
 		: GitRepositoryCommand(root, encoding)
 	{}
 	MOCK_CONST_METHOD1(GetStatusStrings, std::vector<CString>(const CString& path));
+	MOCK_CONST_METHOD2(Run, int(const CString& command, CString& out));
 	MOCK_CONST_METHOD2(Run, int(const CString& command, std::vector<CString>& out));
 	MOCK_CONST_METHOD1(IsEmptyDir, bool(const CString& path));
 
@@ -51,11 +52,11 @@ TEST(GitRepositoryCommandTest, GetStatusStrings)
 	ret.push_back(CString("aaa"));
 	ret.push_back(CString("bbb"));
 
-	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"\"")), _))
+	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"\"")), An<std::vector<CString>&>()))
 		.WillOnce(DoAll(SetArgReferee<1>(ret), Return(0)));
-	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"some dir/some file\"")), _))
+	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"some dir/some file\"")), An<std::vector<CString>&>()))
 		.WillOnce(DoAll(SetArgReferee<1>(ret), Return(0)));
-	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"with failure\"")), _))
+	EXPECT_CALL(rep, Run(CString(_T("git.exe status --porcelain --ignored -z \"with failure\"")), An<std::vector<CString>&>()))
 		.WillOnce(Return(1));
 
 	EXPECT_EQ(ret, rep.ParentGetStatusStrings(CString("C:\\somedir")));
@@ -147,4 +148,52 @@ TEST(GitRepositoryTest, GetStatusFromResults)
 	GetStatusFromResultsTestHelper(_T(" M"), _T("R "), git_status_type_modified, __LINE__);
 	// unmerged > modified
 	GetStatusFromResultsTestHelper(_T("UU"), _T(" M"), git_status_type_unmerged, __LINE__);
+}
+
+TEST(GitRepositoryCommandTest, InitRepository)
+{
+	MockGitRepositoryCommand rep(CString("C:\\somedir"), CP_ACP);
+
+	EXPECT_CALL(rep, Run(CString("git.exe init"), An<CString&>()))
+		.WillOnce(Return(0));
+
+	CString dummy;
+	bool bBare = false;
+	EXPECT_TRUE(rep.InitRepository(bBare, dummy));
+}
+
+TEST(GitRepositoryCommandTest, InitRepositoryWithFailure)
+{
+	MockGitRepositoryCommand rep(CString("C:\\somedir"), CP_ACP);
+
+	EXPECT_CALL(rep, Run(CString("git.exe init"), An<CString&>()))
+		.WillOnce(Return(1));
+
+	CString dummy;
+	bool bBare = false;
+	EXPECT_FALSE(rep.InitRepository(bBare, dummy));
+}
+
+TEST(GitRepositoryCommandTest, InitBareRepository)
+{
+	MockGitRepositoryCommand rep(CString("C:\\somedir"), CP_ACP);
+
+	EXPECT_CALL(rep, Run(CString("git.exe init --bare"), An<CString&>()))
+		.WillOnce(Return(0));
+
+	CString dummy;
+	bool bBare = true;
+	EXPECT_TRUE(rep.InitRepository(bBare, dummy));
+}
+
+TEST(GitRepositoryCommandTest, InitBareRepositoryWithFailure)
+{
+	MockGitRepositoryCommand rep(CString("C:\\somedir"), CP_ACP);
+
+	EXPECT_CALL(rep, Run(CString("git.exe init --bare"), An<CString&>()))
+		.WillOnce(Return(1));
+
+	CString dummy;
+	bool bBare = true;
+	EXPECT_FALSE(rep.InitRepository(bBare, dummy));
 }
