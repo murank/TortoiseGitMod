@@ -507,6 +507,14 @@
 					RelativePath="..\Utils\MiscUI\StandAloneDlg.h"
 					>
 				</File>
+				<File
+					RelativePath=".\TaskbarList.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TaskbarList.h"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
