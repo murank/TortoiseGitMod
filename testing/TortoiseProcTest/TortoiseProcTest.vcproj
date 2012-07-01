@@ -269,10 +269,36 @@
 						/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath=".\ProgressListCtrlTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
 			</Filter>
 			<Filter
 				Name="src"
 				>
+				<File
+					RelativePath="..\..\src\TortoiseProc\AbstractListCtrl.cpp"
+					>
+				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\CreateRepoDlg.cpp"
 					>
@@ -286,11 +312,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TortoiseProc\OwnerDataListCtrl.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommand.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProgressListCtrl.cpp"
 					>
 				</File>
 				<File
@@ -328,6 +362,10 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\TortoiseProc\AbstractListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\CreateRepoDlg.h"
 					>
 				</File>
@@ -340,11 +378,19 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TortoiseProc\OwnerDataListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommand.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProgressListCtrl.h"
 					>
 				</File>
 			</Filter>
