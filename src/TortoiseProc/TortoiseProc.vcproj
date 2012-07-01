@@ -508,6 +508,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\ProgressListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ProgressListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\Utils\MiscUI\SciEdit.cpp"
 					>
 				</File>
