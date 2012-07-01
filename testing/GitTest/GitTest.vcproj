@@ -578,6 +578,28 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\SharedResourceTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\UtilitiesTest.cpp"
 					>
 					<FileConfiguration
@@ -723,6 +745,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\SharedHandle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedResource.h"
 					>
 				</File>
 				<File
