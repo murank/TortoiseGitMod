@@ -74,7 +74,7 @@ BOOL CHistoryDlg::OnInitDialog()
 		sEntry.Replace('\n', ' ');
 		m_List.AddString(sEntry);
 		itemExtent = pDC->GetTextExtent(sEntry);
-		horizExtent = max(horizExtent, itemExtent.cx+5);
+		horizExtent = std::max(horizExtent, (int)itemExtent.cx+5);
 	}
 	m_List.SetHorizontalExtent(horizExtent);
 	ReleaseDC(pDC); 
@@ -107,7 +107,7 @@ BOOL CHistoryDlg::PreTranslateMessage(MSG* pMsg)
 		if (pos != LB_ERR)
 		{
 			m_List.DeleteString(pos);
-			m_List.SetCurSel(min(pos, m_List.GetCount() - 1));
+			m_List.SetCurSel(std::min(pos, m_List.GetCount() - 1));
 			m_history->RemoveEntry(pos);
 			m_history->Save();
 			return TRUE;
