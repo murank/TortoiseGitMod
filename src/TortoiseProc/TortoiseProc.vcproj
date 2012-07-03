@@ -480,6 +480,14 @@
 				Name="UI"
 				>
 				<File
+					RelativePath=".\AbstractListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AbstractListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Colors.cpp"
 					>
 				</File>
