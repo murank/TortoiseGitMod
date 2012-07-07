@@ -500,6 +500,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\OwnerDataListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OwnerDataListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\Utils\MiscUI\SciEdit.cpp"
 					>
 				</File>
