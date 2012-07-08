@@ -114,7 +114,7 @@ protected:
 		EXPECT_CALL(ctrl, AdjustColumnWidth(2))
 			.Times(1);
 
-		ctrl.InitCtrl();
+		ctrl.Initialize();
 
 		SetUpItem(_T("item 0"), RGB(0, 0, 255));
 		SetUpItem(_T("item 1"), RGB(0, 255, 0));
