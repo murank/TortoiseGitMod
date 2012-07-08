@@ -433,6 +433,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcUtils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProjectProperties.cpp"
 				>
 			</File>
