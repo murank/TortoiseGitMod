@@ -2274,6 +2274,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ListProgressDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ListProgressDlg.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProgressDlg.cpp"
 				>
 			</File>
