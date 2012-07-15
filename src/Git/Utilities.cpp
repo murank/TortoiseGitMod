@@ -120,3 +120,10 @@ std::string GetLastErrorString()
 
 	return ret;
 }
+
+CString Id2Str(int nID)
+{
+	CString ret;
+	ret.LoadString(nID);
+	return ret;
+}

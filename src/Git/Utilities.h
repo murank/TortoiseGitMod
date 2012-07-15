@@ -27,4 +27,6 @@ bool IsInGitRepository(const CString& path);
 
 std::string GetLastErrorString();
 
+CString Id2Str(int nID);
+
 #endif
