@@ -31,4 +31,6 @@ CString Id2Str(int nID);
 
 CString GetCurrentDir();
 
+bool LaunchCommand(CString command, bool bWait = false);
+
 #endif

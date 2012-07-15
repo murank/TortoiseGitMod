@@ -148,3 +148,23 @@ CString GetCurrentDir()
 {
 	return GetPathString(std::ptr_fun(GetCurrentDirectory));
 }
+
+bool LaunchCommand(CString command, bool bWait /* = false */)
+{
+	STARTUPINFO startup = {};
+	startup.cb = sizeof(startup);
+
+	PROCESS_INFORMATION process = {};
+
+	if(CreateProcess(NULL, command.GetBuffer(), NULL, NULL, FALSE, 0, 0, NULL, &startup, &process)==FALSE) {
+		return false;
+	}
+
+	CloseHandle(process.hThread);
+
+	if(bWait) {
+		WaitForSingleObject(process.hProcess, INFINITE);
+	}
+	CloseHandle(process.hProcess);
+	return true;
+}
