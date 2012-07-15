@@ -127,3 +127,24 @@ CString Id2Str(int nID)
 	ret.LoadString(nID);
 	return ret;
 }
+
+template <typename F>
+static CString GetPathString(F func)
+{
+	std::vector<TCHAR> buf(MAX_PATH);
+
+	size_t len = 0;
+	while((len=func(static_cast<DWORD>(buf.size()), &(buf[0]))) >= buf.size()) {
+		buf.resize(len);
+	}
+	if(len==0) {
+		return CString();
+	}
+
+	return CString(&(buf[0]));
+}
+
+CString GetCurrentDir()
+{
+	return GetPathString(std::ptr_fun(GetCurrentDirectory));
+}

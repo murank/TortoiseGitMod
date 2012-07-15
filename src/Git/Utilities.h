@@ -29,4 +29,6 @@ std::string GetLastErrorString();
 
 CString Id2Str(int nID);
 
+CString GetCurrentDir();
+
 #endif
