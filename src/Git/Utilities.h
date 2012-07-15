@@ -36,5 +36,6 @@ CString GetAppPath();
 CString GetAppDirectory();
 
 bool LaunchCommand(CString command, bool bWait = false);
+bool LaunchProcCommand(const CString& cmdLine);
 
 #endif

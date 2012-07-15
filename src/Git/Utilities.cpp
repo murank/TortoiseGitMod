@@ -203,3 +203,11 @@ bool LaunchCommand(CString command, bool bWait /* = false */)
 	CloseHandle(process.hProcess);
 	return true;
 }
+
+bool LaunchProcCommand(const CString& cmdLine)
+{
+	CString cmd;
+	cmd.Format(_T("\"%s\\TortoiseProc.exe\" %s"), GetAppDirectory(), cmdLine);
+
+	return LaunchCommand(cmd);
+}
