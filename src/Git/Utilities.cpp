@@ -128,6 +128,22 @@ CString Id2Str(int nID)
 	return ret;
 }
 
+static int GetSlashPosition(const CString& path)
+{
+	return std::max(path.ReverseFind(_T('\\')), path.ReverseFind(_T('/')));
+}
+
+CString GetDirectory(const CString& path)
+{
+	int slashPos = GetSlashPosition(path);
+	if (slashPos < 0) {
+		// no delims('\\' or '/') found
+		return CString();
+	}
+
+	return path.Mid(0, slashPos);
+}
+
 template <typename F>
 static CString GetPathString(F func)
 {
@@ -147,6 +163,25 @@ static CString GetPathString(F func)
 CString GetCurrentDir()
 {
 	return GetPathString(std::ptr_fun(GetCurrentDirectory));
+}
+
+CString GetAppPath()
+{
+	std::vector<TCHAR> buf(MAX_PATH/2);
+
+	DWORD len = 0;
+    do {
+		buf.resize(buf.size()*2);
+        len = GetModuleFileName(NULL, &(buf[0]), static_cast<DWORD>(buf.size()));
+    } while(len == buf.size());
+
+    return CString(&(buf[0]), len);
+}
+
+CString GetAppDirectory()
+{
+	CString appPath = GetAppPath();
+	return GetDirectory(appPath);
 }
 
 bool LaunchCommand(CString command, bool bWait /* = false */)
