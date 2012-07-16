@@ -83,7 +83,7 @@ private:
 		return true;
 	}
 
-	virtual void OnCancel() {
+	virtual void OnCancelRequired() {
 		Notify();
 	}
 

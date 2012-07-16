@@ -32,7 +32,7 @@ public:
 
 	virtual void Run();
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 protected:
 

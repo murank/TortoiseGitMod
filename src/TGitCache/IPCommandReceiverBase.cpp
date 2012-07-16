@@ -58,7 +58,7 @@ void IPCommandReceiverBase::Run()
 	}
 }
 
-void IPCommandReceiverBase::OnCancel()
+void IPCommandReceiverBase::OnCancelRequired()
 {
 	m_io->CancelAsync();
 }

@@ -46,7 +46,7 @@ bool Cancelable::CancelAsync()
 		return false;
 	}
 
-	OnCancel();
+	OnCancelRequired();
 	return true;
 }
 
@@ -55,6 +55,6 @@ bool Cancelable::IsCancelPending() const
 	return (InterlockedCompareExchange(const_cast<volatile long*>(&m_isCancelPending), NOT_CANCELED, NOT_CANCELED)!=NOT_CANCELED);
 }
 
-void Cancelable::OnCancel()
+void Cancelable::OnCancelRequired()
 {
 }

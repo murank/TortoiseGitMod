@@ -38,7 +38,7 @@ public:
 
 	void RegisterTask(const shared_ptr<Task>& task);
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 	virtual void OnFinishTask(WorkerThread* worker);
 
 	size_t GetMaxWorkers() const;
