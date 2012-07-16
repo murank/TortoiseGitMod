@@ -186,49 +186,75 @@ TEST(WorkerManager, Cancellation)
 	mwm.CancelAsync();
 }
 
+namespace {
+
+class MockWorkerThread2 : public MockWorkerThread {
+public:
+
+	virtual ~MockWorkerThread2()
+	{
+		OnDestroy();
+	}
+
+	MOCK_METHOD0(OnDestroy, void());
+};
+
+} // namespace
+
 TEST(WorkerManager, OnFinishTask)
 {
 	MockWorkerManager mwm;
-	shared_ptr<MockWorkerThread> mwt1(new MockWorkerThread);
-	shared_ptr<MockWorkerThread> mwt2(new MockWorkerThread);
-	shared_ptr<MockWorkerThread> mwt3(new MockWorkerThread);
+	MockWorkerThread2* mwt1 = new MockWorkerThread2;
+	MockWorkerThread2* mwt2 = new MockWorkerThread2;
+	MockWorkerThread2* mwt3 = new MockWorkerThread2;
 
-	mwm.RegisterActiveWorker(mwt1);
-	mwm.RegisterActiveWorker(mwt2);
-	mwm.RegisterActiveWorker(mwt3);
+	mwm.RegisterActiveWorker(shared_ptr<MockWorkerThread2>(mwt1));
+	mwm.RegisterActiveWorker(shared_ptr<MockWorkerThread2>(mwt2));
+	mwm.RegisterActiveWorker(shared_ptr<MockWorkerThread2>(mwt3));
+
+	MockFunction<void(const TCHAR* check_point_name)> check;
+
+	Expectation check1 = EXPECT_CALL(check, Call(_T("1")));
+	EXPECT_CALL(*mwt1, OnDestroy())
+		.Times(1)
+		.After(check1);
+
+	Expectation check2 = EXPECT_CALL(check, Call(_T("2")));
+	EXPECT_CALL(*mwt2, OnDestroy())
+		.Times(1)
+		.After(check2);
+
+	Expectation check3 = EXPECT_CALL(check, Call(_T("3")));
+	EXPECT_CALL(*mwt3, OnDestroy())
+		.Times(1)
+		.After(check3);
 
 	std::pair<size_t, size_t> num = mwm.GetNumWorkers();
 	EXPECT_EQ(3, num.first);
 	EXPECT_EQ(0, num.second);
-	EXPECT_EQ(2, mwt1.use_count());
-	EXPECT_EQ(2, mwt2.use_count());
-	EXPECT_EQ(2, mwt3.use_count());
 
 	mwm.Initialize(1);
 
-	mwm.OnFinishTask(mwt2.get());
+	mwm.OnFinishTask(mwt2);
 	num = mwm.GetNumWorkers();
 	EXPECT_EQ(2, num.first);
 	EXPECT_EQ(0, num.second);
-	EXPECT_EQ(2, mwt1.use_count());
-	EXPECT_EQ(1, mwt2.use_count());
-	EXPECT_EQ(2, mwt3.use_count());
 
-	mwm.OnFinishTask(mwt1.get());
+	check.Call(_T("2"));
+
+	mwm.OnFinishTask(mwt1);
 	num = mwm.GetNumWorkers();
 	EXPECT_EQ(1, num.first);
 	EXPECT_EQ(0, num.second);
-	EXPECT_EQ(1, mwt1.use_count());
-	EXPECT_EQ(1, mwt2.use_count());
-	EXPECT_EQ(2, mwt3.use_count());
 
-	mwm.OnFinishTask(mwt3.get());
+	check.Call(_T("1"));
+
+	mwm.OnFinishTask(mwt3);
 	num = mwm.GetNumWorkers();
 	EXPECT_EQ(0, num.first);
 	EXPECT_EQ(1, num.second);
-	EXPECT_EQ(1, mwt1.use_count());
-	EXPECT_EQ(1, mwt2.use_count());
-	EXPECT_EQ(2, mwt3.use_count());
+
+	check.Call(_T("3"));
 
 	EXPECT_CALL(*mwt3, OnCancel())
 		.Times(1);
