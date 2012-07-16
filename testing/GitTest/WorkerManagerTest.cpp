@@ -42,7 +42,7 @@ public:
 	MockWorkerThread() : WorkerThread(NULL) {}
 	
 	MOCK_METHOD1(AssignTask, bool(const shared_ptr<Task>& task));
-	MOCK_METHOD0(OnCancel, void());
+	MOCK_METHOD0(OnCancelRequired, void());
 };
 
 } // namespace
@@ -84,7 +84,7 @@ TEST(WorkerManager, RegisterTask)
 	EXPECT_EQ(1, num.first);
 	EXPECT_EQ(0, num.second);
 
-	EXPECT_CALL(*mwt, OnCancel())
+	EXPECT_CALL(*mwt, OnCancelRequired())
 		.Times(1);
 }
 
@@ -111,7 +111,7 @@ TEST(WorkerManager, RegisterTaskToInactiveWorker)
 	EXPECT_EQ(1, num.first);
 	EXPECT_EQ(0, num.second);
 
-	EXPECT_CALL(*mwt, OnCancel())
+	EXPECT_CALL(*mwt, OnCancelRequired())
 		.Times(1);
 }
 
@@ -134,7 +134,7 @@ TEST(WorkerManager, RegisterTaskWithAssignTaskFailure)
 	EXPECT_EQ(1, num.first);
 	EXPECT_EQ(0, num.second);
 
-	EXPECT_CALL(*mwt, OnCancel())
+	EXPECT_CALL(*mwt, OnCancelRequired())
 		.Times(1);
 }
 
@@ -175,9 +175,9 @@ TEST(WorkerManager, Cancellation)
 	shared_ptr<MockWorkerThread> mwt1(new MockWorkerThread);
 	shared_ptr<MockWorkerThread> mwt2(new MockWorkerThread);
 
-	EXPECT_CALL(*mwt1, OnCancel())
+	EXPECT_CALL(*mwt1, OnCancelRequired())
 		.Times(1);
-	EXPECT_CALL(*mwt2, OnCancel())
+	EXPECT_CALL(*mwt2, OnCancelRequired())
 		.Times(1);
 
 	mwm.RegisterActiveWorker(mwt1);
@@ -256,6 +256,6 @@ TEST(WorkerManager, OnFinishTask)
 
 	check.Call(_T("3"));
 
-	EXPECT_CALL(*mwt3, OnCancel())
+	EXPECT_CALL(*mwt3, OnCancelRequired())
 		.Times(1);
 }
