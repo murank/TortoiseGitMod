@@ -93,3 +93,33 @@ TEST(AtomicBoolTest, Release)
 		EXPECT_FALSE(a);
 	}
 }
+
+TEST(AtomicBoolLockerTest, Constructor)
+{
+	Atomic<bool> a(false);
+	{
+		AtomicBoolLocker lock(a);
+		EXPECT_TRUE(a);
+	}
+	EXPECT_FALSE(a);
+}
+
+TEST(AtomicBoolLockerTest, ConstructorAlreadyLocked)
+{
+	Atomic<bool> a(true);
+	{
+		AtomicBoolLocker lock(a);
+		EXPECT_TRUE(a);
+	}
+	EXPECT_TRUE(a);
+}
+
+TEST(AtomicBoolLockerTest, ForceRelease)
+{
+	Atomic<bool> a(true);
+	{
+		AtomicBoolLocker lock(a, true);
+		EXPECT_TRUE(a);
+	}
+	EXPECT_FALSE(a);
+}
