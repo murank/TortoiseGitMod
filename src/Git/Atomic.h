@@ -98,4 +98,37 @@ private:
 	volatile long m_value;
 };
 
+class AtomicBoolLocker {
+public:
+
+	explicit AtomicBoolLocker(Atomic<bool>& a, bool forceRelease = false)
+		: m_atomic(a), m_locked(false), m_forceRelease(forceRelease)
+	{
+		Acquire();
+	}
+	~AtomicBoolLocker()
+	{
+		Release();
+	}
+
+private:
+	void Acquire()
+	{
+		m_locked = m_atomic.Acquire();
+	}
+	void Release()
+	{
+		if(!m_locked && !m_forceRelease) {
+			return;
+		}
+
+		m_atomic.Release();
+		m_locked = false;
+	}
+
+	Atomic<bool>& m_atomic;
+	bool m_locked;
+	bool m_forceRelease;
+};
+
 #endif
