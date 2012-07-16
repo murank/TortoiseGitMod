@@ -27,4 +27,15 @@ bool IsInGitRepository(const CString& path);
 
 std::string GetLastErrorString();
 
+CString Id2Str(int nID);
+
+CString GetDirectory(const CString& path);
+
+CString GetCurrentDir();
+CString GetAppPath();
+CString GetAppDirectory();
+
+bool LaunchCommand(CString command, bool bWait = false);
+bool LaunchProcCommand(const CString& cmdLine);
+
 #endif

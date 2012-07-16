@@ -38,10 +38,10 @@ template <typename BaseType> class CStandAloneDialogTmpl : public BaseType
 protected:
 	CStandAloneDialogTmpl(UINT nIDTemplate, CWnd* pParentWnd = NULL) : BaseType(nIDTemplate, pParentWnd)
 	{
-		m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 	}
 	virtual BOOL OnInitDialog()
 	{
+		m_hIcon = AfxGetApp()->LoadIcon(IDR_MAINFRAME);
 		BaseType::OnInitDialog();
 
 		// Set the icon for this dialog.  The framework does this automatically

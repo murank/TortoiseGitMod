@@ -38,3 +38,6 @@
 #define XMESSAGEBOX_APPREGPATH "Software\\TortoiseGit\\"
 
 #include <PropKey.h>
+
+#undef min
+#undef max

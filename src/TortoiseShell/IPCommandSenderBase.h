@@ -30,7 +30,7 @@ public:
 
 	virtual ~IPCommandSenderBase();
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 	virtual int GetCommandId() const = 0;
 

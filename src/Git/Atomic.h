@@ -51,4 +51,84 @@ private:
 	T m_value;
 };
 
+template <>
+class Atomic<bool> {
+private:
+	enum {
+		FALSE_VALUE = 0,
+		TRUE_VALUE = 1
+	};
+
+public:
+
+	Atomic()
+		: m_value()
+	{}
+	explicit Atomic(bool value)
+		: m_value(value ? TRUE_VALUE : FALSE_VALUE)
+	{}
+	~Atomic()
+	{}
+
+	Atomic& operator=(bool rhs)
+	{
+		InterlockedExchange(&m_value, rhs ? TRUE_VALUE : FALSE_VALUE);
+		return *this;
+	}
+	operator bool() const
+	{
+		return m_value!=FALSE_VALUE;
+	}
+	bool Acquire()
+	{
+		return SetValue(FALSE_VALUE, TRUE_VALUE);
+	}
+	bool Release()
+	{
+		return SetValue(TRUE_VALUE, FALSE_VALUE);
+	}
+
+private:
+
+	bool SetValue(long oldValue, long newValue)
+	{
+		return InterlockedCompareExchange(&m_value, newValue, oldValue)==oldValue;
+	}
+
+	volatile long m_value;
+};
+
+class AtomicBoolLocker {
+public:
+
+	explicit AtomicBoolLocker(Atomic<bool>& a, bool forceRelease = false)
+		: m_atomic(a), m_locked(false), m_forceRelease(forceRelease)
+	{
+		Acquire();
+	}
+	~AtomicBoolLocker()
+	{
+		Release();
+	}
+
+private:
+	void Acquire()
+	{
+		m_locked = m_atomic.Acquire();
+	}
+	void Release()
+	{
+		if(!m_locked && !m_forceRelease) {
+			return;
+		}
+
+		m_atomic.Release();
+		m_locked = false;
+	}
+
+	Atomic<bool>& m_atomic;
+	bool m_locked;
+	bool m_forceRelease;
+};
+
 #endif

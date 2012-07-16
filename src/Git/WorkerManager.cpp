@@ -78,7 +78,7 @@ static void CancelWorkers(workers_type& workers)
 	}
 }
 
-void WorkerManager::OnCancel()
+void WorkerManager::OnCancelRequired()
 {
 	AutoLocker lock(m_critSec);
 
