@@ -37,7 +37,7 @@ shared_ptr<WorkerManager> GetGlobalWorkerManager()
 }
 
 WorkerManager::WorkerManager()
-	: m_critSec(), m_maxWorkers(0), m_activeWorkers(), m_inactiveWorkers()
+	: m_critSec(), m_maxWorkers(0), m_activeWorkers(), m_inactiveWorkers(), m_workerGrave()
 {
 }
 
@@ -125,6 +125,7 @@ void WorkerManager::OnFinishTask(WorkerThread* worker)
 		RegisterInactiveWorker(*it);
 	}
 
+	m_workerGrave = *it;
 	m_activeWorkers.erase(it);
 }
 

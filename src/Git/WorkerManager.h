@@ -63,10 +63,14 @@ private:
 
 	size_t m_maxWorkers;
 
-	typedef std::list<shared_ptr<WorkerThread> > workers_type;
+	typedef shared_ptr<WorkerThread> WorkerPtr;
+	typedef std::list<WorkerPtr> workers_type;
 	workers_type m_activeWorkers;
 	workers_type m_inactiveWorkers;
 
+	// to avoid dead-lock which occurs when calling a worker's destructor in the worker's main loop (via OnFinishTask()),
+	// temporarily keep a worker that is to be removed
+	WorkerPtr m_workerGrave;
 };
 
 void SetGlobalWorkerManager(const shared_ptr<WorkerManager>& manager);
