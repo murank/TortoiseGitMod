@@ -20,3 +20,76 @@
 #include "StdAfxTest.h"
 
 #include "Atomic.h"
+
+TEST(AtomicBoolTest, DefaultConstructor)
+{
+	Atomic<bool> a;
+
+	EXPECT_FALSE(a);
+}
+
+TEST(AtomicBoolTest, Constructor)
+{
+	{
+		Atomic<bool> a(true);
+		EXPECT_TRUE(a);
+	}
+	{
+		Atomic<bool> a(false);
+		EXPECT_FALSE(a);
+	}
+}
+
+TEST(AtomicBoolTest, AssignBoolean)
+{
+	{
+		Atomic<bool> a(true);
+		EXPECT_TRUE(a);
+
+		a = false;
+		EXPECT_FALSE(a);
+	}
+	{
+		Atomic<bool> a(false);
+		EXPECT_FALSE(a);
+
+		a = true;
+		EXPECT_TRUE(a);
+	}
+}
+
+TEST(AtomicBoolTest, Acquire)
+{
+	{
+		Atomic<bool> a(true);
+		EXPECT_TRUE(a);
+
+		EXPECT_FALSE(a.Acquire());
+		EXPECT_TRUE(a);
+	}
+	{
+		Atomic<bool> a(false);
+		EXPECT_FALSE(a);
+
+		EXPECT_TRUE(a.Acquire());
+		EXPECT_TRUE(a);
+	}
+}
+
+TEST(AtomicBoolTest, Release)
+{
+	{
+		Atomic<bool> a(true);
+		EXPECT_TRUE(a);
+
+		EXPECT_TRUE(a.Release());
+		EXPECT_FALSE(a);
+	}
+	{
+		Atomic<bool> a(false);
+		EXPECT_FALSE(a);
+
+		EXPECT_FALSE(a.Release());
+		EXPECT_FALSE(a);
+	}
+}
