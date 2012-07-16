@@ -37,7 +37,7 @@ shared_ptr<WorkerManager> GetGlobalWorkerManager()
 }
 
 WorkerManager::WorkerManager()
-	: m_critSec(), m_maxWorkers(0), m_activeWorkers(), m_inactiveWorkers()
+	: m_critSec(), m_maxWorkers(0), m_activeWorkers(), m_inactiveWorkers(), m_workerGrave()
 {
 }
 
@@ -119,12 +119,13 @@ void WorkerManager::OnFinishTask(WorkerThread* worker)
 	assert(CountWorker(m_activeWorkers, worker) == 1 && "activeWorkers must contain the worker");
 
 
-	workers_type::iterator it = FindWorker(m_activeWorkers, worker);
+	WorkerList::iterator it = FindWorker(m_activeWorkers, worker);
 
 	if(!ExceedsMaxWorkers()) {
 		RegisterInactiveWorker(*it);
 	}
 
+	m_workerGrave = *it;
 	m_activeWorkers.erase(it);
 }
 
