@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmockd.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git_mfc.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Utils.lib"
+				AdditionalDependencies="gmockd.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git_mfc.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Utils.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/ResizableLib.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
@@ -138,7 +138,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="gmock.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git_mfc.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Utils.lib"
+				AdditionalDependencies="gmock.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Git_mfc.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/Utils.lib $(SolutionDir)../bin/$(ConfigurationName)/bin/ResizableLib.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="$(SolutionDir)lib"
 				GenerateDebugInformation="true"
@@ -248,7 +248,51 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\ListProgressDlgTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\ProcCommandFactoryTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
+					RelativePath=".\ProgressListCtrlTest.cpp"
 					>
 					<FileConfiguration
 						Name="Debug|Win32"
@@ -274,6 +318,10 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\TortoiseProc\AbstractListCtrl.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\CreateRepoDlg.cpp"
 					>
 				</File>
@@ -286,11 +334,31 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TortoiseProc\ListProgressDlg.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\OwnerDataListCtrl.cpp"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommand.cpp"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcUtils.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProgressListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Utils\MiscUI\StandAloneDlg.cpp"
 					>
 				</File>
 				<File
@@ -313,6 +381,10 @@
 						/>
 					</FileConfiguration>
 				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\TaskbarList.cpp"
+					>
+				</File>
 			</Filter>
 		</Filter>
 		<Filter
@@ -328,6 +400,10 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\TortoiseProc\AbstractListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\CreateRepoDlg.h"
 					>
 				</File>
@@ -340,11 +416,35 @@
 					>
 				</File>
 				<File
+					RelativePath="..\..\src\TortoiseProc\ListProgressDlg.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\OwnerDataListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommand.h"
 					>
 				</File>
 				<File
 					RelativePath="..\..\src\TortoiseProc\ProcCommandFactory.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProcUtils.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\ProgressListCtrl.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Utils\MiscUI\StandAloneDlg.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\TortoiseProc\TaskbarList.h"
 					>
 				</File>
 			</Filter>

@@ -122,7 +122,7 @@ bool CancelableIo::WaitUntilIoComplete(HANDLE hFile)
 	}
 }
 
-void CancelableIo::OnCancel()
+void CancelableIo::OnCancelRequired()
 {
 	SetEvent(m_hCancelEvent.get());
 }

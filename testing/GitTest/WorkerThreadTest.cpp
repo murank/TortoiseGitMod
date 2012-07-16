@@ -42,7 +42,7 @@ class MockTask : public Task {
 public:
 
 	MOCK_METHOD0(Run, void());
-	MOCK_METHOD0(OnCancel, void());
+	MOCK_METHOD0(OnCancelRequired, void());
 
 };
 
@@ -69,7 +69,7 @@ TEST(WorkerThread, AssignTask)
 	EXPECT_FALSE(mwt.AssignTask(mt));
 	EXPECT_TRUE(mwt.HasTask());
 
-	EXPECT_CALL(*mt, OnCancel())
+	EXPECT_CALL(*mt, OnCancelRequired())
 		.Times(1);
 }
 
@@ -179,7 +179,7 @@ TEST(WorkerThread, CancelAfterAssignTask)
 
 	EXPECT_CALL(mwt, DoNotify())
 		.Times(1);
-	EXPECT_CALL(*mt, OnCancel())
+	EXPECT_CALL(*mt, OnCancelRequired())
 		.Times(1);
 
 	EXPECT_TRUE(mwt.CancelAsync());

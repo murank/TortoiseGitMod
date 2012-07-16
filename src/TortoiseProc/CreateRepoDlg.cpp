@@ -21,6 +21,7 @@
 
 #include "CreateRepoDlg.h"
 
+#include "ProcUtils.h"
 #include "Resource.h"
 #include "SmartHandle.h"
 
@@ -50,25 +51,6 @@ static void MarkWindowAsUnpinnable(HWND hWnd)
 	var.boolVal = VARIANT_TRUE;
 	hr = pps->SetValue(PKEY_AppUserModel_PreventPinning, var);
 	pps->Release();
-}
-
-static CString GetAppName()
-{
-	return MAKEINTRESOURCE(IDS_APPNAME);
-}
-
-static CString GetTweakedWindowTitle(const CString& oldWindowTitle, const CString& dir)
-{
-	const int MAX_WINDOW_TITLE_LEN = 70;
-	assert(oldWindowTitle.GetLength() < MAX_WINDOW_TITLE_LEN);
-	assert(dir.GetLength() < MAX_PATH);
-
-	TCHAR pathbuf[MAX_PATH] = {0};
-	PathCompactPathEx(pathbuf, dir, MAX_WINDOW_TITLE_LEN - oldWindowTitle.GetLength(), 0);
-
-	CString newWindowTitle;
-	newWindowTitle.Format(_T("%s - %s - %s"), pathbuf, oldWindowTitle, GetAppName());
-	return newWindowTitle;
 }
 
 CreateRepoDlg::CreateRepoDlg(const CString& dir)
@@ -118,10 +100,5 @@ void CreateRepoDlg::DoDataExchange(CDataExchange* pDX)
 
 void CreateRepoDlg::TweakWindowTitle()
 {
-	CString windowTitle;
-	GetWindowText(windowTitle);
-
-	CString newWindowTitle = GetTweakedWindowTitle(windowTitle, m_dir);
-
-	SetWindowText(newWindowTitle);
+	::TweakWindowTitle(*this, m_dir);
 }

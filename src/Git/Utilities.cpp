@@ -120,3 +120,94 @@ std::string GetLastErrorString()
 
 	return ret;
 }
+
+CString Id2Str(int nID)
+{
+	CString ret;
+	ret.LoadString(nID);
+	return ret;
+}
+
+static int GetSlashPosition(const CString& path)
+{
+	return std::max(path.ReverseFind(_T('\\')), path.ReverseFind(_T('/')));
+}
+
+CString GetDirectory(const CString& path)
+{
+	int slashPos = GetSlashPosition(path);
+	if (slashPos < 0) {
+		// no delims('\\' or '/') found
+		return CString();
+	}
+
+	return path.Mid(0, slashPos);
+}
+
+template <typename F>
+static CString GetPathString(F func)
+{
+	std::vector<TCHAR> buf(MAX_PATH);
+
+	size_t len = 0;
+	while((len=func(static_cast<DWORD>(buf.size()), &(buf[0]))) >= buf.size()) {
+		buf.resize(len);
+	}
+	if(len==0) {
+		return CString();
+	}
+
+	return CString(&(buf[0]));
+}
+
+CString GetCurrentDir()
+{
+	return GetPathString(std::ptr_fun(GetCurrentDirectory));
+}
+
+CString GetAppPath()
+{
+	std::vector<TCHAR> buf(MAX_PATH/2);
+
+	DWORD len = 0;
+    do {
+		buf.resize(buf.size()*2);
+        len = GetModuleFileName(NULL, &(buf[0]), static_cast<DWORD>(buf.size()));
+    } while(len == buf.size());
+
+    return CString(&(buf[0]), len);
+}
+
+CString GetAppDirectory()
+{
+	CString appPath = GetAppPath();
+	return GetDirectory(appPath);
+}
+
+bool LaunchCommand(CString command, bool bWait /* = false */)
+{
+	STARTUPINFO startup = {};
+	startup.cb = sizeof(startup);
+
+	PROCESS_INFORMATION process = {};
+
+	if(CreateProcess(NULL, command.GetBuffer(), NULL, NULL, FALSE, 0, 0, NULL, &startup, &process)==FALSE) {
+		return false;
+	}
+
+	CloseHandle(process.hThread);
+
+	if(bWait) {
+		WaitForSingleObject(process.hProcess, INFINITE);
+	}
+	CloseHandle(process.hProcess);
+	return true;
+}
+
+bool LaunchProcCommand(const CString& cmdLine)
+{
+	CString cmd;
+	cmd.Format(_T("\"%s\\TortoiseProc.exe\" %s"), GetAppDirectory(), cmdLine);
+
+	return LaunchCommand(cmd);
+}

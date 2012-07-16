@@ -33,7 +33,7 @@ public:
 
 	MOCK_METHOD0(Connect, shared_ptr<InterprocessIo>());
 	MOCK_METHOD1(OnConnect, void(shared_ptr<InterprocessIo>& io));
-	MOCK_METHOD0(OnCancel, void());
+	MOCK_METHOD0(OnCancelRequired, void());
 
 	using InterprocessServer::DoRun;
 };
@@ -81,7 +81,7 @@ TEST(InterprocessServer, ConnectAfterCancel)
 	MockInterprocessServer mis;
 	shared_ptr<InterprocessIo> io(new InterprocessIo(shared_handle()));
 
-	EXPECT_CALL(mis, OnCancel())
+	EXPECT_CALL(mis, OnCancelRequired())
 		.Times(1);
 
 	mis.CancelAsync();

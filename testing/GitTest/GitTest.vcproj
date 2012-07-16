@@ -336,6 +336,28 @@
 				Name="test"
 				>
 				<File
+					RelativePath=".\AtomicTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\CommandLineArgumentsTest.cpp"
 					>
 					<FileConfiguration
@@ -578,6 +600,28 @@
 					</FileConfiguration>
 				</File>
 				<File
+					RelativePath=".\SharedResourceTest.cpp"
+					>
+					<FileConfiguration
+						Name="Debug|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+					<FileConfiguration
+						Name="Release|Win32"
+						>
+						<Tool
+							Name="VCCLCompilerTool"
+							PrecompiledHeaderThrough="StdAfxTest.h"
+							PrecompiledHeaderFile="$(IntDir)\$(TargetName)Test.pch"
+						/>
+					</FileConfiguration>
+				</File>
+				<File
 					RelativePath=".\UtilitiesTest.cpp"
 					>
 					<FileConfiguration
@@ -654,6 +698,10 @@
 				Name="src"
 				>
 				<File
+					RelativePath="..\..\src\Git\Atomic.h"
+					>
+				</File>
+				<File
 					RelativePath="..\..\src\Git\Cancelable.h"
 					>
 				</File>
@@ -723,6 +771,10 @@
 				</File>
 				<File
 					RelativePath="..\..\src\Git\SharedHandle.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\src\Git\SharedResource.h"
 					>
 				</File>
 				<File

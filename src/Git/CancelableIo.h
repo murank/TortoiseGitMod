@@ -37,7 +37,7 @@ private:
 
 	bool WaitUntilIoComplete(HANDLE hFile);
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 	shared_handle m_hFile;
 
