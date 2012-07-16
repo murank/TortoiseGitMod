@@ -119,7 +119,7 @@ void WorkerManager::OnFinishTask(WorkerThread* worker)
 	assert(CountWorker(m_activeWorkers, worker) == 1 && "activeWorkers must contain the worker");
 
 
-	workers_type::iterator it = FindWorker(m_activeWorkers, worker);
+	WorkerList::iterator it = FindWorker(m_activeWorkers, worker);
 
 	if(!ExceedsMaxWorkers()) {
 		RegisterInactiveWorker(*it);
