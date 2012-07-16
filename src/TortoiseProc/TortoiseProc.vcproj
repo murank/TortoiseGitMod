@@ -433,6 +433,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ProcUtils.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ProcUtils.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ProjectProperties.cpp"
 				>
 			</File>
@@ -480,6 +488,14 @@
 				Name="UI"
 				>
 				<File
+					RelativePath=".\AbstractListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\AbstractListCtrl.h"
+					>
+				</File>
+				<File
 					RelativePath=".\Colors.cpp"
 					>
 				</File>
@@ -489,6 +505,22 @@
 				</File>
 				<File
 					RelativePath="..\Utils\MiscUI\HorizontalResizableStandAloneDialog.h"
+					>
+				</File>
+				<File
+					RelativePath=".\OwnerDataListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\OwnerDataListCtrl.h"
+					>
+				</File>
+				<File
+					RelativePath=".\ProgressListCtrl.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\ProgressListCtrl.h"
 					>
 				</File>
 				<File
@@ -505,6 +537,14 @@
 				</File>
 				<File
 					RelativePath="..\Utils\MiscUI\StandAloneDlg.h"
+					>
+				</File>
+				<File
+					RelativePath=".\TaskbarList.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\TaskbarList.h"
 					>
 				</File>
 			</Filter>
@@ -2231,6 +2271,14 @@
 			</File>
 			<File
 				RelativePath=".\InputDlg.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ListProgressDlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ListProgressDlg.h"
 				>
 			</File>
 			<File

@@ -49,7 +49,7 @@ public:
 
 	void Write(const CString& str);
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 private:
 

@@ -43,7 +43,7 @@ void IPCommandSenderBase::DoCall()
 	}
 }
 
-void IPCommandSenderBase::OnCancel()
+void IPCommandSenderBase::OnCancelRequired()
 {
 	m_io->CancelAsync();
 }

@@ -133,7 +133,7 @@ void CStatGraphDlg::SetSkipper (bool reloadSkiper)
 	// the resolution limit of the screen will already not allow for displaying
 	// it in a reasonable way
 
-	int max_authors_count = max(1, (int)min(m_authorNames.size(), 250) );
+	int max_authors_count = std::max(1, std::min((int)m_authorNames.size(), 250) );
 	m_Skipper.SetRange (1, max_authors_count);
 	m_Skipper.SetPageSize(5);
 
@@ -1192,7 +1192,7 @@ void CStatGraphDlg::OnNeedText(NMHDR *pnmh, LRESULT * /*pResult*/)
 
 		// find the minimum number of commits that the shown authors have
 		int min_commits = 0;
-		included_authors_count = min(included_authors_count, m_authorNames.size());
+		included_authors_count = std::min(included_authors_count, m_authorNames.size());
 		std::list<tstring>::iterator author_it = m_authorNames.begin();
 		advance(author_it, included_authors_count);
 		if (author_it != m_authorNames.begin())

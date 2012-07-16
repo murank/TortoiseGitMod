@@ -63,7 +63,7 @@ void WorkerThread::Run()
 	}
 }
 
-void WorkerThread::OnCancel()
+void WorkerThread::OnCancelRequired()
 {
 	AutoLocker lock(m_critSec);
 

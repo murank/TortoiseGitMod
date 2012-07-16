@@ -102,7 +102,7 @@ BOOL InterprocessIo::WritePipe(const char* buf, DWORD bytesToWrite, LPDWORD byte
 	return m_io->WriteFile(buf, bytesToWrite, bytesWritten);
 }
 
-void InterprocessIo::OnCancel()
+void InterprocessIo::OnCancelRequired()
 {
 	m_io->CancelAsync();
 }

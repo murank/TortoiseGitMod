@@ -33,7 +33,7 @@ protected:
 
 private:
 
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 	volatile long m_isCancelPending;
 };

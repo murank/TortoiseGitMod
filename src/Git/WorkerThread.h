@@ -39,7 +39,7 @@ public:
 	virtual bool AssignTask(const shared_ptr<Task>& task);
 
 	virtual void Run();
-	virtual void OnCancel();
+	virtual void OnCancelRequired();
 
 	bool HasTask() const;
 
